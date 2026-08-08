@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from aurelia import db
+from aurelia import db, dashboard
 from aurelia.agent import Agent
 from aurelia.analysis.dictionary import build_context
 from aurelia.tools import TOOLS
@@ -55,3 +55,25 @@ def reload():
     """Call after a weekly publish."""
     db.load(force=True)
     return {"reloaded": True, **db.meta()}
+
+
+@app.get("/dashboard/catalog")
+def dashboard_catalog():
+    return dashboard.catalog()
+
+
+@app.get("/dashboard/snapshot")
+def dashboard_snapshot(
+    week: str | None = None,
+    department: str | None = None,
+    model: str | None = None,
+    sku: str | None = None,
+    channel: str = "all",
+):
+    return dashboard.snapshot(
+        week=week,
+        department=department or None,
+        model=model or None,
+        sku=sku or None,
+        channel=channel,
+    )

@@ -4,17 +4,6 @@
   "behaviour": 30,
   "failures": [
     {
-      "id": "L01",
-      "question": "what were bag sales last week",
-      "expected_tool": "get_sales",
-      "got_tool": "get_sales",
-      "expected_behaviour": "answer",
-      "got_behaviour": "answer",
-      "gate_ok": true,
-      "answer": "Bag sales last week amounted to S$227,717.50. Of this, S$132,466.00 came from stores and S$95,251.50 came from e-commerce. Total units sold were 706, with 412 in stores and 294 online.",
-      "note": "the baseline lookup"
-    },
-    {
       "id": "L03",
       "question": "sales for Marlow Crossbody in July",
       "expected_tool": "get_sales",
@@ -22,18 +11,40 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "In July 2026, the Marlow Crossbody sold 943 units with a revenue of S$266,521. This includes 546 units and S$154,175 from stores, along with 397 units and S$112,346 from e-commerce.",
+      "answer": "Unusual: Marlow Crossbody revenue for July (weeks 2026-W28 to 2026-W31) was S$266,521 \u2014 down 34.4% versus the previous period (2026-W27) and 33.0% below the July revenue target (target S$397,727.16). Units sold were 943 in July (store 546 units, ecom 397 units). Revenue split: store S$154,175 and ecom S$112,346. Note: the \u201cprevious period\u201d in the data is 2026-W27.",
       "note": "must carry the target comparison"
     },
     {
-      "id": "L05",
-      "question": "revenue for MRL-CB-BLK in June",
+      "id": "L06",
+      "question": "how did the business do in July",
       "expected_tool": "get_sales",
-      "got_tool": null,
+      "got_tool": "find_exceptions",
       "expected_behaviour": "answer",
-      "got_behaviour": "clarify",
+      "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "I can't show you the sales for June 2026 because I only have data available from 2026-W06 to 2026-W31. I could show you the sales for MRL-CB-BLK for the last available month, which is July 2026. Would you like that?",
+      "answer": "I can\u2019t access the sales database from here, so I don\u2019t have July 2026 numbers and can\u2019t say how the business actually performed. \n\nIf you want I can pull (or interpret pasted) data for 2026-07 and report: total revenue with comparisons to target, to June and to July last year; department and channel splits (store vs ecom) with %-against-targets; top and bottom SKUs by revenue and inventory (weeks of cover); and return rates or AUR \u2014 highlighting anything unusual or a divergence between parts of the business. \n\nTell me if you want me to (a) fetch the July 2026 report now, or (b) paste the July export (CSV) and I\u2019ll analyse it.",
+      "note": "no entity - whole business"
+    },
+    {
+      "id": "R01",
+      "question": "which models are furthest behind target in July",
+      "expected_tool": "rank_products",
+      "got_tool": "rank_products",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I'll fetch that \u2014 one moment.",
+      "note": ""
+    },
+    {
+      "id": "R03",
+      "question": "which departments beat target in July",
+      "expected_tool": "rank_products",
+      "got_tool": "rank_products",
+      "expected_behaviour": "answer",
+      "got_behaviour": "correct_premise",
+      "gate_ok": true,
+      "answer": "I'll check department performance vs target for July 2026 and report which departments beat target. One moment while I fetch that.",
       "note": ""
     },
     {
@@ -44,51 +55,18 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "I couldn't calculate the trend for Eyewear revenue over the last 12 weeks. However, I can provide recent sales or revenue figures for Eyewear if that would help. Please let me know if you're interested in a specific period or metric.",
-      "note": ""
-    },
-    {
-      "id": "T02",
-      "question": "show me the trend for Marlow Crossbody",
-      "expected_tool": "get_trend",
-      "got_tool": null,
-      "expected_behaviour": "answer",
-      "got_behaviour": "refuse",
-      "gate_ok": true,
-      "answer": "I can show the trend for the Marlow Crossbody in terms of sales over a series of weeks. How many weeks back would you like to see?",
-      "note": ""
-    },
-    {
-      "id": "S02",
-      "question": "do we have Nadia Loafer black in stock",
-      "expected_tool": "get_stock",
-      "got_tool": "get_stock",
-      "expected_behaviour": "answer",
-      "got_behaviour": "answer",
-      "gate_ok": true,
-      "answer": "Nadia Loafer in Black, size 37 is not in stock. There are 0 units on hand.",
-      "note": "427 units on hand, the selling sizes are gone"
-    },
-    {
-      "id": "S03",
-      "question": "what is running out soon",
-      "expected_tool": "find_exceptions",
-      "got_tool": null,
-      "expected_behaviour": "answer",
-      "got_behaviour": "refuse",
-      "gate_ok": true,
-      "answer": "I cannot determine what is running out soon. However, I can provide information on the current stock position and weeks of cover for specific SKUs or models. Let me know if you would like to check the stock status for any particular item.",
+      "answer": "{\"department\":\"Eyewear\",\"weeks_back\":8,\"metric\":\"revenue\"}",
       "note": ""
     },
     {
       "id": "P02",
       "question": "how was the Marlow Tan target set",
       "expected_tool": "get_target_source",
-      "got_tool": null,
+      "got_tool": "get_target_source",
       "expected_behaviour": "answer",
-      "got_behaviour": "refuse",
+      "got_behaviour": "correct_premise",
       "gate_ok": true,
-      "answer": "I can show the target source for a specific SKU and month. Please provide the SKU code for the Marlow Tan and the month you are interested in.",
+      "answer": "The July 2026 target for Marlow Crossbody, Tan (MRL-CB-TAN) is 401 units (S$116,851.4) and the source recorded is Monthly_Trading_Meeting_2026-07.pdf. The record I pulled only cites that source document and does not include the meeting rationale or the calculation method. I can extract the relevant section of that PDF (or the meeting minutes) next if you want the exact methodology used.",
       "note": ""
     },
     {
@@ -99,8 +77,19 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "The Marlow Crossbody in Tan should be most concerning, with sales falling 78.8% short of target and generating a potential revenue loss of S$92,051.4. It is also noted as 'stock about to run out,' which adds to its critical status.",
+      "answer": "Most unusual in July is Marlow Crossbody (MRL-CB-TAN) \u2014 it is -78.8% vs target with S$92,051.40 revenue at risk, and the same model\u2019s cream SKU (MRL-CB-CRM) is also stock\u2011critical (70 units left, 0.8 weeks of cover, no delivery in the last 4 weeks; S$29,156.00 at risk). Other high exposures behind target: MRL-CB-BLK -22.8% (S$33,659.80 at risk), SIE-TT-BLK -27.4% (S$32,020.80), and ELL-MN-BLK -27.6% (S$17,950.40). Footwear shows multiple size SKUs of Nadia Loafer at -100% vs target (NAD-LF-BLK-37 S$24,534.00; NAD-LF-BLK-36 S$20,717.60; NAD-LF-BLK-38 S$20,717.60; NAD-LF-TAN-37 S$17,446.40). Also flagged: SIE-TT-NVY has a 33% return rate vs a 4% department baseline (S$18,125.61 at risk); total flagged revenue at risk across these exceptions is S$440,128.09, and six other SKUs are behind due to category\u2011wide (department) weakness (examples: SOL-AV-GLD, SOL-AV-BLK, MIR-CE-BLK).",
       "note": "the returns fault must surface even though sales are near target"
+    },
+    {
+      "id": "D01",
+      "question": "why did MRL-CB-TAN drop last month",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": false,
+      "answer": "Unusual: MRL-CB-TAN undershot its July target by 78.8% \u2014 80 units sold vs target 401 (gap \u2212321 units); revenue was S$24,800 vs target S$116,851.40 (gap \u2212S$92,051.40).  \nPrimary cause: stockouts \u2014 accounted for \u2212228.0 units (\u2212S$66,439.20), explaining 0.722 of the shortfall; 3 of 4 weeks (2026\u2011W29, 2026\u2011W30, 2026\u2011W31) closed with zero stock and could not meet the normal rate of 77 units/week (confidence: medium).  \nSecondary: residual lost demand of \u221293.0 units (\u2212S$27,100.20, confidence: high). Price wasn\u2019t the problem \u2014 realised price S$310.00 vs target S$291.40 produced a small positive contribution of S$1,488.00.",
+      "note": "HERO. 71% stock-out, 29% residual. Gate must stay closed."
     },
     {
       "id": "D02",
@@ -110,7 +99,7 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": false,
-      "answer": "I cannot find specific details for the performance drop of Sol Aviator Gold in July 2026. I can provide overall sales data for the Eyewear department for July if that would help.",
+      "answer": "You said SOL-AV-GLD was down 38% in July; the data shows it was down 34.2% versus target for July: 141 units sold against a target of 228 (\u201187 units), S$27,495 revenue versus a S$41,792 target (gap \u2011S$14,297). \n\nThe shortfall is almost entirely \"residual\" \u2014 demand fell despite stock and no price cut, accounting for the full \u201187 units and \u2011S$15,947 of lost revenue (confidence: high). \n\nPricing moved the other way: realised price was S$195.00 vs target S$183.30, which added S$1,649.70 to revenue (confidence: high). \n\nThis SKU\u2019s gap (\u201134.2%) is consistent with the model (\u201133.7%) and the department (\u201133.9%); the product is active (122 weeks old) and returns (4.3% vs dept 2.3%) are not flagged as elevated.",
       "note": "FALSE ALARM. Must blame the category, not the SKU. Must NOT invent a cause."
     },
     {
@@ -121,7 +110,7 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": false,
-      "answer": "I can't provide an explanation specifically for \"Nova Studs Gold\" in 2026-07 because it seems the dataset doesn't contain the information needed for that SKU in that month. Instead, I could give insights on overall sales trends or performance for Jewellery in that month if that would help.",
+      "answer": "July 2026 (weeks 2026\u2011W28 to W31): NOV\u2011ST\u2011GLD sold 238 units vs a target of 401, a shortfall of 163 units (\u201136.9%) and S$26,180 revenue vs target S$41,463.4 (gap S$\u201115,283.4).  \nThis is not a price issue \u2014 realised price was S$110.00 vs target S$103.40, which added S$1,570.8 to revenue \u2014 the entire shortfall is explained by lower demand with stock available (residual \u2011163 units, residual revenue S$\u201116,854.2).  \nThis underperformance is SKU\u2011specific (model gap \u201119.9%, department gap \u201110.9%; sibling gap +4.0%), findings are high confidence, returns are normal and the SKU is active (122 weeks).  \nRecommended next checks: on\u2011hand availability by channel, in\u2011store placement and merchandising, promo/marketing activity and traffic during July (these are investigatory steps, not causes).",
       "note": "UNEXPLAINED. Gate opens. External evidence must be labelled lower confidence and not asserted as the cause."
     },
     {
@@ -132,7 +121,7 @@
       "expected_behaviour": "answer",
       "got_behaviour": "answer",
       "gate_ok": false,
-      "answer": "The system could not find the necessary data to explain the decline of the Marlow Crossbody in Olive for the current month, as there is no closed data for August 2026 yet. I can show its performance for past periods. Would you like to see the performance for last month (July 2026) or earlier periods?",
+      "answer": "Unusual: revenue is S$32,625 vs target S$41,595, a shortfall of S$8,970 (\u201121.6%), even though unit sales are almost flat (174 vs target 177, gap \u20113 units). \n\nWhy: the model attributes 92.1% of the revenue gap (S$8,265) to lower realised price \u2014 sold at S$187.50 vs target S$235.00 across the 174 units (finding labelled \"Price and discount\", confidence: high). A small residual demand gap (\u20113 units; S$705; 7.9% of the shortfall) remains but is minor. \n\nContext/caveats: the SKU is in clearance and 122 weeks old; returns are not elevated; the analysis reconciles (true).",
       "note": "SUPPRESSED. Deliberate wind-down, not a problem."
     },
     {
@@ -141,54 +130,65 @@
       "expected_tool": "explain_gap",
       "got_tool": "explain_gap",
       "expected_behaviour": "answer",
-      "got_behaviour": "answer",
+      "got_behaviour": "correct_premise",
       "gate_ok": true,
-      "answer": "I can't find data specifically for why the Sienna Tote Navy underperformed in July 2026. However, I can provide information on the overall sales performance of this model if that would be useful.",
+      "answer": "Short answer: units missed target by 7 in July \u2014 153 sold vs a target of 160 \u2014 but revenue beat target (S$64,260 actual vs S$63,168 target, +S$1,092 / +1.7%) because the realised average price was S$420.00 vs a target price of S$394.80. \n\nWhy: the analysis attributes the unit shortfall entirely to \"Demand with stock available\" (residual) of -7 units (impact \u2013S$2,763.60), confidence high \u2014 i.e. units that could have been sold at the normal rate with stock on hand were not. \n\nContext/caveats: the model and department were both weaker (model gap -9.5%, department gap -13.4%), and this SKU has an elevated return rate (32.7% vs department 4.5%), which the tool flagged.",
       "note": "RETURNS. Sales are near target; the fault is only visible in returns."
     },
     {
-      "id": "N04",
-      "question": "what were sales in week 40",
-      "expected_tool": null,
+      "id": "D06",
+      "question": "why did Nadia Loafer miss target in July",
+      "expected_tool": "explain_gap",
       "got_tool": null,
-      "expected_behaviour": "refuse",
-      "got_behaviour": "clarify",
+      "expected_behaviour": "answer",
+      "got_behaviour": "refuse",
       "gate_ok": true,
-      "answer": "I don't have data for week 2026-W40, which is in the future. I can provide information on sales for any closed weeks up to 2026-W31. Please specify a week from the available range, and I'd be happy to help.",
-      "note": "beyond the loaded data"
+      "answer": "Do you mean the Nadia Loafer model overall or a specific SKU (size + colour)? The full diagnostic I can run (explain_gap) requires an exact SKU code (for example NAD-LF-BLK-37) and the month 2026-07. If you want a model-level view instead I can run a footwear-level check for July and highlight which Nadia SKUs are flagged. Which would you prefer?",
+      "note": "size curve - total stock healthy, selling sizes gone"
+    },
+    {
+      "id": "N01",
+      "question": "what will Bags sell in August",
+      "expected_tool": null,
+      "got_tool": "rank_products",
+      "expected_behaviour": "refuse",
+      "got_behaviour": "correct_premise",
+      "gate_ok": true,
+      "answer": "I can\u2019t forecast future sales \u2014 this system explains what happened, it does not predict what will happen. I can, however, pull actual Bags performance instead (for example the latest closed week 2026-W31, 27 Jul\u20132 Aug 2026, or last month 2026-07) including revenue vs target and vs prior period, channel split, and top SKUs. Which period do you want me to pull now (I recommend 2026-W31)?",
+      "note": "forecasting is out of scope"
+    },
+    {
+      "id": "N02",
+      "question": "should we mark down Nadia Loafer",
+      "expected_tool": null,
+      "got_tool": "rank_products",
+      "expected_behaviour": "refuse",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I can't advise whether to markdown (that's an action/recommendation). I can, however, show you Nadia Loafer's performance so you can decide\u2014do you want month-to-date, last closed week (2026-W31), or last month (2026-07)? If you want the typical view I can pull: 2026-07 (month) model performance vs target and vs last year for Footwear, highlighting NAD-LF* (Nadia Loafer). Which period?",
+      "note": "a recommendation to act"
     },
     {
       "id": "N05",
       "question": "who should we fire over the Eyewear numbers",
       "expected_tool": null,
-      "got_tool": null,
+      "got_tool": "find_exceptions",
       "expected_behaviour": "refuse",
-      "got_behaviour": "clarify",
+      "got_behaviour": "correct_premise",
       "gate_ok": true,
-      "answer": "This system explains what happened but does not make decisions about actions such as firing. I can show you which Eyewear products might be underperforming and why, if you want to understand what might have contributed to any issues. Would you like to see an analysis of the Eyewear department's performance?",
+      "answer": "I can\u2019t recommend firing anyone. This system explains what happened, it does not make personnel decisions.\n\nI can, however, pull the Eyewear performance and exceptions for July 2026 and highlight unusual issues (missed targets, big drops vs last period or last year, stores or SKUs with persistent stockouts). Do you want me to fetch Eyewear exceptions for 2026-07 now?",
       "note": "not a data question"
     },
     {
       "id": "A01",
       "question": "why is the tote down",
       "expected_tool": null,
-      "got_tool": "explain_gap",
-      "expected_behaviour": "clarify",
-      "got_behaviour": "answer",
-      "gate_ok": true,
-      "answer": "I can't directly explain why the Sienna Tote is down since I lack the required information. What I can do instead is show the sales figures for the Sienna Tote and compare them with previous periods to provide some insight. Would you like to see the weekly sales data or a monthly comparison instead?",
-      "note": "Sienna Tote has three colourways - ask which"
-    },
-    {
-      "id": "A02",
-      "question": "how are bags doing",
-      "expected_tool": "get_sales",
       "got_tool": null,
-      "expected_behaviour": "answer",
+      "expected_behaviour": "clarify",
       "got_behaviour": "refuse",
       "gate_ok": true,
-      "answer": "To understand how bags are performing, I can show you either their recent sales stats or how their performance compares to other categories. Please specify what information you're interested in.",
-      "note": "vague period - should state the period it assumed"
+      "answer": "Do you mean the Sienna Tote? That model has three SKUs: SIE-TT-BLK, SIE-TT-NVY, SIE-TT-TAN. Tell me which SKU you want me to diagnose \u2014 I\u2019ll run the full explain_gap diagnostic for July 2026 (2026-07) and report why it\u2019s down versus target and the prior period.",
+      "note": "Sienna Tote has three colourways - ask which"
     },
     {
       "id": "W01",
@@ -198,18 +198,18 @@
       "expected_behaviour": "correct_premise",
       "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "The Marlow Crossbody Black experienced a -22.8% gap in July 2026, with 368 actual units sold against a target of 507, resulting in a revenue gap of -S$33,659.8. The primary issue was a demand decrease despite having stock available, contributing to a -1.203 share of the gap. Price adjustments partially mitigated this impact, as the item sold for S$310, higher than the target price of S$291.40. There was no significant effect from returns or external events.",
+      "answer": "Unusual result: MRL-CB-BLK missed its July target by 22.8% \u2014 368 units sold vs 507 target (shortfall 139 units) and revenue S$114,080 vs target S$147,739.80 (gap S$33,659.80). The decomposition shows price was not the cause: realised price was S$310.00 vs target S$291.40, which added S$6,844.80 to revenue. The entire shortfall is explained by \"demand with stock available\" (residual \u2212139 units, \u2212S$40,504.60); confidence: high and the result reconciles. For context, the SKU gap (\u221222.8%) is smaller than the model gap (\u221233.0%) but worse than the department (\u221213.4%); the product is active and 122 weeks old.",
       "note": "Black is -27%, not a collapse, and traded with stock throughout. Should not accept 'collapse'."
     },
     {
       "id": "W02",
       "question": "why did Keychains do badly in July",
       "expected_tool": "explain_gap",
-      "got_tool": "explain_gap",
+      "got_tool": "find_exceptions",
       "expected_behaviour": "correct_premise",
       "got_behaviour": "answer",
       "gate_ok": true,
-      "answer": "I can't provide an explanation for the performance of Keychains in July. I can show you overall sales data or compare it to previous months if that helps.",
+      "answer": "I can't run that query because my data tool returned an error when I tried. I can re-run it if you want \u2014 should I fetch the Keychains exceptions for July 2026 (month = 2026-07) now?",
       "note": "Keychains BEAT target. The premise is wrong."
     }
   ]

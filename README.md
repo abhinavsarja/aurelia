@@ -80,6 +80,18 @@ why did MRL-CB-TAN drop last month
 EOF
 ```
 
+## Frontend dashboard
+
+React + Chart.js UI matching the mockup (chat on the right; mock answers until API is wired):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173. Chat hits `POST /ask` via the Vite proxy — run `uvicorn aurelia.api:app --reload --port 8001` alongside.
+
 ## Optional Chainlit UI
 
 ```bash
