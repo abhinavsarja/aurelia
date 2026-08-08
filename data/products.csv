@@ -1,0 +1,76 @@
+sku,model,department,colour,size,price,cost,launch_date,status
+MRL-CB-TAN,Marlow Crossbody,Bags,Tan,,310,118,2024-03-04,active
+MRL-CB-BLK,Marlow Crossbody,Bags,Black,,310,118,2024-03-04,active
+MRL-CB-CRM,Marlow Crossbody,Bags,Cream,,296,112,2024-03-04,active
+MRL-CB-OLV,Marlow Crossbody,Bags,Olive,,250,96,2024-03-04,clearance
+SIE-TT-BLK,Sienna Tote,Bags,Black,,420,160,2024-03-04,active
+SIE-TT-TAN,Sienna Tote,Bags,Tan,,420,160,2024-03-04,active
+SIE-TT-NVY,Sienna Tote,Bags,Navy,,420,160,2024-03-04,active
+PIP-CL-BLK,Piper Clutch,Bags,Black,,220,84,2024-03-04,active
+PIP-CL-GLD,Piper Clutch,Bags,Gold,,240,92,2024-03-04,active
+AST-BP-BLK,Astrid Backpack,Bags,Black,,380,145,2024-03-04,active
+AST-BP-GRY,Astrid Backpack,Bags,Grey,,380,145,2024-03-04,active
+JUN-BK-TAN,Juno Bucket Bag,Bags,Tan,,340,130,2024-03-04,active
+JUN-BK-BLK,Juno Bucket Bag,Bags,Black,,340,130,2024-03-04,active
+ELL-MN-BLK,Elle Mini Bag,Bags,Black,,260,99,2024-03-04,active
+ELL-MN-PNK,Elle Mini Bag,Bags,Pink,,260,99,2024-03-04,active
+NAD-LF-BLK-35,Nadia Loafer,Footwear,Black,35,290,110,2024-03-04,active
+NAD-LF-BLK-36,Nadia Loafer,Footwear,Black,36,290,110,2024-03-04,active
+NAD-LF-BLK-37,Nadia Loafer,Footwear,Black,37,290,110,2024-03-04,active
+NAD-LF-BLK-38,Nadia Loafer,Footwear,Black,38,290,110,2024-03-04,active
+NAD-LF-BLK-39,Nadia Loafer,Footwear,Black,39,290,110,2024-03-04,active
+NAD-LF-BLK-40,Nadia Loafer,Footwear,Black,40,290,110,2024-03-04,active
+NAD-LF-TAN-35,Nadia Loafer,Footwear,Tan,35,290,110,2024-03-04,active
+NAD-LF-TAN-36,Nadia Loafer,Footwear,Tan,36,290,110,2024-03-04,active
+NAD-LF-TAN-37,Nadia Loafer,Footwear,Tan,37,290,110,2024-03-04,active
+NAD-LF-TAN-38,Nadia Loafer,Footwear,Tan,38,290,110,2024-03-04,active
+NAD-LF-TAN-39,Nadia Loafer,Footwear,Tan,39,290,110,2024-03-04,active
+NAD-LF-TAN-40,Nadia Loafer,Footwear,Tan,40,290,110,2024-03-04,active
+VER-HL-BLK-35,Vera Heel,Footwear,Black,35,330,126,2024-03-04,active
+VER-HL-BLK-36,Vera Heel,Footwear,Black,36,330,126,2024-03-04,active
+VER-HL-BLK-37,Vera Heel,Footwear,Black,37,330,126,2024-03-04,active
+VER-HL-BLK-38,Vera Heel,Footwear,Black,38,330,126,2024-03-04,active
+VER-HL-BLK-39,Vera Heel,Footwear,Black,39,330,126,2024-03-04,active
+VER-HL-BLK-40,Vera Heel,Footwear,Black,40,330,126,2024-03-04,active
+VER-HL-RED-35,Vera Heel,Footwear,Red,35,330,126,2024-03-04,active
+VER-HL-RED-36,Vera Heel,Footwear,Red,36,330,126,2024-03-04,active
+VER-HL-RED-37,Vera Heel,Footwear,Red,37,330,126,2024-03-04,active
+VER-HL-RED-38,Vera Heel,Footwear,Red,38,330,126,2024-03-04,active
+VER-HL-RED-39,Vera Heel,Footwear,Red,39,330,126,2024-03-04,active
+VER-HL-RED-40,Vera Heel,Footwear,Red,40,330,126,2024-03-04,active
+CLE-SD-TAN-35,Cleo Sandal,Footwear,Tan,35,210,80,2024-03-04,active
+CLE-SD-TAN-36,Cleo Sandal,Footwear,Tan,36,210,80,2024-03-04,active
+CLE-SD-TAN-37,Cleo Sandal,Footwear,Tan,37,210,80,2024-03-04,active
+CLE-SD-TAN-38,Cleo Sandal,Footwear,Tan,38,210,80,2024-03-04,active
+CLE-SD-TAN-39,Cleo Sandal,Footwear,Tan,39,210,80,2024-03-04,active
+CLE-SD-TAN-40,Cleo Sandal,Footwear,Tan,40,210,80,2024-03-04,active
+CLE-SD-WHT-35,Cleo Sandal,Footwear,White,35,210,80,2024-03-04,active
+CLE-SD-WHT-36,Cleo Sandal,Footwear,White,36,210,80,2024-03-04,active
+CLE-SD-WHT-37,Cleo Sandal,Footwear,White,37,210,80,2024-03-04,active
+CLE-SD-WHT-38,Cleo Sandal,Footwear,White,38,210,80,2024-03-04,active
+CLE-SD-WHT-39,Cleo Sandal,Footwear,White,39,210,80,2024-03-04,active
+CLE-SD-WHT-40,Cleo Sandal,Footwear,White,40,210,80,2024-03-04,active
+LUN-PD-GLD,Lune Pendant,Jewellery,Gold,,180,62,2024-03-04,active
+LUN-PD-SLV,Lune Pendant,Jewellery,Silver,,165,57,2024-03-04,active
+ORL-HP-GLD,Orla Hoop,Jewellery,Gold,,140,48,2024-03-04,active
+ORL-HP-SLV,Orla Hoop,Jewellery,Silver,,130,45,2024-03-04,active
+IVY-CF-GLD,Ivy Cuff,Jewellery,Gold,,240,84,2024-03-04,active
+NOV-ST-GLD,Nova Studs,Jewellery,Gold,,110,38,2024-03-04,active
+NOV-ST-SLV,Nova Studs,Jewellery,Silver,,100,35,2024-03-04,active
+THE-CH-GLD,Thea Chain,Jewellery,Gold,,210,73,2024-03-04,active
+SOL-AV-GLD,Sol Aviator,Eyewear,Gold,,195,70,2024-03-04,active
+SOL-AV-BLK,Sol Aviator,Eyewear,Black,,195,70,2024-03-04,active
+MIR-CE-BLK,Mira Cat-Eye,Eyewear,Black,,210,76,2024-03-04,active
+MIR-CE-TOR,Mira Cat-Eye,Eyewear,Tortoise,,210,76,2024-03-04,active
+KAI-RD-GLD,Kai Round,Eyewear,Gold,,185,67,2024-03-04,active
+KAI-RD-BLK,Kai Round,Eyewear,Black,,185,67,2024-03-04,active
+ROW-BT-BLK,Rowan Belt,Small leather goods,Black,,150,56,2024-03-04,active
+ROW-BT-TAN,Rowan Belt,Small leather goods,Tan,,150,56,2024-03-04,active
+QUI-CH-BLK,Quinn Cardholder,Small leather goods,Black,,110,41,2024-03-04,active
+QUI-CH-TAN,Quinn Cardholder,Small leather goods,Tan,,110,41,2024-03-04,active
+FAY-WL-BLK,Faye Wallet,Small leather goods,Black,,190,71,2024-03-04,active
+FAY-WL-TAN,Faye Wallet,Small leather goods,Tan,,190,71,2024-03-04,active
+IRI-PC-BLK,Iris Pouch,Small leather goods,Black,,95,36,2024-03-04,active
+TIL-CM-GLD,Tilda Charm,Keychains,Gold,,65,23,2024-09-02,active
+TIL-CM-MIX,Tilda Charm,Keychains,Multi,,65,23,2024-09-02,active
+BO-TSL-TAN,Bo Tassel,Keychains,Tan,,55,20,2024-09-02,active

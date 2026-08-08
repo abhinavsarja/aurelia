@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELIA — Solution Assumptions</title>
+<style>
+  :root{
+    --bg:#F7F6F3; --panel:#FFF; --ink:#1C1B19; --soft:#6B6862; --line:#E4E1DA;
+    --accent:#8A6D3B; --accent-soft:#F5F0E7;
+    --up:#2E7D5B; --down:#B4453C; --info:#2E5D7D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;
+  }
+  .layout{display:grid;grid-template-columns:212px 1fr;max-width:1180px;margin:0 auto;gap:34px;padding:0 26px}
+
+  nav{position:sticky;top:0;height:100vh;padding:34px 0;overflow-y:auto}
+  nav .nt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:12px;font-weight:600}
+  nav a{display:block;padding:5px 10px;font-size:12.5px;color:var(--soft);text-decoration:none;
+        border-left:2px solid transparent;line-height:1.35}
+  nav a:hover{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
+
+  main{padding:34px 0 90px}
+
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:30px}
+  header.doc .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  header.doc h1{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:8px 0 6px;line-height:1.15}
+  header.doc p{color:var(--soft);font-size:13.5px}
+  header.doc .meta{margin-top:14px;font-size:12px;color:var(--soft);display:flex;gap:20px;flex-wrap:wrap}
+
+  section{margin-bottom:38px;scroll-margin-top:20px}
+  h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;
+     padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h2 .num{color:var(--accent);font-size:13px;margin-right:9px;font-weight:600}
+  .lede{color:var(--soft);font-size:13px;margin:9px 0 15px}
+  h3{font-size:14px;font-weight:600;margin:20px 0 8px}
+  p{margin-bottom:10px}
+  ul{margin:0 0 12px 17px}
+  li{margin-bottom:5px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+        border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--soft);
+     font-weight:600;padding:9px 12px;background:#FCFBF9;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px;border-bottom:1px solid #F2F0EC;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.k{font-weight:600;width:30%}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 15px;
+           border-radius:0 6px 6px 0;margin-bottom:14px;font-size:13px}
+  .callout b{display:block;margin-bottom:3px}
+  .callout.warn{border-color:var(--down);background:#FCF1EF}
+  .callout.info{border-color:var(--info);background:#EFF4F8}
+
+  .pill{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:11px;font-weight:600}
+  .pill.in{background:#E8F3ED;color:var(--up)}
+  .pill.out{background:#FBEDEB;color:var(--down)}
+  .pill.open{background:#FBF3E3;color:var(--accent)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  ol.steps{counter-reset:s;list-style:none;margin-left:0}
+  ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin-bottom:11px}
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:50%;
+    background:var(--ink);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+  footer{border-top:1px solid var(--line);padding-top:16px;color:var(--soft);font-size:12px}
+
+  @media print{
+    nav{display:none} .layout{grid-template-columns:1fr;max-width:100%}
+    body{background:#fff;font-size:11px} section{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="nt">Contents</div>
+  <a href="#brief">The brief</a>
+  <a href="#business">1 · The business</a>
+  <a href="#assumptions">2 · Business assumptions</a>
+  <a href="#users">3 · Users and decisions</a>
+  <a href="#scope">4 · Scope</a>
+  <a href="#metrics">5 · Business metrics</a>
+  <a href="#data">6 · Data model</a>
+  <a href="#tech">7 · Technical assumptions</a>
+  <a href="#approach">8 · How answers are built</a>
+  <a href="#trust">9 · Avoiding wrong answers</a>
+  <a href="#ui">10 · Interface</a>
+  <a href="#success">11 · Success metrics</a>
+  <a href="#open">12 · Open items</a>
+</nav>
+
+<main>
+
+<header class="doc">
+  <div class="eyebrow">Case Study — Proposed Solution</div>
+  <h1>Smart Business Performance Dashboard</h1>
+  <p>Business and technical assumptions for a retail performance dashboard with natural language analysis.</p>
+  <div class="meta">
+    <span>Client: AURELIA (illustrative)</span>
+    <span>Market: Singapore</span>
+    <span>Version 0.2 — working draft</span>
+  </div>
+</header>
+
+<!-- ============ BRIEF ============ -->
+<section id="brief">
+  <h2><span class="num">—</span>The brief</h2>
+  <p>Senior management want a dashboard that shows overall business performance and lets them drill down to SKU level.</p>
+  <p>It must also answer questions in plain language, such as <i>"Why did sales for this SKU drop last month?"</i>. Answers must be based on evidence from three sources:</p>
+  <ul>
+    <li>Internal sales and operations data</li>
+    <li>Internal documents — campaign plans, meeting notes, operational reports</li>
+    <li>Public information — news, market events, competitor activity</li>
+  </ul>
+</section>
+
+<!-- ============ BUSINESS ============ -->
+<section id="business">
+  <h2><span class="num">1</span>The business</h2>
+  <p class="lede">We use a fictional company. Real retailers do not publish internal documents such as meeting notes, and those documents are central to this problem. Inventing the company keeps the example honest and lets us design a clear test case.</p>
+
+  <table>
+    <tr><td class="k">Company</td><td>AURELIA — fictional</td></tr>
+    <tr><td class="k">Type</td><td>Accessible-luxury fashion accessories. Similar in shape to Charles &amp; Keith.</td></tr>
+    <tr><td class="k">Market</td><td>Singapore only</td></tr>
+    <tr><td class="k">Model</td><td><b>B2C</b> — business to consumer. Sells directly to shoppers, not to other businesses.</td></tr>
+    <tr><td class="k">Channels</td><td>Own e-commerce site and own retail stores. No wholesale.</td></tr>
+    <tr><td class="k">Price range</td><td>Bags S$150–500. Jewellery S$60–250. Prices in SGD.</td></tr>
+    <tr><td class="k">Departments</td><td>Bags · Footwear · Jewellery · Eyewear · Small leather goods · Keychains</td></tr>
+    <tr><td class="k">Product hierarchy</td><td>Department → Model → SKU. Example: Bags → Marlow Crossbody → MRL-CB-TAN.</td></tr>
+    <tr><td class="k">Catalogue size</td><td>Around 60–70 models, giving roughly 250–350 SKUs once colours and sizes are counted.</td></tr>
+    <tr><td class="k">History</td><td>Three years of weekly data</td></tr>
+  </table>
+</section>
+
+<!-- ============ ASSUMPTIONS ============ -->
+<section id="assumptions">
+  <h2><span class="num">2</span>Business assumptions</h2>
+  <ol class="steps">
+    <li>The business operates only in Singapore and sells only to consumers (B2C).</li>
+    <li>There are two channels: own e-commerce and own stores.</li>
+    <li>All sales data is weekly. The week closes on Sunday. Data is available Monday morning.</li>
+    <li>There is no need for live or real-time data.</li>
+    <li><b>Targets are set monthly, not yearly.</b> Performance is assessed over a four-week period against the monthly target.</li>
+    <li>The system covers product performance only. There is no customer data and no personalisation.</li>
+    <li>Once a week is closed, its numbers do not change. Returns are counted within the same week.</li>
+    <li>Campaign and promotion timing comes from the internal documents, not from a separate calendar.</li>
+  </ol>
+
+  <h3>Where the monthly target comes from</h3>
+  <p>The target is not calculated by this system. It is decided by management and written down in internal documents — monthly planning meeting minutes, buying committee notes, and similar records.</p>
+
+  <div class="callout">
+    <b>Targets are hardcoded values taken from documents</b>
+    For this solution, monthly targets are extracted from specific meeting minutes and planning documents and stored as fixed values. They are not connected to a live planning system. This is a deliberate simplification and should be stated openly.
+  </div>
+
+  <ul>
+    <li>A monthly sales target exists per department, and is broken down to model and SKU level.</li>
+    <li>Each month covers four weeks of sales data.</li>
+    <li>Targets are read once from the source documents and loaded into the system.</li>
+    <li>If management revises a target mid-month, it is reloaded manually.</li>
+  </ul>
+
+  <div class="callout warn">
+    <b>Important caveat to state</b>
+    A target is more reliable at department level than at SKU level. A department target is a real commitment someone is accountable for. A SKU target is usually a calculated share that nobody personally agreed to. So a SKU missing target by 30% is weaker evidence than a department missing by 5%. The system should weight these differently.
+  </div>
+</section>
+
+<!-- ============ USERS ============ -->
+<section id="users">
+  <h2><span class="num">3</span>Users and decisions</h2>
+
+  <table>
+    <thead><tr><th>User</th><th>What they look at</th><th>How often</th></tr></thead>
+    <tbody>
+      <tr><td class="k">CEO / CFO</td><td>Total sales and margin against the monthly target</td><td>Monthly, briefly</td></tr>
+      <tr><td class="k">Commercial director</td><td>Department and model performance against target</td><td>Weekly</td></tr>
+      <tr><td class="k">Buying and merchandising</td><td>SKU sell-through, stock cover, discount levels</td><td>Several times a week</td></tr>
+      <tr><td class="k">Marketing</td><td>Campaign impact on specific products</td><td>Weekly</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Why drill-down to SKU matters, even though managers do not manage SKUs</b>
+    A CEO never decides what to do about one tan handbag. But when sales miss the monthly target by 6%, the only question that matters is whether it is one broken product, one weak category, or the whole business slowing down. Those three need completely different responses. The drill-down exists to answer that question. It is a way to check a number, not a tool for managing products.
+  </div>
+
+  <h3>The moment this is used</h3>
+  <p>The monthly review meeting, and the weekly trading meeting that leads up to it. Someone asks why something dropped. Today that becomes a request to an analyst and takes one to two days. This system aims to answer it inside the meeting.</p>
+
+  <h3>Decisions it supports</h3>
+  <ul>
+    <li>Reorder a product or not</li>
+    <li>When to discount, and by how much</li>
+    <li>Keep, drop or expand a model next season</li>
+    <li>Move stock between channels</li>
+    <li>Where to put campaign spend</li>
+  </ul>
+</section>
+
+<!-- ============ SCOPE ============ -->
+<section id="scope">
+  <h2><span class="num">4</span>Scope</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <p><span class="pill in">In scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Performance dashboard, company level down to SKU</li>
+        <li>Comparison against the monthly target only</li>
+        <li>Natural language questions about past performance</li>
+        <li>Evidence-based explanations with sources shown</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p><span class="pill out">Out of scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Forecasting future sales</li>
+        <li>Automatic reordering or stock decisions</li>
+        <li>Customer-level analysis or personalisation</li>
+        <li>Fixing data quality problems in source systems</li>
+        <li>Real-time or intraday data</li>
+        <li>Alerts or proactive lists of problem products</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>The system recommends, it never acts</b>
+    Every output is an explanation or a suggestion. A person makes the decision. This keeps accountability clear and greatly reduces risk.
+  </div>
+</section>
+
+<!-- ============ METRICS ============ -->
+<section id="metrics">
+  <h2><span class="num">5</span>Business metrics shown</h2>
+  <p class="lede">Performance is always compared against the monthly target. Four weeks of sales data are added together and measured against that month's number.</p>
+
+  <table>
+    <thead><tr><th>Metric</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Net sales</td><td>Headline number. Compared against the monthly target.</td></tr>
+      <tr><td class="k">Gross margin</td><td>Shows whether sales were profitable.</td></tr>
+      <tr><td class="k">Full-price sell-through</td><td>The most important metric in fashion. Shows what share of stock sold at full price. A business can hit its sales target while damaging itself through discounting. This number reveals that.</td></tr>
+      <tr><td class="k">Average discount</td><td>Shows how much price is being given away.</td></tr>
+      <tr><td class="k">Weeks cover</td><td>How many weeks of stock remain at the current sales rate. Flags both stock-outs and overstock.</td></tr>
+      <tr><td class="k">Rate of sale</td><td>Units sold per week. Lets you compare products of different sizes fairly.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ DATA ============ -->
+<section id="data">
+  <h2><span class="num">6</span>Data model</h2>
+
+  <h3>Structured data — four tables</h3>
+  <table>
+    <thead><tr><th>Table</th><th>One row per</th><th>Fields</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Products</td><td>SKU</td><td class="mono">SKU · Model · Department · Colour · Size · Price · Cost · Launch date</td></tr>
+      <tr><td class="k">Sales</td><td>SKU, week, channel</td><td class="mono">Week · SKU · Channel · Units · Revenue · Discount %</td></tr>
+      <tr><td class="k">Stock</td><td>SKU, week</td><td class="mono">Week · SKU · Units on hand</td></tr>
+      <tr><td class="k">Targets</td><td>SKU, month</td><td class="mono">Month · SKU · Target units · Target revenue · Source document</td></tr>
+    </tbody>
+  </table>
+  <p>Sales and stock are weekly. Targets are monthly. To compare them, four weeks of sales are added together and measured against that month's target.</p>
+  <p>The <span class="mono">Source document</span> field records which meeting minutes or planning document the target came from, so any number on screen can be traced back to where it was decided.</p>
+  <p>Stock is not split by channel. Everything the analysis needs — price effects, discount effects, stock-outs, channel differences, broken size ranges — can be worked out from these four tables.</p>
+
+  <h3>Internal documents</h3>
+  <p>Six to eight short documents for the prototype: a campaign plan, two buying meeting notes, a monthly planning meeting record containing the targets, a supply chain report, a returns summary.</p>
+  <div class="callout info">
+    <b>Meeting notes are treated differently</b>
+    Meeting notes record decisions with dates. Rather than only splitting them into text chunks, we also pull out a decision list: who decided what, when, and which products it affected. This gives a timeline of decisions that can be placed next to the sales timeline. That is how cause becomes visible. For example: the reorder was cancelled on 12 May, stock ran out in week 24, sales fell in week 25.
+  </div>
+
+  <h3>Public information</h3>
+  <p>Ten to fifteen news items with dates for the prototype. In production this would be a weekly feed of retail and fashion trade news for Singapore.</p>
+</section>
+
+<!-- ============ TECH ============ -->
+<section id="tech">
+  <h2><span class="num">7</span>Technical assumptions</h2>
+
+  <table>
+    <thead><tr><th>Area</th><th>Assumption</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Users</td><td>Around 100 senior staff. Peak use is Monday morning, roughly 20–30 people at once. Very light use for the rest of the week.</td></tr>
+      <tr><td class="k">Data size</td><td>Under 100,000 rows of sales data. A few hundred to a few thousand documents.</td></tr>
+      <tr><td class="k">Deployment</td><td>AWS, Singapore region, single region across multiple availability zones.</td></tr>
+      <tr><td class="k">Database</td><td>Postgres, with pgvector for document search. No warehouse product needed at this size.</td></tr>
+      <tr><td class="k">Front end</td><td>React single-page application.</td></tr>
+      <tr><td class="k">Back end</td><td>Python with FastAPI.</td></tr>
+      <tr><td class="k">Speed</td><td>Important but not critical. Target under 8 seconds for most questions.</td></tr>
+      <tr><td class="k">Availability</td><td>99.5% during business hours. A few hours of downtime does not lose business.</td></tr>
+      <tr><td class="k">Recovery</td><td>Recovery time: hours. Maximum data loss: one week, since data loads weekly.</td></tr>
+      <tr><td class="k">Access control</td><td>All users see all data. No per-user or per-document permissions.</td></tr>
+      <tr><td class="k">Privacy</td><td>No customer data is used, so privacy exposure is low. All data stays in Singapore.</td></tr>
+      <tr><td class="k">Memory</td><td>No user profiles. No history between sessions. Only the current conversation.</td></tr>
+      <tr><td class="k">Prompt caching</td><td>Useful for cost, not required.</td></tr>
+      <tr><td class="k">Language</td><td>English only.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Deliberately kept small</b>
+    The data is small and the user count is low. Large-scale tools such as Snowflake, Kafka or a dedicated vector database would add cost and complexity with no benefit here. Most of the running cost will be language model calls, not servers.
+  </div>
+
+  <h3>Two things that are not memory, but are still needed</h3>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">A business dictionary</h3>
+      <p style="margin-bottom:0">Definitions of terms, the product hierarchy, and alternative names people use. For example, that "Marlow" is a model and "tan" is a colour. This is a fixed configuration file, not stored memory. Without it, questions cannot be interpreted reliably.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">An answer cache</h3>
+      <p style="margin-bottom:0">If two people ask the same question in the same week, they must get the same answer. Different answers to the same question would badly damage trust. Answers are stored and reused until new data arrives. This also reduces cost during the Monday peak.</p>
+    </div>
+  </div>
+
+  <h3>Do the heavy work on Sunday night</h3>
+  <p>Data arrives Sunday night. Questions come during the week. We use those hours to calculate the sales analysis for every SKU in advance. When a question is asked, the numbers are already there, so answers are much faster and more consistent.</p>
+</section>
+
+<!-- ============ APPROACH ============ -->
+<section id="approach">
+  <h2><span class="num">8</span>How an answer is built</h2>
+  <p class="lede">The three sources are not searched at the same time. They run in order. Each step narrows the next.</p>
+
+  <ol class="steps">
+    <li><b>Understand the question.</b> Work out which product and which period are meant. "Last month" becomes a specific set of four weeks. Show this back to the user so they can correct it.</li>
+    <li><b>Do the maths.</b> Run fixed calculations to split the gap against target into parts: how much came from being out of stock, from price changes, from lower demand, from a campaign ending. Whatever cannot be explained is recorded as a remainder.</li>
+    <li><b>Search internal documents.</b> Search using the findings from step 2, not the user's original question. Look for "Tan replenishment" and "Marlow" in May and June — not for "why did sales drop".</li>
+    <li><b>Search public information — only if needed.</b> Run this only when a large share of the gap is still unexplained. If stock-outs and campaigns already explain 86% of it, there is no need to search the news.</li>
+    <li><b>Write the answer.</b> Combine the evidence, label each piece by how reliable it is, and include a link to the SKU data for the period in question.</li>
+  </ol>
+
+  <h3>Why we do not use text-to-SQL for "why" questions</h3>
+  <p>Text-to-SQL is good for "what" questions, such as "what were sales last week". It is the wrong tool for "why" questions.</p>
+  <p>Instead we use a set of fixed, tested calculations. The language model chooses which ones to run and with what inputs. It does not write the query.</p>
+  <table>
+    <thead><tr><th>Reason</th><th>Explanation</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Correctness</td><td>The parts of the explanation must add up to the total gap. A generated query gives no such guarantee.</td></tr>
+      <tr><td class="k">Consistency</td><td>The same question must give the same answer on Monday and on Wednesday.</td></tr>
+      <tr><td class="k">Testability</td><td>You can test twelve fixed calculations. You cannot test every possible generated query.</td></tr>
+      <tr><td class="k">Speed</td><td>Fixed calculations can be optimised and pre-computed.</td></tr>
+    </tbody>
+  </table>
+  <p>Text-to-SQL is still offered as a secondary option for open-ended exploration. It is read-only, limited in size, and clearly marked in the interface as unverified.</p>
+
+  <h3>Public information needs a limit</h3>
+  <div class="callout warn">
+    <b>This source will always find something</b>
+    Ask why bag sales fell, search the news, and you will always find a believable story — weaker consumer spending, fewer tourists, a competitor promotion. It sounds insightful and cannot be disproved. This is the biggest credibility risk in the system. So we only search the news when the internal data leaves a large part of the gap unexplained, and the answer is always allowed to say that no link was found.
+  </div>
+  <p>For gathering the news, a search API is used at question time. Browser automation is too slow and unreliable for that. Browser automation is used separately as a weekly scheduled job to collect competitor prices and new product listings.</p>
+</section>
+
+<!-- ============ TRUST ============ -->
+<section id="trust">
+  <h2><span class="num">9</span>Avoiding wrong answers</h2>
+  <p class="lede">Wrong answers are the main risk. Senior management will act on what this system says. These controls exist to make errors visible rather than hidden.</p>
+
+  <table>
+    <thead><tr><th>Control</th><th>How it works</th></tr></thead>
+    <tbody>
+      <tr><td class="k">The model never calculates</td><td>Every number comes from a database query. The language model only explains numbers it is given. This is the single most important rule.</td></tr>
+      <tr><td class="k">Fixed calculations</td><td>Cause analysis uses tested code, not generated queries. Results are repeatable.</td></tr>
+      <tr><td class="k">Numbers must add up</td><td>The parts of the explanation must sum to the total gap. If they do not, the answer is rejected before it is shown.</td></tr>
+      <tr><td class="k">Everything is labelled by source</td><td>Three levels: <b>Measured</b> from our data, <b>Documented</b> from internal files, <b>External</b> from public sources. Each looks different on screen.</td></tr>
+      <tr><td class="k">Sources are clickable</td><td>Clicking a source opens the actual document at the exact paragraph. This is not just convenience — if a source is invented or does not support the claim, one click reveals it. It makes errors self-exposing.</td></tr>
+      <tr><td class="k">Source check after writing</td><td>A second automated pass confirms each cited passage actually supports the claim made.</td></tr>
+      <tr><td class="k">Allowed to say "I don't know"</td><td>When evidence is weak, the system says so. A system that always produces an explanation is inventing some of them.</td></tr>
+      <tr><td class="k">Every answer is logged</td><td>The question, the evidence used, and the answer are all saved. If someone later disputes an answer, we can show exactly what the system saw.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ UI ============ -->
+<section id="ui">
+  <h2><span class="num">10</span>Interface</h2>
+  <p>The screen is split. Charts and tables on the left. The question and answer panel on the right. Everything on the left fits on one screen without scrolling.</p>
+
+  <h3>Moving around the data</h3>
+  <p>Three linked dropdowns: Department, then Style, then SKU. Each one loads only the items belonging to the level above it. Selecting a week and a channel filters everything on screen.</p>
+
+  <h3>Link from an answer to the data</h3>
+  <p>When the system answers a question about a SKU, the answer includes one link. Clicking it opens the dashboard showing that SKU for the period the question was about.</p>
+  <div class="callout">
+    <b>Keep it simple</b>
+    The chat does not control the dashboard and does not create charts. It gives the user one link so they can go and check the numbers themselves.
+  </div>
+</section>
+
+<!-- ============ SUCCESS ============ -->
+<section id="success">
+  <h2><span class="num">11</span>Success metrics</h2>
+
+  <h3>Trust — the most important group</h3>
+  <table>
+    <thead><tr><th>What we measure</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Invented sources</td><td>Zero. This blocks release.</td></tr>
+      <tr><td class="k">Claims supported by their source</td><td>98% or higher</td></tr>
+      <tr><td class="k">Explanation adds up to the total gap</td><td>100%, within 2%</td></tr>
+      <tr><td class="k">Finds the real cause on known past cases</td><td>70% first answer, 90% within top three</td></tr>
+      <tr><td class="k">Says "not enough evidence" when true</td><td>Tracked. Should never be zero.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Speed and reliability</h3>
+  <table>
+    <tbody>
+      <tr><td class="k">Typical answer time</td><td>Under 8 seconds</td></tr>
+      <tr><td class="k">Slowest answers</td><td>Under 20 seconds for 95% of questions</td></tr>
+      <tr><td class="k">Availability</td><td>99.5% during business hours</td></tr>
+      <tr><td class="k">Data ready</td><td>By 7am every Monday, every week</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Adoption and value</h3>
+  <table>
+    <tbody>
+      <tr><td class="k">Weekly users</td><td>At least 60 of 100</td></tr>
+      <tr><td class="k">Source clicks per answer</td><td>Tracked. Shows whether people trust and check the answers.</td></tr>
+      <tr><td class="k">Manual analyst requests</td><td>Should fall. This is the clearest cost saving.</td></tr>
+      <tr><td class="k">Time to get an answer</td><td>From two days to two minutes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>You cannot measure any of the trust numbers without a test set</b>
+    We need 50 to 100 past questions where the correct answer is already known, built together with the client's commercial team from problems they investigated manually. Plan real time for this. It is the only way to prove the system works, and building it with the client also creates trust in the result.
+  </div>
+</section>
+
+<!-- ============ OPEN ============ -->
+<section id="open">
+  <h2><span class="num">12</span>Open items</h2>
+  <p class="lede">Not yet decided. To be filled in as the design continues.</p>
+
+  <table>
+    <thead><tr><th>Item</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Core design approach <span class="pill open">to discuss</span></td><td>How the three sources are combined into one answer, and the reasoning behind it. To be written up separately.</td></tr>
+      <tr><td class="k">Demo scenario <span class="pill open">next</span></td><td>Design the sales drop that management asks about. It needs a cause that is not obvious and only appears when all three sources are combined.</td></tr>
+      <tr><td class="k">Document loading</td><td>How documents enter the system. Manual upload, or automatic sync from SharePoint or Google Drive.</td></tr>
+      <tr><td class="k">Model choice</td><td>Which language model, and whether it runs on Bedrock.</td></tr>
+      <tr><td class="k">Login</td><td>Single sign-on with the client's existing identity provider.</td></tr>
+      <tr><td class="k">News source</td><td>Which search or news provider to use.</td></tr>
+      <tr><td class="k">Cost budget</td><td>Expected monthly running cost, mostly language model usage.</td></tr>
+      <tr><td class="k">Fiscal year</td><td>When the client's financial year starts.</td></tr>
+      <tr><td class="k">Ownership</td><td>Who maintains the system and the business dictionary after handover.</td></tr>
+      <tr><td class="k">Repository structure</td><td>Services, modules and project layout.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  AURELIA is a fictional company created for this case study. Version 0.2 — working draft.
+</footer>
+
+</main>
+</div>
+</body>
+</html>

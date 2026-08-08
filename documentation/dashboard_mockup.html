@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELIA — Business Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F7F6F3; --panel:#FFF; --ink:#1C1B19; --soft:#6B6862; --line:#E4E1DA;
+    --accent:#8A6D3B; --accent-soft:#F0EAE0;
+    --up:#2E7D5B; --down:#B4453C;
+    --measured:#2E5D7D; --documented:#8A6D3B; --external:#7A6B8A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,sans-serif;
+       background:var(--bg);color:var(--ink);font-size:12px;line-height:1.4}
+
+  .topbar{height:46px;display:flex;align-items:center;justify-content:space-between;
+          padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:baseline;gap:11px}
+  .brand h1{font-size:15px;letter-spacing:.22em;font-weight:600}
+  .brand span{font-size:9.5px;color:var(--soft)}
+  .controls{display:flex;gap:6px;align-items:center}
+  .fl{display:flex;flex-direction:column;gap:1px}
+  .fl label{font-size:8px;text-transform:uppercase;letter-spacing:.07em;color:var(--soft);padding-left:2px}
+  .sel{border:1px solid var(--line);background:#fff;border-radius:5px;padding:4px 7px;
+       font-size:11px;cursor:pointer;color:var(--ink);font-family:inherit;max-width:170px}
+  .sel:disabled{background:#F6F5F2;color:#B5B1A9;cursor:not-allowed}
+  .sel.on{border-color:var(--accent);background:#FFFDF9}
+  .rst{border:1px solid var(--line);background:#fff;border-radius:5px;padding:5px 9px;
+       font-size:10.5px;cursor:pointer;color:var(--soft);align-self:flex-end}
+  .rst:hover{border-color:var(--accent);color:var(--accent)}
+
+  .wrap{height:calc(100vh - 46px);display:grid;grid-template-columns:1fr 344px;gap:9px;padding:9px 13px}
+  .left{display:grid;grid-template-rows:auto 1.05fr 1fr;gap:9px;min-height:0}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:7px;
+        padding:9px 11px;display:flex;flex-direction:column;min-height:0}
+  .card h3{font-size:11px;font-weight:600}
+  .card .sub{font-size:9.5px;color:var(--soft);margin-top:1px;margin-bottom:5px}
+  .cbox{flex:1;position:relative;min-height:0}
+  .cbox canvas{position:absolute;inset:0}
+
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+  .kpi .lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi .val{font-size:16px;font-weight:600;margin:2px 0 1px;letter-spacing:-.01em}
+  .kpi .cmp{font-size:9.5px;display:flex;gap:7px;white-space:nowrap}
+  .up{color:var(--up)} .down{color:var(--down)} .mut{color:var(--soft)}
+
+  .rowA,.rowB{display:grid;grid-template-columns:1.85fr 1fr;gap:9px;min-height:0}
+
+  .crumb{display:flex;align-items:center;gap:5px;font-size:10px;margin-bottom:4px;color:var(--soft);flex-wrap:wrap}
+  .crumb b{color:var(--accent);font-weight:500;cursor:pointer}
+  .crumb b:hover{text-decoration:underline}
+  .crumb .cur{color:var(--ink);font-weight:600}
+  .tbox{flex:1;overflow-y:auto;min-height:0;margin-top:3px}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th{position:sticky;top:0;background:#fff;text-align:left;font-size:8.5px;text-transform:uppercase;
+     letter-spacing:.05em;color:var(--soft);font-weight:600;padding:4px 5px;border-bottom:1px solid var(--line)}
+  th.n,td.n{text-align:right}
+  td{padding:5px;border-bottom:1px solid #F2F0EC;white-space:nowrap}
+  tr.clk{cursor:pointer}
+  tr.clk:hover{background:#FAF9F6}
+  tr.flag{background:#FDF6F5}
+  tr.sel{background:#F5F0E7;box-shadow:inset 2px 0 0 var(--accent)}
+  .sku{font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--soft)}
+  .chip{display:inline-block;font-size:8.5px;padding:1px 4px;border-radius:3px;background:#FBE9E7;color:var(--down);margin-left:4px}
+  .bar{height:4px;border-radius:2px;background:#EEEBE5;position:relative;width:44px;display:inline-block;vertical-align:middle;margin-right:4px}
+  .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:2px;background:var(--accent)}
+
+  .chat{background:var(--panel);border:1px solid var(--line);border-radius:7px;display:flex;flex-direction:column;min-height:0}
+  .chat-hd{padding:8px 11px;border-bottom:1px solid var(--line)}
+  .chat-hd h3{font-size:11px;font-weight:600}
+  .chat-hd p{font-size:9px;color:var(--soft);margin-top:1px}
+  .chat-body{flex:1;overflow-y:auto;padding:10px 11px;min-height:0}
+  .msg{margin-bottom:10px}
+  .msg.u{display:flex;justify-content:flex-end}
+  .msg.u div{background:var(--ink);color:#fff;padding:6px 10px;border-radius:11px 11px 3px 11px;max-width:86%;font-size:11px}
+  .body{background:#FAF9F6;border:1px solid var(--line);padding:9px 10px;border-radius:11px 11px 11px 3px;font-size:11px}
+  .hdl{font-weight:600;margin-bottom:5px;line-height:1.36}
+  .ev{border-left:2.5px solid;padding:4px 0 4px 7px;margin:6px 0;font-size:10.5px;line-height:1.38}
+  .ev.m{border-color:var(--measured)} .ev.d{border-color:var(--documented)} .ev.x{border-color:var(--external)}
+  .ev .tag{font-size:8px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;display:block;margin-bottom:2px}
+  .ev.m .tag{color:var(--measured)} .ev.d .tag{color:var(--documented)} .ev.x .tag{color:var(--external)}
+  .ev .src{color:var(--soft);font-size:9.5px;margin-top:2px;text-decoration:underline;cursor:pointer}
+  .wf{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:10px}
+  .wf .wb{height:11px;border-radius:2px;background:var(--down);opacity:.72}
+  .wf .wl{flex:1;color:var(--soft)}
+  .wf .wv{font-weight:600;font-variant-numeric:tabular-nums}
+  .legend{display:flex;gap:8px;font-size:8.5px;color:var(--soft);padding:0 11px 6px}
+  .legend i{display:inline-block;width:6px;height:6px;border-radius:2px;margin-right:3px}
+  .suggest{display:flex;flex-wrap:wrap;gap:4px;padding:0 11px 7px}
+  .sg{font-size:9.5px;border:1px solid var(--line);border-radius:11px;padding:3px 8px;cursor:pointer;color:var(--soft)}
+  .sg:hover{border-color:var(--accent);color:var(--accent)}
+  .chat-in{padding:8px 11px;border-top:1px solid var(--line);display:flex;gap:6px}
+  .chat-in input{flex:1;border:1px solid var(--line);border-radius:15px;padding:6px 11px;font-size:11px;outline:none;font-family:inherit}
+  .chat-in input:focus{border-color:var(--accent)}
+  .chat-in button{border:none;background:var(--ink);color:#fff;border-radius:15px;padding:6px 13px;font-size:11px;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><h1>AURELIA</h1><span>Accessories · Singapore</span></div>
+  <div class="controls">
+    <div class="fl"><label>Week</label>
+      <select class="sel" id="fWeek">
+        <option value="27">W27 · 30 Jun–6 Jul</option>
+        <option value="26">W26 · 23–29 Jun</option>
+        <option value="25">W25 · 16–22 Jun</option>
+      </select>
+    </div>
+    <div class="fl"><label>Department</label><select class="sel" id="fDept"></select></div>
+    <div class="fl"><label>Style / Model</label><select class="sel" id="fModel"></select></div>
+    <div class="fl"><label>SKU</label><select class="sel" id="fSku"></select></div>
+    <div class="fl"><label>Channel</label>
+      <select class="sel" id="fChan">
+        <option value="all">All channels</option>
+        <option value="store">Retail stores</option>
+        <option value="ecom">E-commerce</option>
+      </select>
+    </div>
+    <button class="rst" id="reset">Reset</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="left">
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="rowA">
+      <div class="card">
+        <h3 id="trendTitle">Net sales vs plan</h3>
+        <div class="sub" id="trendSub">All departments · S$'000 · trailing 12 weeks</div>
+        <div class="cbox"><canvas id="trend"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Department variance to plan</h3>
+        <div class="sub" id="deptSub">Week 27</div>
+        <div class="cbox"><canvas id="dept"></canvas></div>
+      </div>
+    </div>
+
+    <div class="rowB">
+      <div class="card">
+        <div class="crumb" id="crumb"></div>
+        <h3 id="tblTitle">Performance by department</h3>
+        <div class="sub" id="tblSub"></div>
+        <div class="tbox">
+          <table>
+            <thead><tr id="thead"></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Channel split</h3>
+        <div class="sub" id="chanSub">Net sales, S$'000</div>
+        <div class="cbox"><canvas id="chan"></canvas></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="chat">
+    <div class="chat-hd">
+      <h3>Ask Aurelia</h3>
+      <p>Evidence-based analysis across sales data, documents and market signals</p>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="msg u"><div>Why did sales for Marlow Crossbody drop last month?</div></div>
+      <div class="msg a">
+        <div class="body">
+          <div class="hdl">Marlow Crossbody fell 34% against plan in June. Most of it is one colour running out of stock. Demand is not the problem.</div>
+          <div style="margin:7px 0">
+            <div class="wf"><span class="wb" style="width:55px"></span><span class="wl">Tan out of stock</span><span class="wv">−62%</span></div>
+            <div class="wf"><span class="wb" style="width:22px"></span><span class="wl">Campaign ended</span><span class="wv">−24%</span></div>
+            <div class="wf"><span class="wb" style="width:8px;opacity:.4"></span><span class="wl">Not explained</span><span class="wv">−14%</span></div>
+          </div>
+          <div class="ev m"><span class="tag">Measured</span>
+            MRL-CB-TAN held under 10 units for 5 of the last 6 weeks. It was 41% of the model's volume in May and 12% in June. Black and Cream both traded close to plan over the same period.
+            <div class="src">Sales &amp; stock data · weeks 22–27</div>
+          </div>
+          <div class="ev d"><span class="tag">Documented</span>
+            Buying meeting notes from 12 May record the Tan reorder being delayed to fund the Autumn range. Stock returns in week 31.
+            <div class="src">Buying_Committee_Minutes_2026-05-12.pdf, p.3</div>
+          </div>
+          <div class="ev d"><span class="tag">Documented</span>
+            The Mid-Year Sale ended in week 26. Marlow Crossbody was a featured product and paid support dropped to zero the following week. This matches the remaining 24%.
+            <div class="src">MidYear_Campaign_Plan_SS26.docx</div>
+          </div>
+          <div class="ev x"><span class="tag">External · lower confidence</span>
+            A competitor launched a similar crossbody at a lower price in early June. No effect could be measured in our data — Black traded to plan throughout, which suggests the category is not under pressure.
+            <div class="src">Retail trade press, 4 Jun 2026</div>
+          </div>
+          <div style="margin-top:7px;border-top:1px solid var(--line);padding-top:6px;font-size:10.5px">
+            <b>What to do:</b> demand for the model is fine. The real risk is Olive — 18% sell-through with 25% discount already applied. That is a range problem, not a supply problem.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--measured)"></i>Measured</span>
+      <span><i style="background:var(--documented)"></i>Documented</span>
+      <span><i style="background:var(--external)"></i>External</span>
+    </div>
+    <div class="suggest">
+      <span class="sg">Show Olive sell-through</span>
+      <span class="sg">What should we discount?</span>
+    </div>
+    <div class="chat-in">
+      <input placeholder="Ask about any product, department or week…">
+      <button>Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif";
+Chart.defaults.font.size=9;
+Chart.defaults.color="#6B6862";
+
+/* ============ CATALOGUE ============ */
+/* base = typical weekly units, p = price, d = discount, sc = optional weekly demand script */
+const CAT = {
+ 'Bags':{
+   'Marlow Crossbody':[
+     {s:'MRL-CB-TAN',c:'Tan',base:95,p:310,d:0,   sc:[1,1,1,.98,1,.95,.88,.58,.40,.27,.18,.13], st:[186,171,158,141,126,110,82,54,32,18,11,6]},
+     {s:'MRL-CB-BLK',c:'Black',base:120,p:310,d:0},
+     {s:'MRL-CB-CRM',c:'Cream',base:80,p:296,d:.12},
+     {s:'MRL-CB-OLV',c:'Olive',base:45,p:250,d:.25,sc:[1,.95,.9,.86,.82,.78,.75,.72,.70,.68,.66,.64]}
+   ],
+   'Sienna Tote':[
+     {s:'SIE-TT-BLK',c:'Black',base:70,p:420,d:0},
+     {s:'SIE-TT-TAN',c:'Tan',base:55,p:420,d:0},
+     {s:'SIE-TT-NVY',c:'Navy',base:38,p:420,d:.10}
+   ],
+   'Piper Clutch':[
+     {s:'PIP-CL-BLK',c:'Black',base:44,p:220,d:0},
+     {s:'PIP-CL-GLD',c:'Gold',base:28,p:240,d:.15}
+   ],
+   'Astrid Backpack':[
+     {s:'AST-BP-BLK',c:'Black',base:58,p:380,d:0},
+     {s:'AST-BP-GRY',c:'Grey',base:34,p:380,d:.10}
+   ]
+ },
+ 'Footwear':{
+   'Nadia Loafer':[
+     {s:'NAD-LF-BLK',c:'Black',base:78,p:290,d:0},
+     {s:'NAD-LF-TAN',c:'Tan',base:58,p:290,d:0}
+   ],
+   'Vera Heel':[
+     {s:'VER-HL-BLK',c:'Black',base:48,p:330,d:0},
+     {s:'VER-HL-RED',c:'Red',base:24,p:330,d:.20}
+   ],
+   'Cleo Sandal':[
+     {s:'CLE-SD-TAN',c:'Tan',base:68,p:210,d:0},
+     {s:'CLE-SD-WHT',c:'White',base:44,p:210,d:.10}
+   ]
+ },
+ 'Jewellery':{
+   'Lune Pendant':[
+     {s:'LUN-PD-GLD',c:'Gold',base:92,p:180,d:0},
+     {s:'LUN-PD-SLV',c:'Silver',base:70,p:165,d:0}
+   ],
+   'Orla Hoop':[
+     {s:'ORL-HP-GLD',c:'Gold',base:112,p:140,d:0},
+     {s:'ORL-HP-SLV',c:'Silver',base:86,p:130,d:0}
+   ],
+   'Ivy Cuff':[
+     {s:'IVY-CF-GLD',c:'Gold',base:40,p:240,d:.10}
+   ]
+ },
+ 'Eyewear':{
+   'Sol Aviator':[
+     {s:'SOL-AV-GLD',c:'Gold',base:54,p:195,d:0},
+     {s:'SOL-AV-BLK',c:'Black',base:44,p:195,d:.10}
+   ],
+   'Mira Cat-Eye':[
+     {s:'MIR-CE-BLK',c:'Black',base:50,p:210,d:0},
+     {s:'MIR-CE-TOR',c:'Tortoise',base:33,p:210,d:.15}
+   ]
+ },
+ 'Small leather goods':{
+   'Rowan Belt':[
+     {s:'ROW-BT-BLK',c:'Black',base:64,p:150,d:0},
+     {s:'ROW-BT-TAN',c:'Tan',base:50,p:150,d:0}
+   ],
+   'Quinn Cardholder':[
+     {s:'QUI-CH-BLK',c:'Black',base:90,p:110,d:0},
+     {s:'QUI-CH-TAN',c:'Tan',base:60,p:110,d:.10}
+   ]
+ },
+ 'Keychains':{
+   'Tilda Charm':[
+     {s:'TIL-CM-GLD',c:'Gold',base:120,p:65,d:0},
+     {s:'TIL-CM-MIX',c:'Multi',base:88,p:65,d:.10}
+   ]
+ }
+};
+
+const WEEKS=['W16','W17','W18','W19','W20','W21','W22','W23','W24','W25','W26','W27'];
+const SEAS =[1.00,1.02,0.98,1.03,1.06,1.09,1.06,1.00,0.96,0.99,1.03,0.94];
+const MARGIN_COST=0.38;
+
+function rnd(k,w){const h=[...k].reduce((a,c)=>a+c.charCodeAt(0),0);const x=Math.sin(h*13.7+w*7.31)*10000;return x-Math.floor(x);}
+
+/* build flat SKU records with 12 weeks of actual / plan / last-year */
+const SKUS=[];
+for(const dept in CAT){
+  for(const model in CAT[dept]){
+    CAT[dept][model].forEach(o=>{
+      const a=[],pl=[],ly=[],stk=[];
+      for(let w=0;w<12;w++){
+        const noise=0.92+0.16*rnd(o.s,w);
+        const script=o.sc?o.sc[w]:1;
+        const units=Math.round(o.base*SEAS[w]*noise*script);
+        const planU=Math.round(o.base*SEAS[w]*1.03);
+        const lyU  =Math.round(o.base*SEAS[w]*0.94*(0.95+0.1*rnd(o.s+'ly',w)));
+        a.push(units); pl.push(planU); ly.push(lyU);
+        stk.push(o.st?o.st[w]:Math.round(o.base*(2.6+1.4*rnd(o.s+'st',w))));
+      }
+      SKUS.push({sku:o.s,colour:o.c,dept,model,price:o.p,disc:o.d,units:a,planU:pl,lyU:ly,stock:stk});
+    });
+  }
+}
+const rev  =(r,w)=>r.units[w]*r.price*(1-r.disc);
+const prev =(r,w)=>r.planU[w]*r.price;
+const lrev =(r,w)=>r.lyU[w]*r.price*0.98;
+
+/* ============ STATE ============ */
+let S={week:11,dept:'all',model:'all',sku:'all',chan:'all'};
+const chanF=c=>c==='store'?0.58:c==='ecom'?0.42:1;
+
+function pick(){
+  return SKUS.filter(r=>(S.dept==='all'||r.dept===S.dept)&&(S.model==='all'||r.model===S.model)&&(S.sku==='all'||r.sku===S.sku));
+}
+
+/* ============ FILTER DROPDOWNS ============ */
+const eDept=document.getElementById('fDept'),eModel=document.getElementById('fModel'),
+      eSku=document.getElementById('fSku'),eWeek=document.getElementById('fWeek'),eChan=document.getElementById('fChan');
+
+function fillDept(){
+  eDept.innerHTML='<option value="all">All departments</option>'+Object.keys(CAT).map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+function fillModel(){
+  if(S.dept==='all'){eModel.innerHTML='<option value="all">— select department —</option>';eModel.disabled=true;}
+  else{eModel.disabled=false;
+    eModel.innerHTML='<option value="all">All styles</option>'+Object.keys(CAT[S.dept]).map(m=>`<option value="${m}">${m}</option>`).join('');}
+  eModel.value=S.model;
+}
+function fillSku(){
+  if(S.dept==='all'||S.model==='all'){eSku.innerHTML='<option value="all">— select style —</option>';eSku.disabled=true;}
+  else{eSku.disabled=false;
+    eSku.innerHTML='<option value="all">All SKUs</option>'+CAT[S.dept][S.model].map(o=>`<option value="${o.s}">${o.s} · ${o.c}</option>`).join('');}
+  eSku.value=S.sku;
+}
+function markOn(){
+  eDept.classList.toggle('on',S.dept!=='all');
+  eModel.classList.toggle('on',S.model!=='all');
+  eSku.classList.toggle('on',S.sku!=='all');
+  eChan.classList.toggle('on',S.chan!=='all');
+}
+
+eDept.onchange=e=>{S.dept=e.target.value;S.model='all';S.sku='all';fillModel();fillSku();render();};
+eModel.onchange=e=>{S.model=e.target.value;S.sku='all';fillSku();render();};
+eSku.onchange=e=>{S.sku=e.target.value;render();};
+eWeek.onchange=e=>{S.week=WEEKS.indexOf('W'+e.target.value);render();};
+eChan.onchange=e=>{S.chan=e.target.value;render();};
+document.getElementById('reset').onclick=()=>{S={week:11,dept:'all',model:'all',sku:'all',chan:'all'};
+  eWeek.value='27';eChan.value='all';fillDept();fillModel();fillSku();render();};
+
+/* ============ CHARTS ============ */
+const trend=new Chart(document.getElementById('trend'),{
+  type:'line',
+  data:{labels:WEEKS,datasets:[
+    {label:'Actual',data:[],borderColor:'#1C1B19',backgroundColor:'rgba(28,27,25,.05)',borderWidth:2,tension:.32,fill:true,pointRadius:0,pointBackgroundColor:'#1C1B19'},
+    {label:'Plan',data:[],borderColor:'#8A6D3B',borderWidth:1.4,borderDash:[5,4],tension:.32,fill:false,pointRadius:0},
+    {label:'Last year',data:[],borderColor:'#C9C4BA',borderWidth:1.4,tension:.32,fill:false,pointRadius:0}]},
+  options:{maintainAspectRatio:false,animation:{duration:350},
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,pointStyle:'line',padding:10,font:{size:9}}}},
+    scales:{y:{grid:{color:'#F0EEE9'},border:{display:false},ticks:{maxTicksLimit:5,callback:v=>v>=1000?(v/1000).toFixed(1)+'m':v+'k'}},
+            x:{grid:{display:false},border:{color:'#E4E1DA'}}}}
+});
+const deptC=new Chart(document.getElementById('dept'),{
+  type:'bar',
+  data:{labels:Object.keys(CAT),datasets:[{data:[],backgroundColor:c=>c.raw<0?'rgba(180,69,60,.8)':'rgba(46,125,91,.8)',borderRadius:3,barThickness:12}]},
+  options:{indexAxis:'y',maintainAspectRatio:false,animation:{duration:350},
+    plugins:{legend:{display:false}},
+    scales:{x:{grid:{color:'#F0EEE9'},border:{display:false},ticks:{maxTicksLimit:5,callback:v=>v+'%'}},
+            y:{grid:{display:false},border:{display:false}}}}
+});
+const chanC=new Chart(document.getElementById('chan'),{
+  type:'bar',
+  data:{labels:WEEKS.slice(-5),datasets:[
+    {label:'Stores',data:[],backgroundColor:'#1C1B19',borderRadius:2,barThickness:14},
+    {label:'E-comm',data:[],backgroundColor:'#C0A575',borderRadius:2,barThickness:14}]},
+  options:{maintainAspectRatio:false,animation:{duration:350},
+    plugins:{legend:{position:'top',align:'end',labels:{boxWidth:8,boxHeight:8,usePointStyle:true,pointStyle:'rectRounded',padding:8,font:{size:9}}}},
+    scales:{x:{stacked:true,grid:{display:false},border:{color:'#E4E1DA'}},
+            y:{stacked:true,grid:{color:'#F0EEE9'},border:{display:false},ticks:{maxTicksLimit:5}}}}
+});
+
+/* ============ RENDER ============ */
+function render(){
+  markOn();
+  const rows=pick(), w=S.week, cf=chanF(S.chan);
+
+  /* ---- KPIs ---- */
+  const A=rows.reduce((t,r)=>t+rev(r,w),0)*cf;
+  const P=rows.reduce((t,r)=>t+prev(r,w),0)*cf;
+  const L=rows.reduce((t,r)=>t+lrev(r,w),0)*cf;
+  const U=rows.reduce((t,r)=>t+r.units[w],0)*cf;
+  const grossPct=rows.length?(1-MARGIN_COST/(1-rows.reduce((t,r)=>t+r.disc*rev(r,w),0)/(A/cf||1)||1))*100:0;
+  const wDisc=A?rows.reduce((t,r)=>t+r.disc*rev(r,w),0)*cf/A*100:0;
+  const gm=(1-MARGIN_COST)*100-wDisc*0.55;
+  const stock=rows.reduce((t,r)=>t+r.stock[w],0);
+  const cover=U?stock/U:0;
+  const fpUnits=rows.filter(r=>r.disc===0).reduce((t,r)=>t+r.units[w],0)*cf;
+  const fpST=(U+stock)?fpUnits/(U+stock*0.35)*100:0;
+
+  const f=v=>v>=1e6?'S$'+(v/1e6).toFixed(2)+'m':'S$'+Math.round(v/1000)+'k';
+  const pc=(a,b)=>b?((a-b)/b*100):0;
+  const arrow=v=>(v<0?'▼ ':'▲ ')+Math.abs(v).toFixed(1)+'%';
+  const cls=v=>v<0?'down':'up';
+
+  const vP=pc(A,P), vL=pc(A,L);
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi"><div class="lbl">Net Sales</div><div class="val">${f(A)}</div>
+      <div class="cmp"><span class="${cls(vP)}">${arrow(vP)} plan</span><span class="mut">${arrow(vL)} LY</span></div></div>
+    <div class="kpi"><div class="lbl">Units</div><div class="val">${Math.round(U).toLocaleString()}</div>
+      <div class="cmp"><span class="mut">stock ${Math.round(stock).toLocaleString()}</span></div></div>
+    <div class="kpi"><div class="lbl">Gross Margin</div><div class="val">${gm.toFixed(1)}%</div>
+      <div class="cmp"><span class="${gm<61?'down':'up'}">${gm<61?'below':'above'} target</span></div></div>
+    <div class="kpi"><div class="lbl">Full-price Sell-thru</div><div class="val">${Math.min(fpST,99).toFixed(1)}%</div>
+      <div class="cmp"><span class="mut">target 55%</span></div></div>
+    <div class="kpi"><div class="lbl">Weeks Cover</div><div class="val">${cover.toFixed(1)}</div>
+      <div class="cmp"><span class="${cover>10||cover<4?'down':'mut'}">target 8–10</span></div></div>`;
+
+  /* ---- trend ---- */
+  const sum=(k,fn)=>WEEKS.map((_,i)=>rows.reduce((t,r)=>t+fn(r,i),0)*cf/1000);
+  trend.data.datasets[0].data=sum('a',rev);
+  trend.data.datasets[1].data=sum('p',prev);
+  trend.data.datasets[2].data=sum('l',lrev);
+  trend.data.datasets[0].pointRadius=c=>c.dataIndex===w?4:0;
+  trend.update();
+
+  const scopeName = S.sku!=='all' ? S.sku+' · '+(rows[0]?rows[0].colour:'')
+                  : S.model!=='all' ? S.model
+                  : S.dept!=='all' ? S.dept : 'All departments';
+  document.getElementById('trendTitle').textContent='Net sales vs plan — '+scopeName;
+  document.getElementById('trendSub').textContent=
+    (S.chan==='all'?'All channels':S.chan==='store'?'Retail stores':'E-commerce')+" · S$'000 · trailing 12 weeks";
+
+  /* ---- department variance ---- */
+  deptC.data.datasets[0].data=Object.keys(CAT).map(d=>{
+    const rs=SKUS.filter(r=>r.dept===d);
+    const a=rs.reduce((t,r)=>t+rev(r,w),0), p=rs.reduce((t,r)=>t+prev(r,w),0);
+    return +( (a-p)/p*100 ).toFixed(1);
+  });
+  deptC.update();
+  document.getElementById('deptSub').textContent='Week '+WEEKS[w].slice(1);
+
+  /* ---- channel ---- */
+  const last5=[7,8,9,10,11];
+  chanC.data.labels=last5.map(i=>WEEKS[i]);
+  chanC.data.datasets[0].data=last5.map(i=>rows.reduce((t,r)=>t+rev(r,i),0)*0.58/1000);
+  chanC.data.datasets[1].data=last5.map(i=>rows.reduce((t,r)=>t+rev(r,i),0)*0.42/1000);
+  chanC.update();
+
+  /* ---- breadcrumb ---- */
+  const cb=[];
+  cb.push(S.dept==='all'?'<span class="cur">All departments</span>':'<b data-lv="dept">All departments</b>');
+  if(S.dept!=='all') cb.push(' › '+(S.model==='all'?`<span class="cur">${S.dept}</span>`:`<b data-lv="model">${S.dept}</b>`));
+  if(S.model!=='all') cb.push(' › '+(S.sku==='all'?`<span class="cur">${S.model}</span>`:`<b data-lv="sku">${S.model}</b>`));
+  if(S.sku!=='all') cb.push(' › <span class="cur">'+S.sku+'</span>');
+  const cEl=document.getElementById('crumb'); cEl.innerHTML=cb.join('');
+  cEl.querySelectorAll('b').forEach(b=>b.onclick=()=>{
+    const lv=b.dataset.lv;
+    if(lv==='dept'){S.dept='all';S.model='all';S.sku='all';}
+    if(lv==='model'){S.model='all';S.sku='all';}
+    if(lv==='sku'){S.sku='all';}
+    fillModel();fillSku();render();
+  });
+
+  /* ---- table ---- */
+  let level, list;
+  if(S.dept==='all'){ level='dept';
+    list=Object.keys(CAT).map(d=>({key:d,name:d,sub:Object.keys(CAT[d]).length+' styles',rs:SKUS.filter(r=>r.dept===d)}));
+  } else if(S.model==='all'){ level='model';
+    list=Object.keys(CAT[S.dept]).map(m=>({key:m,name:m,sub:CAT[S.dept][m].length+' SKUs',rs:SKUS.filter(r=>r.dept===S.dept&&r.model===m)}));
+  } else { level='sku';
+    list=CAT[S.dept][S.model].map(o=>{const r=SKUS.find(x=>x.sku===o.s);return{key:o.s,name:o.s,sub:o.c,rs:[r],r};});
+  }
+
+  document.getElementById('thead').innerHTML = level==='sku'
+    ? `<th>SKU</th><th>Colour</th><th class="n">Units</th><th class="n">Net sales</th><th class="n">vs Plan</th><th class="n">Disc</th><th>Sell-thru</th><th class="n">Stock</th>`
+    : `<th>${level==='dept'?'Department':'Style'}</th><th></th><th class="n">Units</th><th class="n">Net sales</th><th class="n">vs Plan</th><th class="n">vs LY</th><th>Sell-thru</th><th class="n">Stock</th>`;
+
+  const body=list.map(it=>{
+    const a=it.rs.reduce((t,r)=>t+rev(r,w),0)*cf;
+    const p=it.rs.reduce((t,r)=>t+prev(r,w),0)*cf;
+    const l=it.rs.reduce((t,r)=>t+lrev(r,w),0)*cf;
+    const u=Math.round(it.rs.reduce((t,r)=>t+r.units[w],0)*cf);
+    const st=it.rs.reduce((t,r)=>t+r.stock[w],0);
+    const sold=it.rs.reduce((t,r)=>t+r.units.slice(0,w+1).reduce((x,y)=>x+y,0),0);
+    const sth=Math.round(sold/(sold+st)*100);
+    const vp=pc(a,p), vl=pc(a,l);
+    const low=st<=12;
+    const disc=level==='sku'?Math.round(it.r.disc*100)+'%':'';
+    const isSel=level==='sku'&&S.sku===it.key;
+    return `<tr class="clk ${low?'flag':''} ${isSel?'sel':''}" data-k="${it.key}">
+      <td class="${level==='sku'?'sku':''}">${it.name}</td>
+      <td>${it.sub}${low?'<span class="chip">low stock</span>':''}</td>
+      <td class="n">${u.toLocaleString()}</td>
+      <td class="n">S$${Math.round(a).toLocaleString()}</td>
+      <td class="n ${cls(vp)}">${arrow(vp)}</td>
+      <td class="n ${level==='sku'?'':cls(vl)}">${level==='sku'?disc:arrow(vl)}</td>
+      <td><span class="bar"><i style="width:${Math.min(sth,100)}%"></i></span>${sth}%</td>
+      <td class="n">${Math.round(st).toLocaleString()}</td></tr>`;
+  }).join('');
+  document.getElementById('tbody').innerHTML=body;
+
+  document.getElementById('tblTitle').textContent =
+    level==='dept'?'Performance by department':level==='model'?'Styles in '+S.dept:'SKUs in '+S.model;
+  document.getElementById('tblSub').textContent =
+    'Week '+WEEKS[w].slice(1)+' · '+list.length+(level==='dept'?' departments':level==='model'?' styles':' SKUs')+' · click a row to drill down';
+
+  document.querySelectorAll('#tbody tr').forEach(tr=>tr.onclick=()=>{
+    const k=tr.dataset.k;
+    if(level==='dept'){S.dept=k;S.model='all';S.sku='all';}
+    else if(level==='model'){S.model=k;S.sku='all';}
+    else {S.sku=S.sku===k?'all':k;}
+    fillModel();fillSku();render();
+  });
+}
+
+fillDept();fillModel();fillSku();render();
+</script>
+</body>
+</html>

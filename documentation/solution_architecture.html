@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELIA — Solution Architecture</title>
+<style>
+  :root{
+    --bg:#F7F6F3; --panel:#FFF; --ink:#1C1B19; --soft:#6B6862; --line:#E4E1DA;
+    --accent:#8A6D3B; --accent-soft:#F5F0E7;
+    --up:#2E7D5B; --down:#B4453C; --info:#2E5D7D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;
+  }
+  .layout{display:grid;grid-template-columns:216px 1fr;max-width:1180px;margin:0 auto;gap:34px;padding:0 26px}
+
+  nav{position:sticky;top:0;height:100vh;padding:34px 0;overflow-y:auto}
+  nav .nt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:12px;font-weight:600}
+  nav a{display:block;padding:5px 10px;font-size:12.5px;color:var(--soft);text-decoration:none;
+        border-left:2px solid transparent;line-height:1.35}
+  nav a:hover{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
+  nav a.hi{color:var(--accent);font-weight:600}
+
+  main{padding:34px 0 90px}
+
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:30px}
+  header.doc .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  header.doc h1{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:8px 0 6px;line-height:1.15}
+  header.doc p{color:var(--soft);font-size:13.5px}
+  header.doc .meta{margin-top:14px;font-size:12px;color:var(--soft);display:flex;gap:20px;flex-wrap:wrap}
+
+  section{margin-bottom:38px;scroll-margin-top:20px}
+  h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;
+     padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h2 .num{color:var(--accent);font-size:13px;margin-right:9px;font-weight:600}
+  .lede{color:var(--soft);font-size:13px;margin:9px 0 15px}
+  h3{font-size:14px;font-weight:600;margin:20px 0 8px}
+  h4{font-size:12.5px;font-weight:600;margin:14px 0 6px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  p{margin-bottom:10px}
+  ul{margin:0 0 12px 17px}
+  li{margin-bottom:5px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+        border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--soft);
+     font-weight:600;padding:9px 12px;background:#FCFBF9;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px;border-bottom:1px solid #F2F0EC;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.k{font-weight:600;width:30%}
+  td.k.narrow{width:20%}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+
+  pre{background:#FBFAF8;border:1px solid var(--line);border-radius:7px;padding:12px 14px;
+      font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.55;
+      overflow-x:auto;margin-bottom:14px;color:#33312E}
+  pre .c{color:#9A958C}
+  pre .kw{color:var(--accent);font-weight:600}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 15px;
+           border-radius:0 6px 6px 0;margin-bottom:14px;font-size:13px}
+  .callout b{display:block;margin-bottom:3px}
+  .callout.warn{border-color:var(--down);background:#FCF1EF}
+  .callout.info{border-color:var(--info);background:#EFF4F8}
+  .callout.ok{border-color:var(--up);background:#EDF5F1}
+
+  .pill{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:11px;font-weight:600}
+  .pill.in{background:#E8F3ED;color:var(--up)}
+  .pill.out{background:#FBEDEB;color:var(--down)}
+  .pill.open{background:#FBF3E3;color:var(--accent)}
+  .pill.new{background:#EFF4F8;color:var(--info)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  ol.steps{counter-reset:s;list-style:none;margin-left:0}
+  ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin-bottom:11px}
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:50%;
+    background:var(--ink);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+  /* pipeline diagram */
+  .pipe{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 18px;margin-bottom:16px}
+  .prow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+  .pstage{flex:1;min-width:118px;text-align:center;position:relative;padding:0 5px}
+  .pbox{border:1.5px solid var(--ink);border-radius:7px;padding:9px 6px;background:#fff;min-height:60px;
+        display:flex;flex-direction:column;justify-content:center}
+  .pbox .pn{font-size:9px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+  .pbox .pt{font-size:12px;font-weight:600;margin-top:2px;line-height:1.25}
+  .pbox .pd{font-size:9.5px;color:var(--soft);margin-top:3px;line-height:1.3}
+  .parrow{display:flex;align-items:center;color:var(--soft);font-size:15px;padding:0 1px}
+  .pstat{margin-top:7px;font-size:9.5px;font-family:ui-monospace,Menlo,monospace;
+         background:#F3F1EC;border-radius:4px;padding:3px 4px;color:var(--soft)}
+  .pcap{font-size:10px;color:var(--soft);text-align:center;margin-top:11px;letter-spacing:.03em}
+  .pfail{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;display:flex;gap:10px;align-items:center;
+         font-size:11.5px;color:var(--down)}
+  .pfail .fbox{border:1.5px dashed var(--down);border-radius:6px;padding:5px 10px;font-weight:600;font-size:11px;white-space:nowrap}
+
+
+  .tabbar{display:flex;gap:4px;margin-bottom:26px;border-bottom:1px solid var(--line)}
+  .tabbtn{font-family:inherit;font-size:13px;font-weight:600;color:var(--soft);background:none;border:none;
+          padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tabbtn:hover{color:var(--accent)}
+  .tabbtn.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .navgroup[hidden],.pane[hidden],.subpane[hidden]{display:none}
+
+  .subbar{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+  .subbtn{font-family:inherit;font-size:12px;font-weight:600;color:var(--soft);background:var(--panel);
+          border:1px solid var(--line);border-radius:16px;padding:6px 14px;cursor:pointer}
+  .subbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .subbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .innerbar{display:flex;gap:20px;margin:0 0 22px;border-bottom:1px solid var(--line)}
+  .innerbtn{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--soft);background:none;border:none;
+            padding:0 0 8px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .innerbtn:hover{color:var(--accent)}
+  .innerbtn.on{color:var(--ink);border-bottom-color:var(--ink)}
+  .innerpane[hidden]{display:none}
+  nav a.inner{padding-left:30px;font-size:11.5px}
+  nav a.inner.on{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+  nav a.sub{padding-left:18px;font-size:12px}
+  nav a.sub.on{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-soft)}
+
+  footer{border-top:1px solid var(--line);padding-top:16px;color:var(--soft);font-size:12px}
+
+  @media print{
+    nav{display:none} .layout{grid-template-columns:1fr;max-width:100%}
+    body{background:#fff;font-size:11px} section{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="navgroup" data-t="1">
+  <div class="nt">Business &amp; Assumptions</div>
+  <a href="#brief">The brief</a>
+  <a href="#business">1 · The business</a>
+  <a href="#assumptions">2 · Business assumptions</a>
+  <a href="#users">3 · Users and decisions</a>
+  <a href="#scope">4 · Scope</a>
+  <a href="#metrics">5 · Business metrics</a>
+  <a href="#tech">6 · Technical assumptions</a>
+  <a href="#approach">7 · How answers are built</a>
+  <a href="#trust">8 · Avoiding wrong answers</a>
+  <a href="#ui">9 · Interface</a>
+  <a href="#success">10 · Success metrics</a>
+  <a href="#open">11 · Open items</a>
+  </div>
+  <div class="navgroup" data-t="3" hidden>
+  <div class="nt">Improvements</div>
+  <a href="#imp-model">Data Model</a>
+  <a href="#imp-ingest">Data Ingestion Pipeline</a>
+  <a href="#imp-docs">Unstructured Data</a>
+  </div>
+  <div class="navgroup" data-t="2" hidden>
+  <div class="nt">Technical Design</div>
+  <a href="#data" class="sub on" data-s="model">Data</a>
+  <a href="#data" class="inner on" data-i="struct">Structured</a>
+  <a href="#docs" class="inner" data-i="unstruct">Unstructured · Internal</a>
+  <a href="#ext" class="inner" data-i="external">Unstructured · External</a>
+  <a href="#load" class="sub" data-s="ingest">Data Ingestion Pipeline</a>
+  <a href="#docload" class="sub" data-s="docingest">Document Ingestion Pipeline</a>
+  <a href="#stack" class="sub" data-s="stack">Tech Stack &amp; Deployment</a>
+  </div>
+</nav>
+
+<main>
+
+<header class="doc">
+  <div class="eyebrow">Case Study — Proposed Solution</div>
+  <h1>Smart Business Performance Dashboard</h1>
+  <p>Business and technical architecture for a retail performance dashboard with natural language analysis.</p>
+  <div class="meta">
+    <span>Client: AURELIA (illustrative)</span>
+    <span>Market: Singapore</span>
+    <span>Version 0.3 — working draft</span>
+  </div>
+</header>
+
+<div class="tabbar">
+  <button class="tabbtn on" data-t="1">Business &amp; Assumptions</button>
+  <button class="tabbtn" data-t="2">Technical Design</button>
+  <button class="tabbtn" data-t="3">Improvements</button>
+</div>
+
+<div class="pane" data-t="1">
+
+<!-- ============ BRIEF ============ -->
+<section id="brief">
+  <h2><span class="num">—</span>The brief</h2>
+  <p>Senior management want a dashboard that shows overall business performance and lets them drill down to SKU level.</p>
+  <p>It must also answer questions in plain language, such as <i>"Why did sales for this SKU drop last month?"</i>. Answers must be based on evidence from three sources:</p>
+  <ul>
+    <li>Internal sales and operations data</li>
+    <li>Internal documents — campaign plans, meeting notes, operational reports</li>
+    <li>Public information — news, market events, competitor activity</li>
+  </ul>
+</section>
+
+<!-- ============ BUSINESS ============ -->
+<section id="business">
+  <h2><span class="num">1</span>The business</h2>
+  <p class="lede">We use a fictional company. Real retailers do not publish internal documents such as meeting notes, and those documents are central to this problem. Inventing the company keeps the example honest and lets us design a clear test case.</p>
+
+  <table>
+    <tr><td class="k">Company</td><td>AURELIA — fictional</td></tr>
+    <tr><td class="k">Type</td><td>Accessible-luxury fashion accessories. Similar in shape to Charles &amp; Keith.</td></tr>
+    <tr><td class="k">Market</td><td>Singapore only</td></tr>
+    <tr><td class="k">Model</td><td><b>B2C</b> — business to consumer. Sells directly to shoppers, not to other businesses.</td></tr>
+    <tr><td class="k">Channels</td><td>Own e-commerce site and own retail stores. No wholesale.</td></tr>
+    <tr><td class="k">Price range</td><td>Bags S$150–500. Jewellery S$60–250. Prices in SGD.</td></tr>
+    <tr><td class="k">Departments</td><td>Bags · Footwear · Jewellery · Eyewear · Small leather goods · Keychains</td></tr>
+    <tr><td class="k">Product hierarchy</td><td>Department → Model → SKU. Example: Bags → Marlow Crossbody → MRL-CB-TAN.</td></tr>
+    <tr><td class="k">Catalogue size</td><td>Around 60–70 models, giving roughly 250–350 SKUs once colours and sizes are counted.</td></tr>
+    <tr><td class="k">History</td><td>Three years of weekly data</td></tr>
+  </table>
+</section>
+
+<!-- ============ ASSUMPTIONS ============ -->
+<section id="assumptions">
+  <h2><span class="num">2</span>Business assumptions</h2>
+  <ol class="steps">
+    <li>The business operates only in Singapore and sells only to consumers (B2C).</li>
+    <li>There are two channels: own e-commerce and own stores.</li>
+    <li>All sales data is weekly. The week closes on Sunday. Data is available Monday morning.</li>
+    <li>There is no need for live or real-time data.</li>
+    <li><b>Targets are set monthly, not yearly.</b> Performance is assessed over a four-week period against the monthly target.</li>
+    <li>The system covers product performance only. There is no customer data and no personalisation.</li>
+    <li>Once a week is closed, its numbers do not change. Returns are recorded separately, in the week the return happened.</li>
+    <li>Campaign and promotion timing comes from the internal documents, not from a separate calendar.</li>
+  </ol>
+
+  <h3>Where the monthly target comes from</h3>
+  <p>The target is not calculated by this system. It is decided by management and written down in internal documents — monthly planning meeting minutes, buying committee notes, and similar records.</p>
+
+  <div class="callout">
+    <b>Targets are hardcoded values taken from documents</b>
+    For this solution, monthly targets are extracted from specific meeting minutes and planning documents and stored as fixed values. They are not connected to a live planning system. This is a deliberate simplification and should be stated openly.
+  </div>
+
+  <ul>
+    <li>A monthly sales target exists per department, and is broken down to model and SKU level.</li>
+    <li>Each month covers four weeks of sales data.</li>
+    <li>Targets are read once from the source documents and loaded into the system.</li>
+    <li>If management revises a target mid-month, it is reloaded manually.</li>
+  </ul>
+
+  <div class="callout warn">
+    <b>Important caveat to state</b>
+    A target is more reliable at department level than at SKU level. A department target is a real commitment someone is accountable for. A SKU target is usually a calculated share that nobody personally agreed to. So a SKU missing target by 30% is weaker evidence than a department missing by 5%. The system should weight these differently.
+  </div>
+</section>
+
+<!-- ============ USERS ============ -->
+<section id="users">
+  <h2><span class="num">3</span>Users and decisions</h2>
+
+  <table>
+    <thead><tr><th>User</th><th>What they look at</th><th>How often</th></tr></thead>
+    <tbody>
+      <tr><td class="k">CEO / CFO</td><td>Total sales and margin against the monthly target</td><td>Monthly, briefly</td></tr>
+      <tr><td class="k">Commercial director</td><td>Department and model performance against target</td><td>Weekly</td></tr>
+      <tr><td class="k">Buying and merchandising</td><td>SKU sell-through, stock cover, discount levels</td><td>Several times a week</td></tr>
+      <tr><td class="k">Marketing</td><td>Campaign impact on specific products</td><td>Weekly</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Why drill-down to SKU matters, even though managers do not manage SKUs</b>
+    A CEO never decides what to do about one tan handbag. But when sales miss the monthly target by 6%, the only question that matters is whether it is one broken product, one weak category, or the whole business slowing down. Those three need completely different responses. The drill-down exists to answer that question. It is a way to check a number, not a tool for managing products.
+  </div>
+
+  <h3>The moment this is used</h3>
+  <p>The monthly review meeting, and the weekly trading meeting that leads up to it. Someone asks why something dropped. Today that becomes a request to an analyst and takes one to two days. This system aims to answer it inside the meeting.</p>
+
+  <h3>Decisions it supports</h3>
+  <ul>
+    <li>Reorder a product or not</li>
+    <li>When to discount, and by how much</li>
+    <li>Keep, drop or expand a model next season</li>
+    <li>Move stock between channels</li>
+    <li>Where to put campaign spend</li>
+  </ul>
+</section>
+
+<!-- ============ SCOPE ============ -->
+<section id="scope">
+  <h2><span class="num">4</span>Scope</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <p><span class="pill in">In scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Performance dashboard, company level down to SKU</li>
+        <li>Comparison against the monthly target only</li>
+        <li>Natural language questions about past performance</li>
+        <li>Evidence-based explanations with sources shown</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p><span class="pill out">Out of scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Forecasting future sales</li>
+        <li>Automatic reordering or stock decisions</li>
+        <li>Customer-level analysis or personalisation</li>
+        <li>Fixing data quality problems in source systems</li>
+        <li>Real-time or intraday data</li>
+        <li>Alerts or proactive lists of problem products</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>The system recommends, it never acts</b>
+    Every output is an explanation or a suggestion. A person makes the decision. This keeps accountability clear and greatly reduces risk.
+  </div>
+</section>
+
+<!-- ============ METRICS ============ -->
+<section id="metrics">
+  <h2><span class="num">5</span>Business metrics shown</h2>
+  <p class="lede">Performance is always compared against the monthly target. Four weeks of sales data are added together and measured against that month's number.</p>
+
+  <table>
+    <thead><tr><th>Metric</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Net sales</td><td>Headline number. Compared against the monthly target.</td></tr>
+      <tr><td class="k">Gross margin</td><td>Shows whether sales were profitable.</td></tr>
+      <tr><td class="k">Full-price sell-through</td><td>The most important metric in fashion. Shows what share of stock sold at full price. A business can hit its sales target while damaging itself through discounting. This number reveals that.</td></tr>
+      <tr><td class="k">Average discount</td><td>Shows how much price is being given away.</td></tr>
+      <tr><td class="k">Weeks cover</td><td>How many weeks of stock remain at the current sales rate. Flags both stock-outs and overstock.</td></tr>
+      <tr><td class="k">Rate of sale</td><td>Units sold per week. Lets you compare products of different sizes fairly.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ TECH ============ -->
+<section id="tech">
+  <h2><span class="num">6</span>Technical assumptions</h2>
+
+  <table>
+    <thead><tr><th>Area</th><th>Assumption</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Users</td><td>Around 100 senior staff. Peak use is Monday morning, roughly 20–30 people at once. Very light use for the rest of the week.</td></tr>
+      <tr><td class="k">Data size</td><td>Under 100,000 rows of sales data. A few hundred to a few thousand documents.</td></tr>
+      <tr><td class="k">Deployment</td><td>AWS, Singapore region, single region across multiple availability zones.</td></tr>
+      <tr><td class="k">Database</td><td>Postgres, with pgvector for document search. No warehouse product needed at this size.</td></tr>
+      <tr><td class="k">Front end</td><td>React single-page application.</td></tr>
+      <tr><td class="k">Back end</td><td>Python with FastAPI.</td></tr>
+      <tr><td class="k">Speed</td><td>Important but not critical. Target under 8 seconds for most questions.</td></tr>
+      <tr><td class="k">Availability</td><td>99.5% during business hours. A few hours of downtime does not lose business.</td></tr>
+      <tr><td class="k">Recovery</td><td>Recovery time: hours. Maximum data loss: one week, since data loads weekly.</td></tr>
+      <tr><td class="k">Access control</td><td>All users see all data. No per-user or per-document permissions.</td></tr>
+      <tr><td class="k">Privacy</td><td>No customer data is used, so privacy exposure is low. All data stays in Singapore.</td></tr>
+      <tr><td class="k">Memory</td><td>No user profiles. No history between sessions. Only the current conversation.</td></tr>
+      <tr><td class="k">Prompt caching</td><td>Useful for cost, not required.</td></tr>
+      <tr><td class="k">Language</td><td>English only.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Deliberately kept small</b>
+    The data is small and the user count is low. Large-scale tools such as Snowflake, Kafka or a dedicated vector database would add cost and complexity with no benefit here. Most of the running cost will be language model calls, not servers.
+  </div>
+
+  <h3>Two things that are not memory, but are still needed</h3>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">A business dictionary</h3>
+      <p style="margin-bottom:0">Definitions of terms, the product hierarchy, and alternative names people use. For example, that "Marlow" is a model and "tan" is a colour. This is a fixed configuration file, not stored memory. Without it, questions cannot be interpreted reliably.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">An answer cache</h3>
+      <p style="margin-bottom:0">If two people ask the same question in the same week, they must get the same answer. Different answers to the same question would badly damage trust. Answers are stored and reused until new data arrives. This also reduces cost during the Monday peak.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ APPROACH ============ -->
+<section id="approach">
+  <h2><span class="num">7</span>How an answer is built</h2>
+  <p class="lede">The three sources are not searched at the same time. They run in order. Each step narrows the next.</p>
+
+  <ol class="steps">
+    <li><b>Understand the question.</b> Work out which product and which period are meant. "Last month" becomes a specific set of four weeks. Show this back to the user so they can correct it.</li>
+    <li><b>Do the maths.</b> Run fixed calculations to split the gap against target into parts: how much came from being out of stock, from price changes, from lower demand, from a campaign ending. Whatever cannot be explained is recorded as a remainder.</li>
+    <li><b>Search internal documents.</b> Search using the findings from step 2, not the user's original question. Look for "Tan replenishment" and "Marlow" in May and June — not for "why did sales drop".</li>
+    <li><b>Search public information — only if needed.</b> Run this only when a large share of the gap is still unexplained. If stock-outs and campaigns already explain 86% of it, there is no need to search the news.</li>
+    <li><b>Write the answer.</b> Combine the evidence, label each piece by how reliable it is, and include a link to the SKU data for the period in question.</li>
+  </ol>
+
+  <h3>Why we do not use text-to-SQL for "why" questions</h3>
+  <p>Text-to-SQL is good for "what" questions, such as "what were sales last week". It is the wrong tool for "why" questions.</p>
+  <p>Instead we use a set of fixed, tested calculations. The language model chooses which ones to run and with what inputs. It does not write the query.</p>
+  <table>
+    <thead><tr><th>Reason</th><th>Explanation</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Correctness</td><td>The parts of the explanation must add up to the total gap. A generated query gives no such guarantee.</td></tr>
+      <tr><td class="k">Consistency</td><td>The same question must give the same answer on Monday and on Wednesday.</td></tr>
+      <tr><td class="k">Testability</td><td>You can test twelve fixed calculations. You cannot test every possible generated query.</td></tr>
+      <tr><td class="k">Speed</td><td>Fixed calculations can be optimised and pre-computed.</td></tr>
+    </tbody>
+  </table>
+  <p>Text-to-SQL is still offered as a secondary option for open-ended exploration. It is read-only, limited in size, and clearly marked in the interface as unverified.</p>
+
+  <h3>Public information needs a limit</h3>
+  <div class="callout warn">
+    <b>This source will always find something</b>
+    Ask why bag sales fell, search the news, and you will always find a believable story — weaker consumer spending, fewer tourists, a competitor promotion. It sounds insightful and cannot be disproved. This is the biggest credibility risk in the system. So we only search the news when the internal data leaves a large part of the gap unexplained, and the answer is always allowed to say that no link was found.
+  </div>
+  <p>For gathering the news, a search API is used at question time. Browser automation is too slow and unreliable for that. Browser automation is used separately as a weekly scheduled job to collect competitor prices and new product listings.</p>
+</section>
+
+<!-- ============ TRUST ============ -->
+<section id="trust">
+  <h2><span class="num">8</span>Avoiding wrong answers</h2>
+  <p class="lede">Wrong answers are the main risk. Senior management will act on what this system says. These controls exist to make errors visible rather than hidden.</p>
+
+  <table>
+    <thead><tr><th>Control</th><th>How it works</th></tr></thead>
+    <tbody>
+      <tr><td class="k">The model never calculates</td><td>Every number comes from a database query. The language model only explains numbers it is given. This is the single most important rule.</td></tr>
+      <tr><td class="k">Fixed calculations</td><td>Cause analysis uses tested code, not generated queries. Results are repeatable.</td></tr>
+      <tr><td class="k">Numbers must add up</td><td>The parts of the explanation must sum to the total gap. If they do not, the answer is rejected before it is shown.</td></tr>
+      <tr><td class="k">Everything is labelled by source</td><td>Three levels: <b>Measured</b> from our data, <b>Documented</b> from internal files, <b>External</b> from public sources. Each looks different on screen.</td></tr>
+      <tr><td class="k">Sources are clickable</td><td>Clicking a source opens the actual document at the exact paragraph. This is not just convenience — if a source is invented or does not support the claim, one click reveals it. It makes errors self-exposing.</td></tr>
+      <tr><td class="k">Source check after writing</td><td>A second automated pass confirms each cited passage actually supports the claim made.</td></tr>
+      <tr><td class="k">Allowed to say "I don't know"</td><td>When evidence is weak, the system says so. A system that always produces an explanation is inventing some of them.</td></tr>
+      <tr><td class="k">Data must be published</td><td>The chat can only answer using weeks marked <span class="mono">published</span> in <span class="mono">DATA_LOAD</span>. If a week never loaded, it says so rather than using older data.</td></tr>
+      <tr><td class="k">Every answer is logged</td><td>The question, the evidence used, and the answer are all saved. If someone later disputes an answer, we can show exactly what the system saw.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ UI ============ -->
+<section id="ui">
+  <h2><span class="num">9</span>Interface</h2>
+  <p>The screen is split. Charts and tables on the left. The question and answer panel on the right. Everything on the left fits on one screen without scrolling.</p>
+
+  <h3>Moving around the data</h3>
+  <p>Three linked dropdowns: Department, then Style, then SKU. Each one loads only the items belonging to the level above it. Selecting a week and a channel filters everything on screen.</p>
+
+  <h3>Link from an answer to the data</h3>
+  <p>When the system answers a question about a SKU, the answer includes one link. Clicking it opens the dashboard showing that SKU for the period the question was about.</p>
+  <div class="callout">
+    <b>Keep it simple</b>
+    The chat does not control the dashboard and does not create charts. It gives the user one link so they can go and check the numbers themselves.
+  </div>
+</section>
+
+<!-- ============ SUCCESS ============ -->
+<section id="success">
+  <h2><span class="num">10</span>Success metrics</h2>
+
+  <h3>Trust — the most important group</h3>
+  <table>
+    <thead><tr><th>What we measure</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Invented sources</td><td>Zero. This blocks release.</td></tr>
+      <tr><td class="k">Claims supported by their source</td><td>98% or higher</td></tr>
+      <tr><td class="k">Explanation adds up to the total gap</td><td>100%, within 2%</td></tr>
+      <tr><td class="k">Finds the real cause on known past cases</td><td>70% first answer, 90% within top three</td></tr>
+      <tr><td class="k">Says "not enough evidence" when true</td><td>Tracked. Should never be zero.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Speed and reliability</h3>
+  <table>
+    <tbody>
+      <tr><td class="k">Typical answer time</td><td>Under 8 seconds</td></tr>
+      <tr><td class="k">Slowest answers</td><td>Under 20 seconds for 95% of questions</td></tr>
+      <tr><td class="k">Availability</td><td>99.5% during business hours</td></tr>
+      <tr><td class="k">Weekly load succeeds first time</td><td>95% of weeks. 100% of weeks live by 7am Monday.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Adoption and value</h3>
+  <table>
+    <tbody>
+      <tr><td class="k">Weekly users</td><td>At least 60 of 100</td></tr>
+      <tr><td class="k">Source clicks per answer</td><td>Tracked. Shows whether people trust and check the answers.</td></tr>
+      <tr><td class="k">Manual analyst requests</td><td>Should fall. This is the clearest cost saving.</td></tr>
+      <tr><td class="k">Time to get an answer</td><td>From two days to two minutes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>You cannot measure any of the trust numbers without a test set</b>
+    We need 50 to 100 past questions where the correct answer is already known, built together with the client's commercial team from problems they investigated manually. Plan real time for this. It is the only way to prove the system works, and building it with the client also creates trust in the result.
+  </div>
+</section>
+
+<!-- ============ OPEN ============ -->
+<section id="open">
+  <h2><span class="num">11</span>Open items</h2>
+  <p class="lede">Not yet decided. To be filled in as the design continues.</p>
+
+  <table>
+    <thead><tr><th>Item</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="k">End-to-end architecture diagram <span class="pill open">next</span></td><td>One diagram covering the load job, the three evidence sources, the services and the interface.</td></tr>
+      <tr><td class="k">Core design approach <span class="pill open">to discuss</span></td><td>How the three sources are combined into one answer, and the reasoning behind it.</td></tr>
+      <tr><td class="k">Demo scenario</td><td>Design the sales drop that management asks about. It needs a cause that is not obvious and only appears when all three sources are combined.</td></tr>
+      <tr><td class="k">Document loading</td><td>How documents enter the system. Manual upload, or automatic sync from SharePoint or Google Drive.</td></tr>
+      <tr><td class="k">Model choice</td><td>Which language model, and whether it runs on Bedrock.</td></tr>
+      <tr><td class="k">Login</td><td>Single sign-on with the client's existing identity provider.</td></tr>
+      <tr><td class="k">News source</td><td>Which search or news provider to use.</td></tr>
+      <tr><td class="k">Cost budget</td><td>Expected monthly running cost, mostly language model usage.</td></tr>
+      <tr><td class="k">Fiscal year</td><td>When the client's financial year starts.</td></tr>
+      <tr><td class="k">Ownership</td><td>Who maintains the system and the business dictionary after handover.</td></tr>
+      <tr><td class="k">Repository structure</td><td>Services, modules and project layout.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+
+<div class="pane" data-t="2" hidden>
+
+<div class="subbar">
+  <button class="subbtn on" data-s="model">Data</button>
+  <button class="subbtn" data-s="ingest">Data Ingestion Pipeline</button>
+  <button class="subbtn" data-s="docingest">Document Ingestion Pipeline</button>
+  <button class="subbtn" data-s="stack">Tech Stack &amp; Deployment</button>
+</div>
+
+<div class="subpane" data-s="model">
+
+<div class="innerbar">
+  <button class="innerbtn on" data-i="struct">Structured</button>
+  <button class="innerbtn" data-i="unstruct">Unstructured · Internal</button>
+  <button class="innerbtn" data-i="external">Unstructured · External</button>
+</div>
+
+<div class="innerpane" data-i="struct">
+<!-- ============ DATA MODEL ============ -->
+<section id="data">
+  <h2>Data Model</h2>
+
+  <h3>Structured data — six tables</h3>
+  <p>Grouped by what they describe: master data, commercial performance, operations, and planning.</p>
+  <table>
+    <thead><tr><th>Table</th><th>Type</th><th>One row per</th><th>Fields</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Products</td><td>Master</td><td>SKU</td><td class="mono">SKU · Model · Department · Colour · Size · Price · Cost · Launch date · <b>Status</b></td></tr>
+      <tr><td class="k">Sales</td><td>Commercial</td><td>SKU, week, channel</td><td class="mono">Week · SKU · Channel · Units · Revenue · Discount %</td></tr>
+      <tr><td class="k">Stock</td><td>Operational</td><td>SKU, week</td><td class="mono">Week · SKU · Units on hand</td></tr>
+      <tr><td class="k">Returns</td><td>Operational</td><td>SKU, week</td><td class="mono">Week · SKU · Units returned · Reason</td></tr>
+      <tr><td class="k">Stock receipts</td><td>Operational</td><td>SKU, delivery</td><td class="mono">Week · SKU · Units received · Expected date · Actual date</td></tr>
+      <tr><td class="k">Targets</td><td>Planning</td><td>SKU, month</td><td class="mono">Month · SKU · Target units · Target revenue · Source document</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Internal documents</h3>
+  <p>Six to eight short documents for the prototype: a campaign plan, two buying meeting notes, a monthly planning meeting record containing the targets, a supply chain report, a returns summary.</p>
+  <div class="callout info">
+    <b>Meeting notes are treated differently</b>
+    Meeting notes record decisions with dates. Rather than only splitting them into text chunks, we also pull out a decision list: who decided what, when, and which products it affected. This gives a timeline of decisions that can be placed next to the sales timeline. That is how cause becomes visible. For example: the reorder was cancelled on 12 May, stock ran out in week 24, sales fell in week 25.
+  </div>
+
+  <h3>Public information</h3>
+  <p>Ten to fifteen news items with dates for the prototype. In production this would be a weekly feed of retail and fashion trade news for Singapore.</p>
+</section>
+</div>
+
+<div class="innerpane" data-i="unstruct" hidden>
+<section id="docs">
+  <h2>Unstructured Data — Internal Documents</h2>
+  <p class="lede">Eight document <i>types</i>. Each type recurs — a buying committee meets fortnightly, a trading meeting monthly — so the store holds several hundred documents, not eight.</p>
+  <p>Each type must earn its place, and the test is simple: does it explain something the numbers cannot? If not, it is decoration.</p>
+
+  <div class="callout">
+    <b>The job documents do</b>
+    The tables tell us <b>what</b> happened and <b>how much</b>. They can show that sales fell 39% while stock sat on the shelf at full price. They can never say why. That "why" is a decision somebody made and wrote down. Documents are where decisions live.
+  </div>
+
+  <h3>How many documents there actually are</h3>
+  <p>The eight types below are recurring series, not single files. Over three years of history:</p>
+  <table>
+    <thead><tr><th style="width:36%">Document type</th><th style="width:20%">How often</th><th class="n" style="width:16%">Per year</th><th class="n">Over 3 years</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Buying committee minutes</td><td>Fortnightly</td><td>26</td><td>78</td></tr>
+      <tr><td class="k">Monthly trading meeting</td><td>Monthly</td><td>12</td><td>36</td></tr>
+      <tr><td class="k">Range review</td><td>Seasonal</td><td>4</td><td>12</td></tr>
+      <tr><td class="k">Campaign plans and briefs</td><td>~2 per month</td><td>24</td><td>72</td></tr>
+      <tr><td class="k">Supply chain reports</td><td>Monthly</td><td>12</td><td>36</td></tr>
+      <tr><td class="k">Returns and quality summaries</td><td>Monthly</td><td>12</td><td>36</td></tr>
+      <tr><td class="k">Store and e-commerce operations</td><td>Monthly</td><td>12</td><td>36</td></tr>
+      <tr><td class="k">Ad hoc — post-mortems, supplier reviews</td><td>Irregular</td><td>~20</td><td>60</td></tr>
+      <tr><td class="k"><b>Total</b></td><td></td><td><b>~120</b></td><td><b>~370</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>This is why retrieval is required, not optional</b>
+    Around 370 documents at roughly 2,000 tokens each is close to 750,000 tokens. That does not fit in a context window, so the set has to be narrowed before answering. Any design that assumes the whole corpus can be passed to the model is designing for a prototype, not for this business.
+  </div>
+
+  <h3>Campaign plans</h3>
+  <table>
+    <thead><tr><th style="width:26%">Document</th><th style="width:37%">The one thing it carries</th><th>What it explains</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Mid-Year Sale — Campaign Plan, SS26</td>
+        <td>Ran weeks 20–26, both channels, with a named list of featured SKUs including MRL-CB-TAN.</td>
+        <td>Why sales were strong for six weeks and fell the week it stopped. Nothing about the product changed — the support did.</td>
+      </tr>
+      <tr>
+        <td class="k">Autumn Drop — Campaign Brief</td>
+        <td>Marketing spend and homepage placement move to new arrivals from week 27.</td>
+        <td>Why an existing product lost visibility even though it was never discounted or changed.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Meeting notes</h3>
+  <table>
+    <thead><tr><th style="width:26%">Document</th><th style="width:37%">The one thing it carries</th><th>What it explains</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Buying Committee Minutes — 12 May</td>
+        <td>The Tan replenishment order was deferred to fund the Autumn buy. Stock expected back week 31.</td>
+        <td>Why stock reached zero. <b>The key document for the demo</b> — it is the decision behind the number.</td>
+      </tr>
+      <tr>
+        <td class="k">Monthly Trading Meeting — June</td>
+        <td>The monthly targets themselves, with commentary on how they were set.</td>
+        <td>Where the target came from. Gives every target on screen a traceable source.</td>
+      </tr>
+      <tr>
+        <td class="k">Range Review — April</td>
+        <td>Which products are being discontinued or moved to clearance.</td>
+        <td>Why a product is declining on purpose. Without this, a planned wind-down looks exactly like a failure.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Operational reports</h3>
+  <table>
+    <thead><tr><th style="width:26%">Document</th><th style="width:37%">The one thing it carries</th><th>What it explains</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Supply Chain Status Report</td>
+        <td>Supplier delays, shipment dates, expected against actual arrival.</td>
+        <td>A stock-out where the reorder <i>was</i> placed. Separates "we chose not to buy" from "we bought and it arrived late" — different cause, different fix.</td>
+      </tr>
+      <tr>
+        <td class="k">Returns and Quality Summary</td>
+        <td>Return volumes and reasons by SKU — sizing, defect, colour mismatch.</td>
+        <td>Weak net sales when gross sales look fine. Points at a product problem rather than a demand problem.</td>
+      </tr>
+      <tr>
+        <td class="k">Store and E-commerce Operations Report</td>
+        <td>Site outages, checkout problems, store closures and refits.</td>
+        <td>A drop confined to one channel.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Why each document exists</h3>
+  <p>Every document answers one specific pattern the data can show but not explain.</p>
+  <table>
+    <thead><tr><th style="width:47%">What the numbers show</th><th>Which document explains it</th></tr></thead>
+    <tbody>
+      <tr><td>Sales fell with stock available at full price</td><td class="k">Campaign plan — the campaign ended</td></tr>
+      <tr><td>Stock reached zero</td><td class="k">Buying minutes — the reorder was deferred</td></tr>
+      <tr><td>Stock reached zero, but a reorder existed</td><td class="k">Supply chain report — the supplier was late</td></tr>
+      <tr><td>Steady decline with rising discount</td><td class="k">Range review — deliberate wind-down</td></tr>
+      <tr><td>Units sold fine, net sales weak</td><td class="k">Returns summary — quality or sizing issue</td></tr>
+      <tr><td>Drop in one channel only</td><td class="k">Operations report — a site or store problem</td></tr>
+      <tr><td>Missed a target that always looked high</td><td class="k">Trading meeting — how the target was set</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What is stored against each chunk</h3>
+  <p>A document is split into chunks, and every chunk is stored as one record. Some fields describe the chunk itself. Others describe the document it came from, and are copied onto every chunk from that document.</p>
+
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th style="width:16%">Level</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Text</td><td>Chunk</td><td>The passage itself, returned as the quotable evidence</td></tr>
+      <tr><td class="k">Embedding</td><td>Chunk</td><td>Vector for similarity search</td></tr>
+      <tr><td class="k">Page and position</td><td>Chunk</td><td>So a citation can open the document at the exact paragraph</td></tr>
+      <tr><td class="k">Products in this chunk</td><td>Chunk</td><td>SKUs and models named in this passage</td></tr>
+      <tr><td class="k">Document type</td><td>Document</td><td>Campaign plan, meeting notes, operational report</td></tr>
+      <tr><td class="k">Document date</td><td>Document</td><td>When it was written</td></tr>
+      <tr><td class="k">Period covered</td><td>Document</td><td>The weeks or months it talks about — often different from when it was written</td></tr>
+      <tr><td class="k">Products in the document</td><td>Document</td><td>Everything the document covers. Used as a fallback when a chunk refers to a product without naming it.</td></tr>
+      <tr><td class="k">Source file</td><td>Document</td><td>Which file it came from</td></tr>
+    </tbody>
+  </table>
+
+
+
+  <div class="callout warn">
+    <b>Why document-level fields are copied onto every chunk</b>
+    A chunk loses the context of the document it came from. A paragraph reading "deferred to next quarter to fund the Autumn buy" is meaningless on its own — it never says <i>what</i> was deferred, because that was established two pages earlier.
+    <br><br>
+    Copying the document's date, period and product list onto every chunk means a passage can still be filtered and understood correctly even when the chunk alone does not name the product.
+  </div>
+
+  <div class="callout info">
+    <b>An honest note on scale</b>
+    The prototype will ship with roughly a dozen documents, which do fit in a single context window. The real corpus does not. We build the retrieval path because the business needs it at ~370 documents and growing, and we note openly that the demo could shortcut it.
+  </div>
+
+  <h3>These documents do not exist yet</h3>
+  <p>They have to be written — eight short, realistic files, each carrying one decision that lines up with a specific date in the sales data. That alignment is the whole point: the reorder is deferred on 12 May, stock runs out in week 24, sales fall in week 25.</p>
+  <p>This is what makes the demo credible rather than staged, and it is a real piece of work, not a formality.</p>
+</section>
+</div>
+
+<div class="innerpane" data-i="external" hidden>
+<section id="ext">
+  <h2>Unstructured Data — External Information</h2>
+  <p class="lede">News, market events and competitor activity. The third evidence source, and the one that needs the most discipline.</p>
+
+  <div class="callout ok">
+    <b>This is not a seventh table</b>
+    News has exactly the shape we already store — text, a date, entities it mentions, a source, a type. That is the same record as a meeting note. It goes into the vector store as another <b>document type</b>, through the same pipeline, with the same chunking, embedding, retrieval and citation mechanism.
+  </div>
+
+  <table>
+    <thead><tr><th style="width:26%">Field</th><th>What news puts in it</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Document type</td><td><span class="mono">news</span> — a new value in an existing field</td></tr>
+      <tr><td class="k">Source</td><td>A URL instead of a file path</td></tr>
+      <tr><td class="k">Source type</td><td><span class="mono">external</span> — this is what drives the lower-confidence tier in the answer</td></tr>
+      <tr><td class="k">Entities mentioned</td><td>Brand and category rather than SKU, because news never names a SKU</td></tr>
+    </tbody>
+  </table>
+
+  <p>Three field values and one more source adapter. No schema change, and the data model stays at six tables.</p>
+
+  <h3>This is monitoring, not search</h3>
+  <p>Calling it "an agent that searches the web" is the wrong mental model. The things that could explain a retail sales drop are a known, bounded set — competitor actions, weather, consumer spending, tourism, supply chain, mall events, trend shifts. Perhaps eight categories, against a fixed list of competitors.</p>
+  <p>We are not looking for arbitrary facts. We are monitoring known signals for known entities. That is a feed problem, not a search problem, and feeds are collected on a schedule.</p>
+
+  <div class="callout warn">
+    <b>Why we do not search live at question time</b>
+    Search APIs rank by recency and current relevance. Every question this system answers is about the past. Searching in August for what happened in June returns <i>August's surviving view of June</i> — reranked, with articles removed or buried.
+    <br><br>
+    A weekly capture stores what was actually being reported at the time. For a system whose entire job is explaining closed periods, that difference is the whole argument. Live search is optimised for "what is happening now". We only ever ask "what was happening then".
+  </div>
+
+  <h3>Two tiers</h3>
+  <table>
+    <thead><tr><th style="width:18%">Tier</th><th style="width:24%">When it runs</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Watch job</td><td>Weekly, scheduled</td>
+        <td>Fetches and stores news for the watchlist and market indicators. Tagged and bucketed by retail week, so it lines up directly with the sales data. Handles almost everything.</td>
+      </tr>
+      <tr>
+        <td class="k">Live search</td><td>Only when the gate opened <i>and</i> the stored feed had nothing</td>
+        <td>The long tail — a viral post, a local event, something nobody anticipated. The exception, not the design.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The watchlist</h3>
+  <p>Configuration, not code. Every retailer has a defined competitive set, and it changes over time.</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Competitors</h3>
+      <ul style="margin-bottom:0">
+        <li><b>Charles &amp; Keith</b> — direct, Singapore-born, same tier</li>
+        <li><b>Pedro</b> — same group, adjacent</li>
+        <li><b>Coach, Kate Spade, Michael Kors</b> — accessible luxury, same malls</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Market indicators</h3>
+      <ul style="margin-bottom:0">
+        <li>Singapore retail sales index</li>
+        <li>Tourist arrivals</li>
+        <li>Mall footfall and anchor tenant changes</li>
+        <li>Leather and commodity prices</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <b>Prada would be the wrong comparator</b>
+    Different customer, different price point, roughly ten times the price. Naming it as a competitor to an accessible-luxury brand signals a misunderstanding of the business. The competitive set has to be the brands the same shopper actually chooses between.
+  </div>
+
+  <h3>The part that needs real design: entity resolution</h3>
+  <p>News says <i>"Charles &amp; Keith launches a new crossbody range."</i> The question is about <span class="mono">MRL-CB-TAN</span>. Nothing connects those two strings.</p>
+  <p>So we need a mapping upward:</p>
+  <pre>MRL-CB-TAN  →  Marlow Crossbody  →  Crossbody  →  accessible-luxury handbags</pre>
+  <p>News is tagged at the category and market level on the way in, so a question about one bag can find news about bags. Without this the external leg retrieves nothing useful however good the search is.</p>
+  <p>This mapping lives in the <b>business dictionary</b> — the same configuration file that holds the product hierarchy and the synonym list. It is not a new table.</p>
+
+  <h3>The gate</h3>
+  <div class="callout warn">
+    <b>This source will always find something</b>
+    Ask why bag sales fell, search the news, and you will always find a believable story — weaker consumer spending, fewer tourists, a competitor promotion. It sounds insightful and cannot be disproved. Left ungated it is the largest credibility risk in the system.
+  </div>
+  <p>So the external leg only runs when the internal evidence leaves a large share of the gap unexplained. If stock-outs and campaigns already account for 86% of a drop, the system says so and does not go looking outside.</p>
+
+  <h3>What a good answer looks like</h3>
+  <p>The most credible output this leg can produce is a ruled-out hypothesis:</p>
+  <div class="card" style="border-left:3px solid var(--external,#7A6B8A)">
+    <p style="margin-bottom:0"><b style="font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:#7A6B8A">External · lower confidence</b><br>
+    A competitor launched a comparable crossbody at a lower entry price in early June. No effect could be isolated in our data — Black traded to plan throughout, which argues against category-level pressure.</p>
+  </div>
+  <p>It found something, checked it against our own numbers, and ruled it out. That is more convincing than a confident external explanation, and it is only possible because the internal analysis ran first.</p>
+
+  <h3>Demonstrating this is harder than it looks</h3>
+  <p>Because the leg is gated, it will not fire on a scenario where internal data explains the drop. So the demo needs two scenarios:</p>
+  <table>
+    <thead><tr><th style="width:22%">Scenario</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td class="k">A — stock-out and campaign</td><td>Internal data explains most of it. The system states that it did not need to look outside. The restraint is the point.</td></tr>
+      <tr><td class="k">B — largely unexplained</td><td>Internal data accounts for only a third. The gate opens, the external evidence appears, and is presented at lower confidence.</td></tr>
+    </tbody>
+  </table>
+  <p>Showing both is a stronger demonstration than a system that always searches.</p>
+</section>
+</div>
+</div>
+
+<div class="subpane" data-s="ingest" hidden>
+<!-- ============ DATA LOAD ============ -->
+<section id="load">
+  <h2>Data Ingestion Pipeline <span class="pill new">runs Sunday night</span></h2>
+  <p class="lede">Everything in this solution depends on one job running correctly every Sunday night. If it fails, Monday's numbers are stale. If it half-succeeds, Monday's numbers are wrong — which is worse.</p>
+
+  <div class="callout warn">
+    <b>The core rule: a week is either fully loaded, or not loaded at all</b>
+    There is no middle state. Partial data is more dangerous than missing data, because people trust it and act on it. Every design decision below exists to enforce this one rule.
+  </div>
+
+  <!-- diagram -->
+  <div class="pipe">
+    <div class="prow">
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 1</div>
+          <div class="pt">Detect</div>
+          <div class="pd">Manifest present, files complete</div>
+        </div>
+        <div class="pstat">detected</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 2</div>
+          <div class="pt">Stage</div>
+          <div class="pd">Load into staging tables</div>
+        </div>
+        <div class="pstat">loading</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 3</div>
+          <div class="pt">Validate</div>
+          <div class="pd">Run the completeness checks</div>
+        </div>
+        <div class="pstat">validated</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox" style="border-color:var(--accent);background:#FFFDF9">
+          <div class="pn">STAGE 4</div>
+          <div class="pt">Publish</div>
+          <div class="pd">One transaction. Data goes live.</div>
+        </div>
+        <div class="pstat" style="background:var(--accent-soft);color:var(--accent);font-weight:700">published</div>
+      </div>
+    </div>
+    <div class="pcap">Status recorded in <span class="mono">DATA_LOAD</span> at every stage. The dashboard only reads weeks marked <span class="mono">published</span>.</div>
+    <div class="pfail">
+      <span class="fbox">failed</span>
+      <span>Any check fails at stage 3 → nothing is published → dashboard continues showing the last good week.</span>
+    </div>
+  </div>
+
+  <!-- DATA_LOAD table -->
+  <h3>The <span class="mono">DATA_LOAD</span> table</h3>
+  <p>A single table in Postgres controls and records every load. It does three jobs at once: it is the state machine, the permanent history, and the switch that makes data visible.</p>
+
+<pre><span class="kw">DATA_LOAD</span>
+  load_id          <span class="c">-- unique id for this attempt</span>
+  week             <span class="c">-- e.g. 2026-W27</span>
+  status           <span class="c">-- detected | loading | validated | published | failed</span>
+  attempt_no       <span class="c">-- 1, 2, 3 ... for retries of the same week</span>
+  files_found      <span class="c">-- what was on the mount point</span>
+  row_counts       <span class="c">-- rows read per file</span>
+  checks_passed    <span class="c">-- results of every validation check</span>
+  failure_reason   <span class="c">-- why it stopped, if it did</span>
+  started_at
+  published_at</pre>
+
+  <p>Every row in the sales, stock, returns and receipts tables carries its <span class="mono">load_id</span>. The dashboard and the chat only read rows whose load has status <span class="mono">published</span>.</p>
+
+  <table>
+    <thead><tr><th>Benefit</th><th>How it works</th></tr></thead>
+    <tbody>
+      <tr><td class="k narrow">Nothing partial is ever visible</td><td>Rows can sit in the table while loading. Until the status flips to <span class="mono">published</span>, nobody sees them.</td></tr>
+      <tr><td class="k narrow">Publishing is instant</td><td>Going live is a single status update. It either happens or it does not.</td></tr>
+      <tr><td class="k narrow">Rollback is one step</td><td>If a bad week gets published, set the status back to <span class="mono">failed</span>. The system returns to the previous good state immediately.</td></tr>
+      <tr><td class="k narrow">Full history is kept</td><td>Every attempt, successful or not, stays in the table. When someone asks why Monday's numbers looked odd, the answer is already recorded.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- NEW: how all-or-nothing is enforced -->
+  <h3>How "all or nothing" is enforced</h3>
+  <p>Three mechanisms, all provided by Postgres. No custom logic is needed.</p>
+
+  <table>
+    <thead><tr><th>Mechanism</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k narrow">Single transaction</td>
+        <td>Moving rows from staging into the live tables and flipping the status to <span class="mono">published</span> happen inside one transaction. The database guarantees both succeed or neither does. There is no moment where rows are live but the status is not, or the reverse.</td>
+      </tr>
+      <tr>
+        <td class="k narrow">Database-level lock</td>
+        <td>The job takes a Postgres advisory lock when it starts. If a second run begins while one is in progress — a manual rerun, or a retry firing early — it sees the lock and exits immediately. Only one load can ever be in flight.</td>
+      </tr>
+      <tr>
+        <td class="k narrow">Automatic rollback</td>
+        <td>If any statement inside the transaction fails, or a validation check fails, the transaction is rolled back. Postgres undoes every change. The live tables are exactly as they were before the job started.</td>
+      </tr>
+    </tbody>
+  </table>
+
+<pre><span class="kw">BEGIN</span>
+  <span class="kw">SELECT</span> pg_advisory_xact_lock(<span class="c">weekly_load_key</span>);   <span class="c">-- only one job at a time</span>
+
+  <span class="kw">INSERT INTO</span> sales     <span class="kw">SELECT</span> * <span class="kw">FROM</span> staging_sales;
+  <span class="kw">INSERT INTO</span> stock     <span class="kw">SELECT</span> * <span class="kw">FROM</span> staging_stock;
+  <span class="kw">INSERT INTO</span> returns   <span class="kw">SELECT</span> * <span class="kw">FROM</span> staging_returns;
+  <span class="kw">INSERT INTO</span> receipts  <span class="kw">SELECT</span> * <span class="kw">FROM</span> staging_receipts;
+  <span class="kw">UPDATE</span> products  <span class="kw">SET</span> status = s.status <span class="kw">FROM</span> staging_products s <span class="kw">WHERE</span> ...;
+
+  <span class="kw">UPDATE</span> data_load
+     <span class="kw">SET</span> status = <span class="c">'published'</span>, published_at = now()
+   <span class="kw">WHERE</span> load_id = :this_load;
+<span class="kw">COMMIT</span>;   <span class="c">-- any failure before this point rolls everything back</span></pre>
+
+  <p>The lock is released automatically when the transaction ends, whether it commits or rolls back. Nothing needs cleaning up after a crash.</p>
+
+  <h3>Knowing the files are complete</h3>
+  <p>A half-written file looks like a valid file. The job must not start reading a file the source system is still writing.</p>
+  <p>The fix is a manifest. The sender writes all data files first, then writes one small file last:</p>
+
+<pre>week_2026_W27_MANIFEST.json
+  week:        2026-W27
+  files:       [sales.csv, stock.csv, products.csv, returns.csv, receipts.csv]
+  row_counts:  {sales: 4820, stock: 340, products: 340, returns: 61, receipts: 0}</pre>
+
+  <p>The job does nothing until the manifest exists. If the manifest is there, every data file is finished. This one convention removes a whole class of bugs, and makes separate file checksums unnecessary.</p>
+
+  <h3>Two kinds of table, two kinds of check</h3>
+  <p>Adding returns and receipts changes how completeness is checked, because these tables behave differently from sales and stock.</p>
+
+  <table>
+    <thead><tr><th style="width:16%">Kind</th><th style="width:26%">Tables</th><th>What a complete week looks like</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k narrow">Dense</td>
+        <td>Sales · Stock · Products</td>
+        <td>Every active SKU appears every week, even when nothing happened. No sales means a row with zero units, not a missing row.</td>
+      </tr>
+      <tr>
+        <td class="k narrow">Sparse</td>
+        <td>Returns · Stock receipts</td>
+        <td>Most SKUs have no rows in a given week. A week with no returns at all is normal and correct.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>For sparse tables, a missing file and an empty file mean opposite things</b>
+    An empty <span class="mono">returns.csv</span> means there were no returns. A missing <span class="mono">returns.csv</span> means the export failed. Without the manifest these look identical, and the system would silently report zero returns during a week when returns were the whole story.
+    <br><br>
+    The manifest resolves it: it lists <span class="mono">returns.csv</span> with a row count of 0. The file was expected, it was written, and it is genuinely empty.
+  </div>
+
+  <h3>Validation checks</h3>
+  <p>Five checks. If any fails, nothing is published.</p>
+  <table>
+    <thead><tr><th style="width:34%">Check</th><th style="width:14%">Applies to</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Manifest is present and row counts match</td><td>All</td><td>Confirms every file finished writing, none was cut short, and an empty file was intended</td></tr>
+      <tr><td class="k">No empty values in key fields</td><td>All</td><td>Week, SKU, channel, units, revenue</td></tr>
+      <tr><td class="k">No duplicate rows</td><td>All</td><td>The same SKU, week and channel appearing twice would double-count</td></tr>
+      <tr><td class="k">Every active SKU has a row</td><td>Dense</td><td>Sales, stock and products must cover the same set of SKUs. A gap breaks the drill-down and the stock analysis.</td></tr>
+      <tr><td class="k">Every SKU exists in Products</td><td>Sparse</td><td>Returns and receipts cannot be checked for coverage, so we check the reverse — no row may reference an unknown SKU</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Why not database triggers</h3>
+  <p>Triggers were considered, because they would start processing the moment data arrives instead of waiting for a scheduled run. They were ruled out for four reasons:</p>
+  <ul>
+    <li>A trigger runs inside the database transaction, so long-running work would hold that transaction open.</li>
+    <li>There is no natural place for retries, waiting, or backing off.</li>
+    <li>Failures inside triggers are hard to see and hard to test.</li>
+    <li>The logic ends up hidden in the database instead of in version-controlled Python.</li>
+  </ul>
+  <p>A scheduled Python job that checks a folder and a table is easy to read, test, and rerun by hand. At this size that is worth more than reacting instantly.</p>
+
+  <h3>Schedule and retries</h3>
+  <table>
+    <thead><tr><th>Time</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td class="k narrow">21:00 Sun</td><td>Source system writes data files, then the manifest</td></tr>
+      <tr><td class="k narrow">22:00 Sun</td><td>Job starts. Reads into staging tables.</td></tr>
+      <tr><td class="k narrow">22:10 Sun</td><td>Validation runs</td></tr>
+      <tr><td class="k narrow">22:15 Sun</td><td>Publish, if every check passed</td></tr>
+      <tr><td class="k narrow">Every 15 min</td><td>Retry, if the manifest has not arrived</td></tr>
+      <tr><td class="k narrow">05:00 Mon</td><td>Stop retrying. Alert the data team.</td></tr>
+      <tr><td class="k narrow">07:00 Mon</td><td>Data must be live</td></tr>
+    </tbody>
+  </table>
+  <p>That leaves about seven hours of slack between the first attempt and the deadline. Enough for several retries and for a person to intervene if needed.</p>
+
+  <h3>What happens if it fails</h3>
+  <p>The dashboard keeps working and shows the last successfully published week, with a clear message at the top:</p>
+  <div class="card" style="text-align:center;background:#FCF1EF;border-color:var(--down)">
+    <b style="color:var(--down)">Week 27 data is not available. Showing week 26.</b>
+  </div>
+  <p>The chat behaves the same way. If someone asks about week 27 and week 27 was never published, it answers that it does not have data for that week. It must not quietly answer using week 26 instead.</p>
+
+</section>
+
+
+</div>
+
+<div class="subpane" data-s="docingest" hidden>
+<section id="docload">
+  <h2>Document Ingestion Pipeline <span class="pill new">runs daily</span></h2>
+  <p class="lede">Documents behave nothing like sales data. They arrive irregularly, they get edited after the fact, and no single document is essential. The pipeline is shaped around those three facts.</p>
+
+  <div class="callout warn">
+    <b>This job must never block the sales load</b>
+    If documents fail to load, the dashboard still works and answers simply lose one source of evidence — degraded, not broken. If the two jobs were coupled, one bad PDF would stop Monday's numbers. Separate job, separate schedule, separate failure.
+  </div>
+
+  <h3>Why it is not weekly</h3>
+  <p>Sales data arrives in a clean batch every Sunday. Documents do not. A meeting happens on a Tuesday. A campaign plan is written three weeks before it launches. An operational report lands monthly.</p>
+  <p>So this runs daily on its own schedule. Daily is enough — a meeting note that lands on Tuesday being searchable Wednesday morning is fine.</p>
+
+  <!-- diagram -->
+  <div class="pipe">
+    <div class="prow">
+      <div class="pstage"><div class="pbox"><div class="pn">STAGE 1</div><div class="pt">Scan</div><div class="pd">Find new and changed files</div></div></div>
+      <div class="parrow">→</div>
+      <div class="pstage"><div class="pbox"><div class="pn">STAGE 2</div><div class="pt">Parse</div><div class="pd">Extract text from PDF, Word, notes</div></div></div>
+      <div class="parrow">→</div>
+      <div class="pstage"><div class="pbox"><div class="pn">STAGE 3</div><div class="pt">Extract metadata</div><div class="pd">Date, type, period, products</div></div></div>
+      <div class="parrow">→</div>
+      <div class="pstage"><div class="pbox"><div class="pn">STAGE 4</div><div class="pt">Chunk and embed</div><div class="pd">Split, then vectorise</div></div></div>
+      <div class="parrow">→</div>
+      <div class="pstage"><div class="pbox" style="border-color:var(--accent);background:#FFFDF9"><div class="pn">STAGE 5</div><div class="pt">Store</div><div class="pd">Replace all chunks for that document</div></div></div>
+    </div>
+    <div class="pcap">Each document is processed independently. One failure does not affect the others.</div>
+  </div>
+
+  <h3>Detecting change without reading every file</h3>
+  <p>Re-reading every document on every scan does not scale. The check is done in three stages, cheapest first.</p>
+
+  <table>
+    <thead><tr><th style="width:26%">Stage</th><th style="width:16%">Cost</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1 · Compare size and modified time</td><td>Free</td><td>Both come back with the directory listing. No file is opened. Almost everything stops here. Files modified in the last sixty seconds are skipped — if one is still being written, it is picked up on the next scan.</td></tr>
+      <tr><td class="k">2 · Hash the flagged files</td><td>One read each</td><td>Confirms the content genuinely changed before we spend money on it.</td></tr>
+      <tr><td class="k">3 · Parse, chunk, embed</td><td>Expensive</td><td>Only for files that really changed.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Hashing is not the expensive step — embedding is</b>
+    The hash does not exist to save reading. It exists to avoid paying for an embedding we do not need. Re-embedding a forty-page document that did not change is pure waste, so we spend one file read to be sure.
+    <br><br>
+    It also fixes a real problem. Sync tools often rewrite the modified time on every sync even when nothing changed. Without stage 2, one sync would trigger a full re-embed of the entire corpus. The hash absorbs that — timestamp moved, content did not, update the stored timestamp and move on.
+  </div>
+
+  <p>At 10,000 documents with twenty changing a day: stage 1 does 10,000 stat calls in a few hundred milliseconds, stage 2 reads twenty files, stage 3 embeds perhaps fifteen.</p>
+
+  <h3>Updating a changed document</h3>
+  <p>When a document changes, all of its chunks are deleted and rebuilt. Wipe and reload — but scoped to that one file, never the whole store.</p>
+  <p><b>Chunk identifiers are deterministic</b> — a hash of the document, the position, and the content. Unchanged text therefore produces the same identifier every time. This matters because every answer is logged with the evidence it used; if identifiers changed on every run, old audit records would point at chunks that no longer exist.</p>
+
+  <h3>Documents are never overwritten</h3>
+  <ul>
+    <li><b>Append-only and immutable.</b> A meeting happened; its minutes do not change.</li>
+    <li><b>A revision is a new document that records what it replaces.</b> Campaign Plan v2 carries a reference to v1. Both stay in the store.</li>
+  </ul>
+  <p>Retrieval prefers the latest version, but nothing is lost. That matters because the fact that a plan was revised is often the explanation itself.</p>
+
+  <h3>Do old documents still have value?</h3>
+  <div class="callout">
+    <b>Yes — because the system never asks "what is true now?"</b>
+    Every question has a time window. "Why did this SKU drop last month" is a question about weeks 22 to 26. A document from six months ago is not stale — it is either about that window or it is not. Age is not the problem. Relevance to the period being asked about is.
+  </div>
+  <p>Documents also age at different rates:</p>
+  <table>
+    <thead><tr><th style="width:26%">Type</th><th>How it ages</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Decisions — meeting minutes</td><td>Slowly. A reorder cancelled in May still explains a stock-out in July. The effect outlives the meeting.</td></tr>
+      <tr><td class="k">Plans — campaign plans</td><td>Can be superseded. Misleading if treated as current, valuable as history.</td></tr>
+      <tr><td class="k">Reports — operational</td><td>Describe a state at a point in time. Relevant only when asking about that period.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>How documents reach the answer</h3>
+  <p>With several hundred documents in the store, the set must be narrowed before the answer step. The order this happens in matters more than the choice of embedding model.</p>
+
+  <div class="callout warn">
+    <b>Meeting notes are highly self-similar</b>
+    Every buying committee meeting discusses reorders, budgets and ranges in nearly identical language. Across seventy-eight sets of minutes, a query about a deferred reorder will match most of them almost equally well — because they genuinely are all similar. This is not a weakness of the embedding model, and a better one will not fix it.
+  </div>
+
+  <p>So three filters are applied <b>before</b> any similarity ranking:</p>
+
+  <table>
+    <thead><tr><th style="width:22%">Filter</th><th>What it removes</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Time window</td><td>Only documents whose period overlaps the weeks in question. Usually removes 90% or more of the corpus in one step.</td></tr>
+      <tr><td class="k">Product</td><td>Only chunks mentioning that SKU, model or department — with the document-level product list as fallback.</td></tr>
+      <tr><td class="k">Document type</td><td>Chosen by what the numbers already showed. A stock-out sends us to buying minutes and supply chain reports, not campaign plans.</td></tr>
+    </tbody>
+  </table>
+
+  <p>The third filter is free and usually skipped. We already know from the decomposition what kind of cause we are looking for, so we already know which kind of document could explain it.</p>
+
+  <div class="callout ok">
+    <b>Metadata filtering does the heavy lifting. Semantic search does the final ranking.</b>
+    After the three filters we are typically ranking ten to thirty chunks rather than thousands. At that point semantic search is doing a small, easy job — which is what it is good at. Vector search is the last step, not the first.
+  </div>
+
+  <div class="callout info">
+    <b>Prototype shortcut</b>
+    The prototype ships with about a dozen documents, which fit comfortably in a single context window. For the demo we can pass them all and skip narrowing entirely. That is a prototype convenience, not the design — the filters above are what the real corpus requires.
+  </div>
+
+  <h3>Where documents come from</h3>
+  <p>For this solution, a polled folder — one directory per document type, scanned daily. Same pattern as the sales feed, and enough to demonstrate the whole pipeline.</p>
+  <p>The pipeline is built so the source is replaceable. It receives a file and where it came from; everything after that is identical regardless of origin. Other sources are listed under Improvements.</p>
+
+  <h3>If it fails</h3>
+  <ul>
+    <li>A document that fails to parse is recorded with the reason and skipped. Every other document still loads.</li>
+    <li>The dashboard and the sales data are entirely unaffected.</li>
+    <li>Answers continue to work, using the evidence that did load.</li>
+  </ul>
+</section>
+</div>
+
+<div class="subpane" data-s="stack" hidden>
+<section id="stack">
+  <h2>Tech Stack &amp; Deployment <span class="pill new">local</span></h2>
+  <p class="lede">End to end, from files landing on disk to an answer on screen. Cloud deployment and monitoring are deliberately left until the system is built.</p>
+
+  <div class="card" style="padding:18px 16px"><svg viewBox="0 0 1000 800" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7A756C"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2E5D7D"/>
+    </marker>
+  </defs>
+  <style>
+    svg .bl{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;fill:#8A6D3B;font-weight:800}
+    svg .bt{font-size:13px;font-weight:700;fill:#12110F}
+    svg .bs{font-size:10.2px;fill:#4E4A43;font-weight:500}
+    svg .mn{font-size:10px;fill:#7A756C;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+    svg .tag{font-size:8.6px;fill:#8A6D3B;font-weight:800;letter-spacing:.08em}
+    svg .bx{fill:#fff;stroke:#C9C4BA;stroke-width:1.5}
+    svg .bxa{fill:#FFFBF3;stroke:#8A6D3B;stroke-width:2}
+    svg .band{fill:#FAF9F6;stroke:#DDD8CF;stroke-width:1.3}
+    svg .ln{stroke:#7A756C;stroke-width:1.6;fill:none;marker-end:url(#ar)}
+    svg .lnb{stroke:#2E5D7D;stroke-width:1.8;fill:none;stroke-dasharray:5 3.5;marker-end:url(#arb)}
+  </style>
+
+  <!-- SOURCES -->
+  <text class="bl" x="30" y="16">Sources · local filesystem</text>
+  <rect class="bx" rx="7" x="30" y="24" width="300" height="62"/>
+  <text class="bt" x="44" y="45">Sales &amp; operations</text>
+  <text class="mn" x="44" y="62">/data/sales/*.csv</text>
+  <text class="bs" x="44" y="78">weekly · six tables · manifest</text>
+
+  <rect class="bx" rx="7" x="350" y="24" width="300" height="62"/>
+  <text class="bt" x="364" y="45">Internal documents</text>
+  <text class="mn" x="364" y="62">/data/documents/*.pdf .docx</text>
+  <text class="bs" x="364" y="78">irregular · ~370 files</text>
+
+  <rect class="bx" rx="7" x="670" y="24" width="300" height="62"/>
+  <text class="bt" x="684" y="45">Trade news</text>
+  <text class="mn" x="684" y="62">search API · watchlist</text>
+  <text class="bs" x="684" y="78">weekly capture</text>
+
+  <!-- INGESTION -->
+  <text class="bl" x="30" y="122">Ingestion · Python 3.12</text>
+  <rect class="bx" rx="7" x="30" y="130" width="300" height="72"/>
+  <text class="bt" x="44" y="151">Weekly load job</text>
+  <text class="bs" x="44" y="168">stage → validate → publish</text>
+  <text class="mn" x="44" y="188">cron · pandas · psycopg</text>
+
+  <rect class="bx" rx="7" x="350" y="130" width="300" height="72"/>
+  <text class="bt" x="364" y="151">Daily document job</text>
+  <text class="bs" x="364" y="168">scan → parse → metadata → chunk</text>
+  <text class="mn" x="364" y="188">pypdf · python-docx</text>
+
+  <rect class="bx" rx="7" x="670" y="130" width="300" height="72"/>
+  <text class="bt" x="684" y="151">Weekly watch job</text>
+  <text class="bs" x="684" y="168">fetch → tag entity + week</text>
+  <text class="mn" x="684" y="188">httpx · search API</text>
+
+  <line class="ln" x1="180" y1="86" x2="180" y2="126"/>
+  <line class="ln" x1="500" y1="86" x2="500" y2="126"/>
+  <line class="ln" x1="820" y1="86" x2="820" y2="126"/>
+
+  <rect class="bxa" rx="7" x="350" y="220" width="620" height="40"/>
+  <text class="bt" x="366" y="245">Embedding</text>
+  <text class="mn" x="452" y="245">openai text-embedding-3-large</text>
+  <text class="bs" x="700" y="245">batched · changed files only</text>
+  <line class="ln" x1="500" y1="202" x2="500" y2="216"/>
+  <line class="ln" x1="820" y1="202" x2="820" y2="216"/>
+
+  <!-- STORAGE -->
+  <text class="bl" x="30" y="292">Storage · one container</text>
+  <rect class="band" rx="9" x="30" y="300" width="940" height="124"/>
+  <text class="bt" x="46" y="322">PostgreSQL 16 + pgvector</text>
+  <text class="mn" x="228" y="322">docker · pgvector/pgvector:pg16</text>
+
+  <rect class="bx" rx="7" x="46" y="332" width="292" height="78"/>
+  <text class="bt" x="60" y="353">Business tables</text>
+  <text class="bs" x="60" y="371">products · sales · stock</text>
+  <text class="bs" x="60" y="387">returns · receipts · targets</text>
+  <text class="mn" x="60" y="403">every row has load_id</text>
+
+  <rect class="bx" rx="7" x="354" y="332" width="292" height="78"/>
+  <text class="bt" x="368" y="353">Vector store</text>
+  <text class="bs" x="368" y="371">document + news chunks</text>
+  <text class="bs" x="368" y="387">date · period · entities</text>
+  <text class="mn" x="368" y="403">pgvector index</text>
+
+  <rect class="bx" rx="7" x="662" y="332" width="292" height="78"/>
+  <text class="bt" x="676" y="353">Control &amp; audit</text>
+  <text class="bs" x="676" y="371">DATA_LOAD · answer_log</text>
+  <text class="bs" x="676" y="387">business dictionary</text>
+  <text class="mn" x="676" y="403">config + state</text>
+
+  <line class="ln" x1="180" y1="202" x2="180" y2="296"/>
+  <line class="ln" x1="500" y1="260" x2="500" y2="296"/>
+  <line class="ln" x1="820" y1="260" x2="820" y2="296"/>
+
+  <!-- ANSWER PIPELINE -->
+  <text class="bl" x="30" y="466">Answer pipeline</text>
+  <rect class="band" rx="9" x="30" y="474" width="940" height="122"/>
+
+  <rect class="bx" rx="7" x="46" y="496" width="186" height="80"/>
+  <text class="tag" x="60" y="514" fill="#2E5D7D">STEP 1 · LLM</text>
+  <text class="bt" x="60" y="534">Resolve question</text>
+  <text class="bs" x="60" y="551">which SKU, which weeks</text>
+  <text class="bs" x="60" y="566">shown back to the user</text>
+
+  <rect class="bxa" rx="7" x="248" y="496" width="330" height="80"/>
+  <text class="tag" x="262" y="514">STEP 2 · DETERMINISTIC CODE</text>
+  <text class="bt" x="262" y="533">Gather evidence — in order</text>
+  <rect fill="#fff" stroke="#E0DACF" stroke-width="1" rx="3" x="262" y="540" width="302" height="15"/>
+  <text class="bs" x="268" y="551">1. Decompose — price · stock-out · volume</text>
+  <rect fill="#fff" stroke="#E0DACF" stroke-width="1" rx="3" x="262" y="557" width="302" height="15"/>
+  <text class="bs" x="268" y="568">2. Documents — filter by period, then rank</text>
+  <rect fill="#fff" stroke="#E0DACF" stroke-width="1" rx="3" x="262" y="574" width="302" height="15" stroke-dasharray="4 3"/>
+  <text class="bs" x="268" y="585">3. External — gated, only if &gt;30% unexplained</text>
+
+  <rect class="bx" rx="7" x="594" y="496" width="186" height="80"/>
+  <text class="tag" x="608" y="514" fill="#2E5D7D">STEP 3 · LLM</text>
+  <text class="bt" x="608" y="534">Compose answer</text>
+  <text class="bs" x="608" y="551">explains the numbers</text>
+  <text class="bs" x="608" y="566">never calculates them</text>
+
+  <rect class="bx" rx="7" x="796" y="496" width="158" height="80"/>
+  <text class="tag" x="810" y="514">STEP 4 · CODE</text>
+  <text class="bt" x="810" y="534">Validate</text>
+  <text class="bs" x="810" y="551">figures reconcile</text>
+  <text class="bs" x="810" y="566">citations support</text>
+
+  <line class="ln" x1="232" y1="536" x2="243" y2="536"/>
+  <line class="ln" x1="578" y1="536" x2="589" y2="536"/>
+  <line class="ln" x1="780" y1="536" x2="791" y2="536"/>
+
+  <line class="ln" x1="500" y1="424" x2="500" y2="470"/>
+  <text class="bs" x="512" y="452">read only · published weeks</text>
+
+  <!-- LLM SERVICE -->
+  <rect fill="#EAF1F7" stroke="#2E5D7D" stroke-width="2.6" rx="9" x="300" y="626" width="400" height="62"/>
+  <text x="322" y="652" style="font-size:16px;font-weight:800;fill:#2E5D7D">LLM</text>
+  <text x="376" y="652" style="font-size:11.5px;font-weight:600;fill:#2E5D7D">openai python sdk · pydantic structured output</text>
+  <text x="322" y="672" style="font-size:10.2px;font-weight:500;fill:#3F6E8C">called twice · reads and writes language, never touches the maths</text>
+
+  <path class="lnb" d="M340,626 C340,600 139,606 139,580"/>
+  <path class="lnb" d="M660,626 C660,600 687,606 687,580"/>
+
+  <!-- SERVING -->
+  <text class="bl" x="30" y="720">Serving</text>
+  <rect fill="#1C1B19" rx="9" x="30" y="728" width="180" height="62"/>
+  <circle cx="62" cy="752" r="8" fill="#fff"/>
+  <path d="M48,776 a14,12 0 0 1 28,0 z" fill="#fff"/>
+  <text x="88" y="753" style="font-size:13px;font-weight:700;fill:#fff">Manager</text>
+  <text x="88" y="769" style="font-size:10px;font-weight:500;fill:#B8B3AA">asks in plain language</text>
+
+  <rect fill="#E9F3EE" stroke="#2E7D5B" stroke-width="2.6" rx="9" x="240" y="728" width="330" height="62"/>
+  <text x="258" y="750" style="font-size:13.5px;font-weight:800;fill:#1E5C42">Browser dashboard</text>
+  <text x="258" y="767" style="font-size:10.2px;font-weight:500;fill:#2E7D5B">drill-down charts + chat panel · HTML, Chart.js</text>
+
+  <rect class="bx" rx="7" x="600" y="728" width="370" height="62"/>
+  <text class="bt" x="616" y="750">FastAPI</text>
+  <text class="mn" x="616" y="768">GET /dashboard · POST /ask · uvicorn</text>
+
+  <line class="ln" x1="210" y1="759" x2="236" y2="759"/>
+  <line class="ln" x1="570" y1="759" x2="596" y2="759"/>
+  <path class="ln" d="M900,728 C900,660 875,650 875,600"/>
+</svg></div>
+
+  <h3>The one decision that shapes everything</h3>
+  <div class="callout ok">
+    <b>One Postgres is both the relational database and the vector database</b>
+    Postgres 16 with the pgvector extension. One container, one connection, one thing to run. At under 100,000 sales rows and a few hundred documents this is not a compromise — a dedicated vector database would take longer to set up and would not answer faster.
+  </div>
+
+  <h3>Stack</h3>
+  <table>
+    <thead><tr><th style="width:26%">Layer</th><th>Choice</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Database + vector store</td><td class="mono">PostgreSQL 16 · pgvector</td></tr>
+      <tr><td class="k">Object storage</td><td class="mono">local folders → S3</td></tr>
+      <tr><td class="k">Ingestion</td><td class="mono">Python 3.12 · cron · pandas · psycopg</td></tr>
+      <tr><td class="k">Document parsing</td><td class="mono">pypdf · python-docx</td></tr>
+      <tr><td class="k">Embeddings</td><td class="mono">openai text-embedding-3-large</td></tr>
+      <tr><td class="k">Analysis functions</td><td class="mono">plain Python · pytest</td></tr>
+      <tr><td class="k">LLM calls</td><td class="mono">openai python sdk · pydantic structured output</td></tr>
+      <tr><td class="k">Orchestration</td><td class="mono">plain Python · asyncio · no agent framework</td></tr>
+      <tr><td class="k">API</td><td class="mono">FastAPI · uvicorn</td></tr>
+      <tr><td class="k">UI</td><td class="mono">HTML · Chart.js</td></tr>
+      <tr><td class="k">Local infrastructure</td><td class="mono">Docker Compose · one container</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Concurrency</h3>
+  <p>FastAPI is async throughout, so concurrency is free where it helps. It is worth being precise about where that is.</p>
+  <table>
+    <thead><tr><th style="width:30%">Where</th><th style="width:16%">Parallel?</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Document embedding</td><td><b>Yes</b></td><td>Hundreds of chunks, all independent API calls. Batched and run concurrently — the single largest win in the system.</td></tr>
+      <tr><td class="k">News watch job</td><td><b>Yes</b></td><td>Many sources fetched at once instead of one after another.</td></tr>
+      <tr><td class="k">Document parsing</td><td>Yes, but threads</td><td>pypdf is CPU-bound, so a worker pool rather than asyncio.</td></tr>
+      <tr><td class="k">Analysis functions inside decompose</td><td>Yes</td><td>Stock-out, price effect and peer comparison are independent queries. Free to gather, though it saves only milliseconds.</td></tr>
+      <tr><td class="k">Dashboard endpoint queries</td><td>Yes</td><td>KPIs, trend, department variance and the table are independent.</td></tr>
+      <tr><td class="k">Weekly sales load</td><td><b>No</b></td><td>One transaction, one advisory lock. Serial by design — that is what makes it all-or-nothing.</td></tr>
+      <tr><td class="k">The three evidence sources</td><td><b>No — deliberately</b></td><td>See below.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>The three sources must not run in parallel</b>
+    It is tempting to fire structured data, documents and news at the same time to save latency. That would break the design.
+    <br><br>
+    Document retrieval is built from the <i>findings</i> of the decomposition — we search for "Tan replenishment", not "why did sales drop". And the external leg only runs if a large residual remains. Running them concurrently means retrieving before we know what to retrieve, and searching the news when we did not need to.
+  </div>
+
+  <div class="callout">
+    <b>Latency is dominated by sequential model calls, not by queries</b>
+    Each database query takes milliseconds. Each model call takes seconds. Parallelising every query in the system saves less than merging two model calls into one.
+    <br><br>
+    So the real optimisation is reducing the number of sequential model calls — for example combining <i>resolve</i> and <i>select tools</i> into a single structured call. That is worth more than any amount of asyncio in the answer path.
+  </div>
+
+  <h3>No agent framework</h3>
+  <p>The pipeline has seven nodes, three conditional edges and one retry cycle — all visible in the diagram. Every step is written as a named node function, with a small router holding the conditional edges. The graph is explicit and drawable, with no dependency and nothing hidden.</p>
+  <div class="callout">
+    <b>Why these branches do not need a framework</b>
+    Almost every decision here is <b>deterministic</b> — <span class="mono">if residual &gt; 0.30: search_external()</span>. That is an if-statement, and it is an if-statement on purpose, because reproducibility is the whole point: same question, same data, same path, every time.
+    <br><br>
+    Agent frameworks earn their place when the <i>model</i> chooses the route and loops until satisfied. We deliberately removed that. LangGraph would be worth adding for checkpointing, resumable runs or human-in-the-loop approval — none of which this needs.
+  </div>
+
+  <h3>Running it locally</h3>
+<pre><span class="c"># docker-compose.yml — the entire infrastructure</span>
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_PASSWORD: local
+    ports: [<span class="kw">"5432:5432"</span>]
+    volumes: [pgdata:/var/lib/postgresql/data]</pre>
+
+<pre>docker compose up -d          <span class="c"># database</span>
+python -m ingest.sales        <span class="c"># load the week</span>
+python -m ingest.documents    <span class="c"># parse, chunk, embed</span>
+uvicorn api.main:app          <span class="c"># serve</span></pre>
+
+  <p>One container. Everything else is a Python process. No cloud account is needed to run or demonstrate the whole system.</p>
+
+  <h3>Deferred</h3>
+  <table>
+    <thead><tr><th style="width:28%">Item</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Cloud deployment</td><td>The design targets AWS Singapore — managed Postgres with pgvector, object storage, and a container or function for the API. The specific choice is deliberately open while the system is being built.</td></tr>
+      <tr><td class="k">Monitoring and observability</td><td>The <span class="mono">answer_log</span> table is already the audit trail that matters, and exists from day one. Trace-level tooling for prompts, tokens, latency and cost sits alongside it rather than replacing it.</td></tr>
+      <tr><td class="k">CI and testing</td><td>The analysis functions are the part that must be unit tested, because a wrong decomposition fails silently.</td></tr>
+    </tbody>
+  </table>
+</section>
+</div>
+
+</div>
+<div class="pane" data-t="3" hidden>
+
+<section>
+  <h2>Improvements</h2>
+  <p class="lede">Everything deliberately left out of the first version, collected in one place. Each item states what it would add and the condition that would make it worth doing.</p>
+  <div class="callout">
+    <b>Why this is a section and not a gap</b>
+    A design with no omissions is a design that has not made choices. Each of these was considered and set aside for a stated reason. The third column is the important one — it turns "we left this out" into "we left this out until X happens".
+  </div>
+</section>
+
+<section id="imp-model">
+  <h2>Data Model</h2>
+  <table>
+    <thead><tr><th style="width:22%">Improvement</th><th style="width:39%">What it would add</th><th>When it becomes worth doing</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Campaigns as a structured table</td>
+        <td>Campaign periods, channels and featured SKUs extracted from campaign plans into rows, so campaign effect could be computed as a percentage rather than described.</td>
+        <td>Not now. With eight documents the whole corpus fits in context and the model can read the campaign plan directly. At thousands of documents, retrieval becomes lossy and extraction earns its place.</td>
+      </tr>
+      <tr>
+        <td class="k">E-commerce traffic and conversion</td>
+        <td>Visits, product page views and conversion rate per SKU. Would separate "fewer people came" from "people came and did not buy".</td>
+        <td>Needs a web analytics integration, which is a separate source system. Worth adding once online is the larger channel.</td>
+      </tr>
+      <tr>
+        <td class="k">Store-level operations</td>
+        <td>Closures, renovations, staffing and footfall per store.</td>
+        <td>We removed the store dimension deliberately. Needed if a single store closure ever becomes material to the top line.</td>
+      </tr>
+      <tr>
+        <td class="k">Purchase orders and stock adjustments</td>
+        <td>Full inbound detail — orders raised, shipment status, write-offs and shrinkage.</td>
+        <td>Useful for stock accuracy, not for explaining sales. Stock receipts alone answer the question this system asks.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="imp-ingest">
+  <h2>Data Ingestion Pipeline</h2>
+  <table>
+    <thead><tr><th style="width:22%">Improvement</th><th style="width:39%">What it would add</th><th>When it becomes worth doing</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Pre-calculated figures</td>
+        <td>After publishing, compute the derived numbers for every SKU and week — gap against target, sell-through, weeks cover, out-of-stock weeks — and store them.</td>
+        <td>Not now. Under 100,000 rows Postgres answers these in milliseconds, and the model call dominates response time. Worth adding at tens of thousands of SKUs, or if the analysis needs heavy statistical work.</td>
+      </tr>
+      <tr>
+        <td class="k">Monitoring and alerting</td>
+        <td>Alert the data team on failure, naming the check that failed. Plus a heartbeat check that fires if the job never ran at all.</td>
+        <td>Before going live. A job that fails produces an error; a job that never starts produces silence, which looks identical to success.</td>
+      </tr>
+      <tr>
+        <td class="k">Warning-level checks</td>
+        <td>Non-blocking flags — sales far outside the recent range, unexpected new SKUs, a single SKU spiking. Recorded but not stopping the load.</td>
+        <td>Once there is enough history to know what normal looks like. Too early now, and false alarms would train people to ignore them.</td>
+      </tr>
+      <tr>
+        <td class="k">Separating temporary from permanent failures</td>
+        <td>Retry automatically on a missing file or a database timeout. Stop immediately and alert on a malformed file or a failed check.</td>
+        <td>When retries start hiding real problems. Retrying a malformed file fifty times only delays the alert.</td>
+      </tr>
+      <tr>
+        <td class="k">File checksums</td>
+        <td>Verify each file's contents, not just its row count.</td>
+        <td>If files start travelling over an unreliable network or through a third party. The manifest alone is sufficient while the handover is a local mount point.</td>
+      </tr>
+      <tr>
+        <td class="k">Push instead of polling</td>
+        <td>The source system writes the <span class="mono">detected</span> row into <span class="mono">DATA_LOAD</span> itself when it finishes writing files, removing the wait loop entirely.</td>
+        <td>If the client's source systems are able to write to the database. Cleaner and faster than checking a folder every fifteen minutes.</td>
+      </tr>
+      <tr>
+        <td class="k">Restating closed weeks</td>
+        <td>Allow a past week to be reloaded and corrected, with the change recorded and visible.</td>
+        <td>We currently assume a closed week never changes. This will eventually break — late returns and corrections are normal in retail. Needed once the business disputes a historical number.</td>
+      </tr>
+      <tr>
+        <td class="k">Catching up several weeks at once</td>
+        <td>Load and publish multiple missed weeks in the correct order after an outage.</td>
+        <td>Today the job handles one week. Needed the first time the pipeline is down for more than a week.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="imp-docs">
+  <h2>Unstructured Data</h2>
+  <table>
+    <thead><tr><th style="width:22%">Improvement</th><th style="width:39%">What it would add</th><th>When it becomes worth doing</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Multiple document sources</td>
+        <td>Sync directly from SharePoint or Google Drive, where the documents already live, instead of a polled folder. The pipeline is already built to accept a pluggable source.</td>
+        <td>Before real users depend on it. A polled folder means somebody has to copy files into it, and manual steps in a tool people do not otherwise open get skipped. The evidence base then decays quietly.</td>
+      </tr>
+      <tr>
+        <td class="k">Document admin screen</td>
+        <td>A page listing every document, its extracted metadata, and when it was last indexed — with the ability to correct metadata and re-run ingestion for one file.</td>
+        <td>Once metadata is extracted automatically at volume. The date does most of our filtering, so a wrongly extracted date silently removes a document from every relevant search, and nothing surfaces that today.</td>
+      </tr>
+      <tr>
+        <td class="k">Manual upload path</td>
+        <td>A way to add a one-off document that does not live in the synced folders.</td>
+        <td>Useful, but only as a secondary route. It should never become the main way documents arrive.</td>
+      </tr>
+      <tr>
+        <td class="k">Live external search</td>
+        <td>A query-time web search for the long tail — a viral post or local event the weekly watch job never anticipated.</td>
+        <td>Once the stored feed is demonstrably missing real causes. Adds latency and non-determinism to the answer path, so it should stay a fallback rather than become the default.</td>
+      </tr>
+      <tr>
+        <td class="k">Broader watchlist and social signals</td>
+        <td>Social platforms, influencer activity and search-trend data alongside trade press.</td>
+        <td>In fashion these often move demand before the trade press reports it. Needs its own ingestion and a lot of noise filtering, so not in a first version.</td>
+      </tr>
+      <tr>
+        <td class="k">Indexed vector search</td>
+        <td>An <span class="mono">hnsw</span> index on the embedding column, which would make similarity search sub-millisecond regardless of corpus size.</td>
+        <td>Not yet. pgvector cannot index beyond 2000 dimensions, and we embed at the full 3072. A sequential scan over ~5,000 chunks takes 20&ndash;60ms and returns <b>exact</b> results, where an index would return approximate ones — and the model call it feeds takes 2&ndash;6 seconds regardless. Revisit past roughly 50,000 chunks, switching to <span class="mono">halfvec(3072)</span> or re-embedding at 1024 dimensions.</td>
+      </tr>
+      <tr>
+        <td class="k">Periodic full hash sweep</td>
+        <td>A monthly job that hashes every file regardless of timestamp, to catch anything the size and modified-time check missed.</td>
+        <td>Once the corpus is large enough that a silently missed update would matter. Cheap to run monthly, wasteful to run daily.</td>
+      </tr>
+      <tr>
+        <td class="k">Full version milestoning</td>
+        <td>Valid-from and valid-to dates per document version, so retrieval can reconstruct exactly what was current on any past date.</td>
+        <td>Append-only with a reference to the replaced version covers most of this. Full milestoning is only needed if answers must reflect what was known at the time rather than what is known now.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+</div>
+
+<footer>
+  AURELIA is a fictional company created for this case study. Version 0.3 — working draft.
+</footer>
+
+</main>
+<script>
+document.querySelectorAll('.innerbtn, nav a.inner').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.i;
+  document.querySelectorAll('.innerbtn').forEach(x=>x.classList.toggle('on',x.dataset.i===k));
+  document.querySelectorAll('nav a.inner').forEach(x=>x.classList.toggle('on',x.dataset.i===k));
+  document.querySelectorAll('.innerpane').forEach(x=>x.hidden=x.dataset.i!==k);
+  window.scrollTo(0,0);
+});
+document.querySelectorAll('.subbtn, nav a.sub').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.s;
+  document.querySelectorAll('.subbtn').forEach(x=>x.classList.toggle('on',x.dataset.s===k));
+  document.querySelectorAll('nav a.sub').forEach(x=>x.classList.toggle('on',x.dataset.s===k));
+  document.querySelectorAll('.subpane').forEach(x=>x.hidden=x.dataset.s!==k);
+  window.scrollTo(0,0);
+});
+</script>
+<script>
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>{
+  const t=b.dataset.t;
+  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+  document.querySelectorAll('.pane').forEach(p=>p.hidden=p.dataset.t!==t);
+  document.querySelectorAll('.navgroup').forEach(n=>n.hidden=n.dataset.t!==t);
+  window.scrollTo(0,0);
+});
+</script>
+</div>
+</body>
+</html>

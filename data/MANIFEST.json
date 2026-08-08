@@ -1,0 +1,24 @@
+{
+  "backfill": true,
+  "first_week": "2026-W06",
+  "last_week": "2026-W31",
+  "weeks": 26,
+  "skus": 75,
+  "files": [
+    "products.csv",
+    "sales.csv",
+    "stock.csv",
+    "returns.csv",
+    "receipts.csv",
+    "targets.csv"
+  ],
+  "row_counts": {
+    "products": 75,
+    "sales": 3900,
+    "stock": 1950,
+    "returns": 806,
+    "receipts": 295,
+    "targets": 450
+  },
+  "generated_at": "2026-08-08T14:27:46"
+}

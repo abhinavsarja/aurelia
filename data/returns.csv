@@ -1,0 +1,807 @@
+week,sku,units_returned,reason
+2026-W09,MRL-CB-TAN,8,colour differs
+2026-W10,MRL-CB-TAN,9,colour differs
+2026-W13,MRL-CB-TAN,8,changed mind
+2026-W16,MRL-CB-TAN,7,changed mind
+2026-W17,MRL-CB-TAN,6,changed mind
+2026-W25,MRL-CB-TAN,8,changed mind
+2026-W26,MRL-CB-TAN,8,changed mind
+2026-W28,MRL-CB-TAN,5,changed mind
+2026-W09,MRL-CB-BLK,8,colour differs
+2026-W10,MRL-CB-BLK,11,changed mind
+2026-W11,MRL-CB-BLK,11,changed mind
+2026-W13,MRL-CB-BLK,11,changed mind
+2026-W14,MRL-CB-BLK,11,colour differs
+2026-W15,MRL-CB-BLK,10,changed mind
+2026-W16,MRL-CB-BLK,10,changed mind
+2026-W17,MRL-CB-BLK,12,changed mind
+2026-W18,MRL-CB-BLK,6,colour differs
+2026-W23,MRL-CB-BLK,12,changed mind
+2026-W25,MRL-CB-BLK,9,colour differs
+2026-W26,MRL-CB-BLK,11,changed mind
+2026-W28,MRL-CB-BLK,6,changed mind
+2026-W30,MRL-CB-BLK,6,changed mind
+2026-W06,MRL-CB-CRM,6,changed mind
+2026-W07,MRL-CB-CRM,5,changed mind
+2026-W09,MRL-CB-CRM,5,changed mind
+2026-W10,MRL-CB-CRM,7,colour differs
+2026-W11,MRL-CB-CRM,6,colour differs
+2026-W12,MRL-CB-CRM,6,colour differs
+2026-W15,MRL-CB-CRM,7,colour differs
+2026-W16,MRL-CB-CRM,5,changed mind
+2026-W20,MRL-CB-CRM,6,changed mind
+2026-W21,MRL-CB-CRM,6,colour differs
+2026-W22,MRL-CB-CRM,4,colour differs
+2026-W23,MRL-CB-CRM,4,colour differs
+2026-W24,MRL-CB-CRM,5,colour differs
+2026-W25,MRL-CB-CRM,8,changed mind
+2026-W26,MRL-CB-CRM,6,changed mind
+2026-W27,MRL-CB-CRM,6,colour differs
+2026-W29,MRL-CB-CRM,5,changed mind
+2026-W30,MRL-CB-CRM,5,changed mind
+2026-W08,MRL-CB-OLV,4,colour differs
+2026-W09,MRL-CB-OLV,2,colour differs
+2026-W12,MRL-CB-OLV,4,colour differs
+2026-W15,MRL-CB-OLV,2,changed mind
+2026-W16,MRL-CB-OLV,3,colour differs
+2026-W19,MRL-CB-OLV,3,changed mind
+2026-W20,MRL-CB-OLV,4,changed mind
+2026-W23,MRL-CB-OLV,4,colour differs
+2026-W24,MRL-CB-OLV,4,changed mind
+2026-W30,MRL-CB-OLV,2,colour differs
+2026-W31,MRL-CB-OLV,3,changed mind
+2026-W07,SIE-TT-BLK,4,changed mind
+2026-W11,SIE-TT-BLK,6,colour differs
+2026-W14,SIE-TT-BLK,5,colour differs
+2026-W15,SIE-TT-BLK,6,colour differs
+2026-W16,SIE-TT-BLK,6,colour differs
+2026-W19,SIE-TT-BLK,6,colour differs
+2026-W20,SIE-TT-BLK,7,colour differs
+2026-W22,SIE-TT-BLK,7,colour differs
+2026-W23,SIE-TT-BLK,8,changed mind
+2026-W25,SIE-TT-BLK,9,changed mind
+2026-W27,SIE-TT-BLK,3,colour differs
+2026-W28,SIE-TT-BLK,4,changed mind
+2026-W29,SIE-TT-BLK,4,changed mind
+2026-W30,SIE-TT-BLK,4,changed mind
+2026-W06,SIE-TT-TAN,3,colour differs
+2026-W10,SIE-TT-TAN,5,changed mind
+2026-W12,SIE-TT-TAN,5,colour differs
+2026-W16,SIE-TT-TAN,5,changed mind
+2026-W17,SIE-TT-TAN,3,colour differs
+2026-W19,SIE-TT-TAN,5,changed mind
+2026-W23,SIE-TT-TAN,5,colour differs
+2026-W24,SIE-TT-TAN,4,changed mind
+2026-W26,SIE-TT-TAN,5,changed mind
+2026-W31,SIE-TT-TAN,4,colour differs
+2026-W06,SIE-TT-NVY,3,changed mind
+2026-W07,SIE-TT-NVY,3,colour differs
+2026-W08,SIE-TT-NVY,4,changed mind
+2026-W09,SIE-TT-NVY,2,changed mind
+2026-W10,SIE-TT-NVY,3,colour differs
+2026-W11,SIE-TT-NVY,3,changed mind
+2026-W12,SIE-TT-NVY,3,colour differs
+2026-W13,SIE-TT-NVY,2,changed mind
+2026-W14,SIE-TT-NVY,3,colour differs
+2026-W15,SIE-TT-NVY,3,changed mind
+2026-W16,SIE-TT-NVY,2,changed mind
+2026-W17,SIE-TT-NVY,3,changed mind
+2026-W18,SIE-TT-NVY,3,changed mind
+2026-W19,SIE-TT-NVY,3,changed mind
+2026-W20,SIE-TT-NVY,2,changed mind
+2026-W21,SIE-TT-NVY,3,colour differs
+2026-W22,SIE-TT-NVY,3,changed mind
+2026-W23,SIE-TT-NVY,4,changed mind
+2026-W24,SIE-TT-NVY,11,strap fault
+2026-W25,SIE-TT-NVY,13,strap fault
+2026-W26,SIE-TT-NVY,11,strap fault
+2026-W27,SIE-TT-NVY,14,strap fault
+2026-W28,SIE-TT-NVY,10,strap fault
+2026-W29,SIE-TT-NVY,15,strap fault
+2026-W30,SIE-TT-NVY,12,strap fault
+2026-W31,SIE-TT-NVY,13,strap fault
+2026-W08,PIP-CL-BLK,4,changed mind
+2026-W09,PIP-CL-BLK,3,changed mind
+2026-W10,PIP-CL-BLK,3,changed mind
+2026-W11,PIP-CL-BLK,3,changed mind
+2026-W16,PIP-CL-BLK,4,changed mind
+2026-W22,PIP-CL-BLK,4,changed mind
+2026-W26,PIP-CL-BLK,3,changed mind
+2026-W29,PIP-CL-BLK,3,colour differs
+2026-W10,PIP-CL-GLD,2,colour differs
+2026-W16,PIP-CL-GLD,1,colour differs
+2026-W18,PIP-CL-GLD,2,changed mind
+2026-W20,PIP-CL-GLD,2,colour differs
+2026-W22,PIP-CL-GLD,2,changed mind
+2026-W23,PIP-CL-GLD,2,changed mind
+2026-W24,PIP-CL-GLD,2,changed mind
+2026-W27,PIP-CL-GLD,2,changed mind
+2026-W29,PIP-CL-GLD,2,changed mind
+2026-W31,PIP-CL-GLD,2,changed mind
+2026-W06,AST-BP-BLK,4,changed mind
+2026-W07,AST-BP-BLK,4,colour differs
+2026-W08,AST-BP-BLK,5,changed mind
+2026-W09,AST-BP-BLK,6,changed mind
+2026-W11,AST-BP-BLK,4,changed mind
+2026-W12,AST-BP-BLK,4,changed mind
+2026-W14,AST-BP-BLK,4,colour differs
+2026-W15,AST-BP-BLK,5,changed mind
+2026-W19,AST-BP-BLK,5,changed mind
+2026-W20,AST-BP-BLK,4,changed mind
+2026-W22,AST-BP-BLK,6,colour differs
+2026-W26,AST-BP-BLK,5,changed mind
+2026-W27,AST-BP-BLK,5,changed mind
+2026-W28,AST-BP-BLK,4,changed mind
+2026-W29,AST-BP-BLK,5,changed mind
+2026-W06,AST-BP-GRY,3,colour differs
+2026-W07,AST-BP-GRY,2,changed mind
+2026-W08,AST-BP-GRY,2,changed mind
+2026-W09,AST-BP-GRY,2,changed mind
+2026-W13,AST-BP-GRY,2,changed mind
+2026-W15,AST-BP-GRY,3,changed mind
+2026-W17,AST-BP-GRY,2,changed mind
+2026-W19,AST-BP-GRY,3,colour differs
+2026-W20,AST-BP-GRY,3,changed mind
+2026-W21,AST-BP-GRY,3,changed mind
+2026-W22,AST-BP-GRY,2,changed mind
+2026-W24,AST-BP-GRY,3,colour differs
+2026-W28,AST-BP-GRY,2,colour differs
+2026-W08,JUN-BK-TAN,3,changed mind
+2026-W09,JUN-BK-TAN,4,changed mind
+2026-W10,JUN-BK-TAN,3,colour differs
+2026-W14,JUN-BK-TAN,3,colour differs
+2026-W16,JUN-BK-TAN,3,colour differs
+2026-W19,JUN-BK-TAN,3,changed mind
+2026-W21,JUN-BK-TAN,5,changed mind
+2026-W26,JUN-BK-TAN,5,changed mind
+2026-W27,JUN-BK-TAN,4,colour differs
+2026-W29,JUN-BK-TAN,2,colour differs
+2026-W08,JUN-BK-BLK,3,colour differs
+2026-W12,JUN-BK-BLK,4,changed mind
+2026-W14,JUN-BK-BLK,4,colour differs
+2026-W15,JUN-BK-BLK,3,changed mind
+2026-W17,JUN-BK-BLK,3,changed mind
+2026-W20,JUN-BK-BLK,6,colour differs
+2026-W22,JUN-BK-BLK,7,changed mind
+2026-W23,JUN-BK-BLK,5,changed mind
+2026-W24,JUN-BK-BLK,4,colour differs
+2026-W27,JUN-BK-BLK,4,changed mind
+2026-W28,JUN-BK-BLK,4,colour differs
+2026-W30,JUN-BK-BLK,4,colour differs
+2026-W31,JUN-BK-BLK,4,changed mind
+2026-W08,ELL-MN-BLK,5,colour differs
+2026-W09,ELL-MN-BLK,4,colour differs
+2026-W10,ELL-MN-BLK,4,changed mind
+2026-W11,ELL-MN-BLK,4,changed mind
+2026-W14,ELL-MN-BLK,4,colour differs
+2026-W17,ELL-MN-BLK,5,colour differs
+2026-W18,ELL-MN-BLK,5,colour differs
+2026-W19,ELL-MN-BLK,4,changed mind
+2026-W23,ELL-MN-BLK,4,changed mind
+2026-W25,ELL-MN-BLK,4,colour differs
+2026-W27,ELL-MN-BLK,3,changed mind
+2026-W06,ELL-MN-PNK,1,changed mind
+2026-W07,ELL-MN-PNK,2,changed mind
+2026-W08,ELL-MN-PNK,2,colour differs
+2026-W12,ELL-MN-PNK,2,changed mind
+2026-W13,ELL-MN-PNK,2,changed mind
+2026-W16,ELL-MN-PNK,3,colour differs
+2026-W19,ELL-MN-PNK,2,colour differs
+2026-W22,ELL-MN-PNK,2,changed mind
+2026-W24,ELL-MN-PNK,3,changed mind
+2026-W27,ELL-MN-PNK,3,changed mind
+2026-W30,ELL-MN-PNK,2,changed mind
+2026-W06,NAD-LF-BLK-35,1,sizing
+2026-W09,NAD-LF-BLK-35,1,sizing
+2026-W10,NAD-LF-BLK-35,1,sizing
+2026-W11,NAD-LF-BLK-35,1,sizing
+2026-W15,NAD-LF-BLK-35,1,sizing
+2026-W16,NAD-LF-BLK-35,1,sizing
+2026-W21,NAD-LF-BLK-35,1,sizing
+2026-W25,NAD-LF-BLK-35,1,sizing
+2026-W26,NAD-LF-BLK-35,1,sizing
+2026-W27,NAD-LF-BLK-35,2,sizing
+2026-W31,NAD-LF-BLK-35,1,sizing
+2026-W10,NAD-LF-BLK-36,2,sizing
+2026-W11,NAD-LF-BLK-36,3,sizing
+2026-W14,NAD-LF-BLK-36,2,sizing
+2026-W15,NAD-LF-BLK-36,3,sizing
+2026-W18,NAD-LF-BLK-36,3,sizing
+2026-W22,NAD-LF-BLK-36,1,sizing
+2026-W08,NAD-LF-BLK-37,4,sizing
+2026-W10,NAD-LF-BLK-37,3,sizing
+2026-W14,NAD-LF-BLK-37,4,sizing
+2026-W15,NAD-LF-BLK-37,2,sizing
+2026-W16,NAD-LF-BLK-37,2,sizing
+2026-W18,NAD-LF-BLK-37,4,sizing
+2026-W19,NAD-LF-BLK-37,3,sizing
+2026-W07,NAD-LF-BLK-38,3,sizing
+2026-W12,NAD-LF-BLK-38,2,sizing
+2026-W14,NAD-LF-BLK-38,2,sizing
+2026-W16,NAD-LF-BLK-38,3,sizing
+2026-W19,NAD-LF-BLK-38,3,sizing
+2026-W06,NAD-LF-BLK-39,2,sizing
+2026-W07,NAD-LF-BLK-39,2,sizing
+2026-W09,NAD-LF-BLK-39,2,sizing
+2026-W10,NAD-LF-BLK-39,1,sizing
+2026-W12,NAD-LF-BLK-39,1,sizing
+2026-W18,NAD-LF-BLK-39,2,sizing
+2026-W24,NAD-LF-BLK-39,2,sizing
+2026-W25,NAD-LF-BLK-39,2,sizing
+2026-W26,NAD-LF-BLK-39,2,sizing
+2026-W28,NAD-LF-BLK-39,2,sizing
+2026-W29,NAD-LF-BLK-39,2,sizing
+2026-W08,NAD-LF-BLK-40,1,sizing
+2026-W09,NAD-LF-BLK-40,1,sizing
+2026-W15,NAD-LF-BLK-40,1,sizing
+2026-W21,NAD-LF-BLK-40,1,sizing
+2026-W22,NAD-LF-BLK-40,1,sizing
+2026-W27,NAD-LF-BLK-40,1,sizing
+2026-W28,NAD-LF-BLK-40,1,sizing
+2026-W30,NAD-LF-BLK-40,1,sizing
+2026-W31,NAD-LF-BLK-40,1,sizing
+2026-W07,NAD-LF-TAN-35,1,sizing
+2026-W10,NAD-LF-TAN-35,1,sizing
+2026-W12,NAD-LF-TAN-35,1,sizing
+2026-W14,NAD-LF-TAN-35,1,sizing
+2026-W16,NAD-LF-TAN-35,1,sizing
+2026-W18,NAD-LF-TAN-35,1,sizing
+2026-W21,NAD-LF-TAN-35,1,sizing
+2026-W24,NAD-LF-TAN-35,1,sizing
+2026-W25,NAD-LF-TAN-35,1,sizing
+2026-W26,NAD-LF-TAN-35,1,sizing
+2026-W27,NAD-LF-TAN-35,1,sizing
+2026-W29,NAD-LF-TAN-35,1,sizing
+2026-W08,NAD-LF-TAN-36,1,sizing
+2026-W11,NAD-LF-TAN-36,2,sizing
+2026-W12,NAD-LF-TAN-36,2,sizing
+2026-W13,NAD-LF-TAN-36,2,sizing
+2026-W15,NAD-LF-TAN-36,2,sizing
+2026-W16,NAD-LF-TAN-36,2,sizing
+2026-W17,NAD-LF-TAN-36,2,sizing
+2026-W18,NAD-LF-TAN-36,2,sizing
+2026-W19,NAD-LF-TAN-36,2,sizing
+2026-W20,NAD-LF-TAN-36,2,sizing
+2026-W22,NAD-LF-TAN-36,2,sizing
+2026-W07,NAD-LF-TAN-37,2,sizing
+2026-W08,NAD-LF-TAN-37,1,sizing
+2026-W10,NAD-LF-TAN-37,3,sizing
+2026-W11,NAD-LF-TAN-37,2,sizing
+2026-W14,NAD-LF-TAN-37,2,sizing
+2026-W16,NAD-LF-TAN-37,3,sizing
+2026-W17,NAD-LF-TAN-37,1,sizing
+2026-W18,NAD-LF-TAN-37,2,sizing
+2026-W19,NAD-LF-TAN-37,3,sizing
+2026-W21,NAD-LF-TAN-37,2,sizing
+2026-W07,NAD-LF-TAN-38,2,sizing
+2026-W08,NAD-LF-TAN-38,2,sizing
+2026-W09,NAD-LF-TAN-38,3,sizing
+2026-W16,NAD-LF-TAN-38,2,sizing
+2026-W17,NAD-LF-TAN-38,2,sizing
+2026-W19,NAD-LF-TAN-38,2,sizing
+2026-W21,NAD-LF-TAN-38,2,sizing
+2026-W22,NAD-LF-TAN-38,1,sizing
+2026-W07,NAD-LF-TAN-39,2,sizing
+2026-W10,NAD-LF-TAN-39,1,sizing
+2026-W11,NAD-LF-TAN-39,1,sizing
+2026-W12,NAD-LF-TAN-39,2,sizing
+2026-W14,NAD-LF-TAN-39,1,sizing
+2026-W17,NAD-LF-TAN-39,1,sizing
+2026-W18,NAD-LF-TAN-39,1,sizing
+2026-W19,NAD-LF-TAN-39,1,sizing
+2026-W20,NAD-LF-TAN-39,1,sizing
+2026-W21,NAD-LF-TAN-39,1,sizing
+2026-W22,NAD-LF-TAN-39,2,sizing
+2026-W23,NAD-LF-TAN-39,1,sizing
+2026-W27,NAD-LF-TAN-39,1,sizing
+2026-W29,NAD-LF-TAN-39,1,sizing
+2026-W30,NAD-LF-TAN-39,1,sizing
+2026-W19,NAD-LF-TAN-40,1,sizing
+2026-W22,NAD-LF-TAN-40,1,sizing
+2026-W26,NAD-LF-TAN-40,1,sizing
+2026-W28,NAD-LF-TAN-40,1,sizing
+2026-W31,NAD-LF-TAN-40,1,sizing
+2026-W06,VER-HL-BLK-35,1,sizing
+2026-W08,VER-HL-BLK-35,1,sizing
+2026-W10,VER-HL-BLK-35,1,sizing
+2026-W11,VER-HL-BLK-35,1,sizing
+2026-W12,VER-HL-BLK-35,1,sizing
+2026-W17,VER-HL-BLK-35,1,sizing
+2026-W20,VER-HL-BLK-35,1,sizing
+2026-W23,VER-HL-BLK-35,1,sizing
+2026-W29,VER-HL-BLK-35,1,sizing
+2026-W30,VER-HL-BLK-35,1,sizing
+2026-W06,VER-HL-BLK-36,1,sizing
+2026-W07,VER-HL-BLK-36,2,sizing
+2026-W08,VER-HL-BLK-36,2,sizing
+2026-W09,VER-HL-BLK-36,2,sizing
+2026-W11,VER-HL-BLK-36,1,sizing
+2026-W13,VER-HL-BLK-36,2,sizing
+2026-W17,VER-HL-BLK-36,2,sizing
+2026-W18,VER-HL-BLK-36,1,sizing
+2026-W19,VER-HL-BLK-36,1,sizing
+2026-W20,VER-HL-BLK-36,2,sizing
+2026-W22,VER-HL-BLK-36,2,sizing
+2026-W23,VER-HL-BLK-36,2,sizing
+2026-W25,VER-HL-BLK-36,3,sizing
+2026-W27,VER-HL-BLK-36,2,sizing
+2026-W29,VER-HL-BLK-36,2,sizing
+2026-W10,VER-HL-BLK-37,2,sizing
+2026-W14,VER-HL-BLK-37,2,sizing
+2026-W16,VER-HL-BLK-37,2,sizing
+2026-W19,VER-HL-BLK-37,3,sizing
+2026-W22,VER-HL-BLK-37,2,sizing
+2026-W24,VER-HL-BLK-37,2,sizing
+2026-W25,VER-HL-BLK-37,2,sizing
+2026-W06,VER-HL-BLK-38,1,sizing
+2026-W07,VER-HL-BLK-38,2,sizing
+2026-W09,VER-HL-BLK-38,2,sizing
+2026-W10,VER-HL-BLK-38,1,sizing
+2026-W11,VER-HL-BLK-38,2,sizing
+2026-W15,VER-HL-BLK-38,2,sizing
+2026-W16,VER-HL-BLK-38,1,sizing
+2026-W17,VER-HL-BLK-38,1,sizing
+2026-W19,VER-HL-BLK-38,2,sizing
+2026-W20,VER-HL-BLK-38,1,sizing
+2026-W23,VER-HL-BLK-38,2,sizing
+2026-W24,VER-HL-BLK-38,2,sizing
+2026-W25,VER-HL-BLK-38,1,sizing
+2026-W26,VER-HL-BLK-38,2,sizing
+2026-W28,VER-HL-BLK-38,1,sizing
+2026-W29,VER-HL-BLK-38,1,sizing
+2026-W07,VER-HL-BLK-39,1,sizing
+2026-W08,VER-HL-BLK-39,1,sizing
+2026-W09,VER-HL-BLK-39,1,sizing
+2026-W12,VER-HL-BLK-39,1,sizing
+2026-W16,VER-HL-BLK-39,1,sizing
+2026-W17,VER-HL-BLK-39,1,sizing
+2026-W19,VER-HL-BLK-39,1,sizing
+2026-W20,VER-HL-BLK-39,1,sizing
+2026-W22,VER-HL-BLK-39,1,sizing
+2026-W25,VER-HL-BLK-39,1,sizing
+2026-W29,VER-HL-BLK-39,1,sizing
+2026-W31,VER-HL-BLK-39,1,sizing
+2026-W26,VER-HL-BLK-40,1,sizing
+2026-W29,VER-HL-BLK-40,1,sizing
+2026-W06,VER-HL-RED-35,1,sizing
+2026-W21,VER-HL-RED-35,1,sizing
+2026-W07,VER-HL-RED-36,1,sizing
+2026-W11,VER-HL-RED-36,1,sizing
+2026-W17,VER-HL-RED-36,1,sizing
+2026-W18,VER-HL-RED-36,1,sizing
+2026-W20,VER-HL-RED-36,1,sizing
+2026-W25,VER-HL-RED-36,1,sizing
+2026-W28,VER-HL-RED-36,1,sizing
+2026-W29,VER-HL-RED-36,1,sizing
+2026-W30,VER-HL-RED-36,1,sizing
+2026-W31,VER-HL-RED-36,1,sizing
+2026-W06,VER-HL-RED-37,1,sizing
+2026-W08,VER-HL-RED-37,1,sizing
+2026-W14,VER-HL-RED-37,1,sizing
+2026-W15,VER-HL-RED-37,1,sizing
+2026-W18,VER-HL-RED-37,1,sizing
+2026-W19,VER-HL-RED-37,1,sizing
+2026-W21,VER-HL-RED-37,1,sizing
+2026-W23,VER-HL-RED-37,1,sizing
+2026-W24,VER-HL-RED-37,1,sizing
+2026-W26,VER-HL-RED-37,1,sizing
+2026-W29,VER-HL-RED-37,1,sizing
+2026-W31,VER-HL-RED-37,1,sizing
+2026-W07,VER-HL-RED-38,1,sizing
+2026-W08,VER-HL-RED-38,1,sizing
+2026-W10,VER-HL-RED-38,1,sizing
+2026-W11,VER-HL-RED-38,1,sizing
+2026-W12,VER-HL-RED-38,1,sizing
+2026-W13,VER-HL-RED-38,1,sizing
+2026-W14,VER-HL-RED-38,1,sizing
+2026-W16,VER-HL-RED-38,1,sizing
+2026-W17,VER-HL-RED-38,1,sizing
+2026-W20,VER-HL-RED-38,1,sizing
+2026-W21,VER-HL-RED-38,1,sizing
+2026-W22,VER-HL-RED-38,1,sizing
+2026-W26,VER-HL-RED-38,1,sizing
+2026-W30,VER-HL-RED-38,1,sizing
+2026-W31,VER-HL-RED-38,1,sizing
+2026-W08,VER-HL-RED-39,1,sizing
+2026-W09,VER-HL-RED-39,1,sizing
+2026-W13,VER-HL-RED-39,1,sizing
+2026-W15,VER-HL-RED-39,1,sizing
+2026-W17,VER-HL-RED-39,1,sizing
+2026-W23,VER-HL-RED-39,1,sizing
+2026-W26,VER-HL-RED-39,1,sizing
+2026-W28,VER-HL-RED-39,1,sizing
+2026-W18,CLE-SD-TAN-35,1,sizing
+2026-W21,CLE-SD-TAN-35,1,sizing
+2026-W25,CLE-SD-TAN-35,1,sizing
+2026-W29,CLE-SD-TAN-35,1,sizing
+2026-W10,CLE-SD-TAN-36,2,sizing
+2026-W12,CLE-SD-TAN-36,3,sizing
+2026-W21,CLE-SD-TAN-36,3,sizing
+2026-W25,CLE-SD-TAN-36,2,sizing
+2026-W07,CLE-SD-TAN-37,3,sizing
+2026-W08,CLE-SD-TAN-37,2,sizing
+2026-W09,CLE-SD-TAN-37,3,sizing
+2026-W10,CLE-SD-TAN-37,3,sizing
+2026-W11,CLE-SD-TAN-37,2,sizing
+2026-W13,CLE-SD-TAN-37,2,sizing
+2026-W15,CLE-SD-TAN-37,3,sizing
+2026-W16,CLE-SD-TAN-37,2,sizing
+2026-W17,CLE-SD-TAN-37,2,sizing
+2026-W19,CLE-SD-TAN-37,3,sizing
+2026-W20,CLE-SD-TAN-37,2,sizing
+2026-W23,CLE-SD-TAN-37,2,sizing
+2026-W24,CLE-SD-TAN-37,3,sizing
+2026-W27,CLE-SD-TAN-37,3,sizing
+2026-W28,CLE-SD-TAN-37,3,sizing
+2026-W29,CLE-SD-TAN-37,2,sizing
+2026-W30,CLE-SD-TAN-37,3,sizing
+2026-W31,CLE-SD-TAN-37,2,sizing
+2026-W07,CLE-SD-TAN-38,2,sizing
+2026-W13,CLE-SD-TAN-38,2,sizing
+2026-W15,CLE-SD-TAN-38,2,sizing
+2026-W18,CLE-SD-TAN-38,2,sizing
+2026-W19,CLE-SD-TAN-38,2,sizing
+2026-W20,CLE-SD-TAN-38,2,sizing
+2026-W21,CLE-SD-TAN-38,2,sizing
+2026-W25,CLE-SD-TAN-38,3,sizing
+2026-W27,CLE-SD-TAN-38,2,sizing
+2026-W29,CLE-SD-TAN-38,2,sizing
+2026-W31,CLE-SD-TAN-38,2,sizing
+2026-W09,CLE-SD-TAN-39,1,sizing
+2026-W12,CLE-SD-TAN-39,1,sizing
+2026-W16,CLE-SD-TAN-39,2,sizing
+2026-W23,CLE-SD-TAN-39,2,sizing
+2026-W24,CLE-SD-TAN-39,2,sizing
+2026-W26,CLE-SD-TAN-39,1,sizing
+2026-W28,CLE-SD-TAN-39,1,sizing
+2026-W30,CLE-SD-TAN-39,1,sizing
+2026-W31,CLE-SD-TAN-39,1,sizing
+2026-W07,CLE-SD-TAN-40,1,sizing
+2026-W17,CLE-SD-TAN-40,1,sizing
+2026-W18,CLE-SD-TAN-40,1,sizing
+2026-W19,CLE-SD-TAN-40,1,sizing
+2026-W23,CLE-SD-TAN-40,1,sizing
+2026-W25,CLE-SD-TAN-40,1,sizing
+2026-W08,CLE-SD-WHT-35,1,sizing
+2026-W09,CLE-SD-WHT-35,1,sizing
+2026-W11,CLE-SD-WHT-35,1,sizing
+2026-W14,CLE-SD-WHT-35,1,sizing
+2026-W22,CLE-SD-WHT-35,1,sizing
+2026-W23,CLE-SD-WHT-35,1,sizing
+2026-W24,CLE-SD-WHT-35,1,sizing
+2026-W25,CLE-SD-WHT-35,1,sizing
+2026-W26,CLE-SD-WHT-35,1,sizing
+2026-W28,CLE-SD-WHT-35,1,sizing
+2026-W29,CLE-SD-WHT-35,1,sizing
+2026-W10,CLE-SD-WHT-36,2,sizing
+2026-W12,CLE-SD-WHT-36,2,sizing
+2026-W16,CLE-SD-WHT-36,1,sizing
+2026-W18,CLE-SD-WHT-36,2,sizing
+2026-W23,CLE-SD-WHT-36,2,sizing
+2026-W26,CLE-SD-WHT-36,2,sizing
+2026-W09,CLE-SD-WHT-37,1,sizing
+2026-W13,CLE-SD-WHT-37,1,sizing
+2026-W16,CLE-SD-WHT-37,2,sizing
+2026-W17,CLE-SD-WHT-37,2,sizing
+2026-W18,CLE-SD-WHT-37,1,sizing
+2026-W19,CLE-SD-WHT-37,1,sizing
+2026-W22,CLE-SD-WHT-37,2,sizing
+2026-W23,CLE-SD-WHT-37,2,sizing
+2026-W24,CLE-SD-WHT-37,2,sizing
+2026-W27,CLE-SD-WHT-37,1,sizing
+2026-W29,CLE-SD-WHT-37,2,sizing
+2026-W06,CLE-SD-WHT-38,2,sizing
+2026-W07,CLE-SD-WHT-38,1,sizing
+2026-W08,CLE-SD-WHT-38,2,sizing
+2026-W09,CLE-SD-WHT-38,1,sizing
+2026-W12,CLE-SD-WHT-38,1,sizing
+2026-W13,CLE-SD-WHT-38,1,sizing
+2026-W15,CLE-SD-WHT-38,1,sizing
+2026-W18,CLE-SD-WHT-38,1,sizing
+2026-W20,CLE-SD-WHT-38,2,sizing
+2026-W22,CLE-SD-WHT-38,1,sizing
+2026-W23,CLE-SD-WHT-38,1,sizing
+2026-W25,CLE-SD-WHT-38,2,sizing
+2026-W26,CLE-SD-WHT-38,1,sizing
+2026-W29,CLE-SD-WHT-38,1,sizing
+2026-W31,CLE-SD-WHT-38,1,sizing
+2026-W07,CLE-SD-WHT-39,1,sizing
+2026-W08,CLE-SD-WHT-39,1,sizing
+2026-W19,CLE-SD-WHT-39,1,sizing
+2026-W23,CLE-SD-WHT-39,1,sizing
+2026-W24,CLE-SD-WHT-39,1,sizing
+2026-W26,CLE-SD-WHT-39,1,sizing
+2026-W27,CLE-SD-WHT-39,1,sizing
+2026-W30,CLE-SD-WHT-39,1,sizing
+2026-W31,CLE-SD-WHT-39,1,sizing
+2026-W06,LUN-PD-GLD,4,colour differs
+2026-W07,LUN-PD-GLD,4,colour differs
+2026-W08,LUN-PD-GLD,5,changed mind
+2026-W11,LUN-PD-GLD,4,changed mind
+2026-W12,LUN-PD-GLD,4,colour differs
+2026-W15,LUN-PD-GLD,4,changed mind
+2026-W17,LUN-PD-GLD,4,changed mind
+2026-W19,LUN-PD-GLD,4,colour differs
+2026-W28,LUN-PD-GLD,2,changed mind
+2026-W29,LUN-PD-GLD,3,changed mind
+2026-W31,LUN-PD-GLD,3,colour differs
+2026-W09,LUN-PD-SLV,3,colour differs
+2026-W11,LUN-PD-SLV,3,changed mind
+2026-W13,LUN-PD-SLV,3,changed mind
+2026-W14,LUN-PD-SLV,3,changed mind
+2026-W21,LUN-PD-SLV,3,changed mind
+2026-W24,LUN-PD-SLV,2,changed mind
+2026-W28,LUN-PD-SLV,4,colour differs
+2026-W30,LUN-PD-SLV,3,changed mind
+2026-W07,ORL-HP-GLD,4,changed mind
+2026-W10,ORL-HP-GLD,6,changed mind
+2026-W12,ORL-HP-GLD,4,changed mind
+2026-W13,ORL-HP-GLD,5,colour differs
+2026-W16,ORL-HP-GLD,6,changed mind
+2026-W17,ORL-HP-GLD,5,colour differs
+2026-W19,ORL-HP-GLD,5,changed mind
+2026-W21,ORL-HP-GLD,6,colour differs
+2026-W22,ORL-HP-GLD,6,changed mind
+2026-W24,ORL-HP-GLD,7,colour differs
+2026-W27,ORL-HP-GLD,4,changed mind
+2026-W28,ORL-HP-GLD,4,colour differs
+2026-W29,ORL-HP-GLD,4,changed mind
+2026-W31,ORL-HP-GLD,4,colour differs
+2026-W06,ORL-HP-SLV,3,changed mind
+2026-W09,ORL-HP-SLV,3,colour differs
+2026-W13,ORL-HP-SLV,4,colour differs
+2026-W18,ORL-HP-SLV,3,colour differs
+2026-W19,ORL-HP-SLV,3,changed mind
+2026-W20,ORL-HP-SLV,3,colour differs
+2026-W24,ORL-HP-SLV,3,changed mind
+2026-W26,ORL-HP-SLV,5,changed mind
+2026-W29,ORL-HP-SLV,4,changed mind
+2026-W31,ORL-HP-SLV,3,colour differs
+2026-W08,IVY-CF-GLD,2,changed mind
+2026-W10,IVY-CF-GLD,2,colour differs
+2026-W12,IVY-CF-GLD,1,colour differs
+2026-W18,IVY-CF-GLD,1,colour differs
+2026-W19,IVY-CF-GLD,2,changed mind
+2026-W20,IVY-CF-GLD,2,changed mind
+2026-W21,IVY-CF-GLD,2,changed mind
+2026-W22,IVY-CF-GLD,2,changed mind
+2026-W23,IVY-CF-GLD,2,changed mind
+2026-W24,IVY-CF-GLD,2,changed mind
+2026-W25,IVY-CF-GLD,2,changed mind
+2026-W27,IVY-CF-GLD,1,changed mind
+2026-W28,IVY-CF-GLD,1,colour differs
+2026-W29,IVY-CF-GLD,2,colour differs
+2026-W06,NOV-ST-GLD,4,colour differs
+2026-W07,NOV-ST-GLD,3,colour differs
+2026-W13,NOV-ST-GLD,5,changed mind
+2026-W17,NOV-ST-GLD,5,changed mind
+2026-W18,NOV-ST-GLD,5,changed mind
+2026-W19,NOV-ST-GLD,4,colour differs
+2026-W21,NOV-ST-GLD,4,changed mind
+2026-W22,NOV-ST-GLD,5,changed mind
+2026-W23,NOV-ST-GLD,4,changed mind
+2026-W24,NOV-ST-GLD,4,changed mind
+2026-W25,NOV-ST-GLD,5,colour differs
+2026-W26,NOV-ST-GLD,3,colour differs
+2026-W27,NOV-ST-GLD,3,changed mind
+2026-W28,NOV-ST-GLD,3,colour differs
+2026-W06,NOV-ST-SLV,4,colour differs
+2026-W08,NOV-ST-SLV,3,changed mind
+2026-W10,NOV-ST-SLV,2,changed mind
+2026-W11,NOV-ST-SLV,2,changed mind
+2026-W13,NOV-ST-SLV,4,changed mind
+2026-W15,NOV-ST-SLV,4,changed mind
+2026-W18,NOV-ST-SLV,2,changed mind
+2026-W20,NOV-ST-SLV,3,changed mind
+2026-W23,NOV-ST-SLV,4,changed mind
+2026-W24,NOV-ST-SLV,3,changed mind
+2026-W25,NOV-ST-SLV,4,changed mind
+2026-W27,NOV-ST-SLV,3,changed mind
+2026-W06,THE-CH-GLD,1,changed mind
+2026-W08,THE-CH-GLD,2,changed mind
+2026-W09,THE-CH-GLD,2,changed mind
+2026-W11,THE-CH-GLD,2,changed mind
+2026-W12,THE-CH-GLD,2,changed mind
+2026-W15,THE-CH-GLD,2,changed mind
+2026-W16,THE-CH-GLD,2,changed mind
+2026-W17,THE-CH-GLD,2,changed mind
+2026-W20,THE-CH-GLD,2,changed mind
+2026-W28,THE-CH-GLD,3,changed mind
+2026-W29,THE-CH-GLD,2,changed mind
+2026-W31,THE-CH-GLD,2,colour differs
+2026-W06,SOL-AV-GLD,3,changed mind
+2026-W08,SOL-AV-GLD,3,changed mind
+2026-W09,SOL-AV-GLD,4,colour differs
+2026-W10,SOL-AV-GLD,4,changed mind
+2026-W11,SOL-AV-GLD,3,colour differs
+2026-W13,SOL-AV-GLD,2,colour differs
+2026-W15,SOL-AV-GLD,4,changed mind
+2026-W16,SOL-AV-GLD,4,changed mind
+2026-W17,SOL-AV-GLD,2,changed mind
+2026-W18,SOL-AV-GLD,3,changed mind
+2026-W22,SOL-AV-GLD,4,colour differs
+2026-W23,SOL-AV-GLD,3,changed mind
+2026-W24,SOL-AV-GLD,3,changed mind
+2026-W26,SOL-AV-GLD,4,changed mind
+2026-W29,SOL-AV-GLD,2,changed mind
+2026-W30,SOL-AV-GLD,2,changed mind
+2026-W31,SOL-AV-GLD,2,changed mind
+2026-W06,SOL-AV-BLK,3,changed mind
+2026-W12,SOL-AV-BLK,3,changed mind
+2026-W13,SOL-AV-BLK,3,colour differs
+2026-W15,SOL-AV-BLK,2,colour differs
+2026-W18,SOL-AV-BLK,2,changed mind
+2026-W19,SOL-AV-BLK,3,changed mind
+2026-W20,SOL-AV-BLK,3,colour differs
+2026-W22,SOL-AV-BLK,3,colour differs
+2026-W23,SOL-AV-BLK,3,colour differs
+2026-W24,SOL-AV-BLK,3,changed mind
+2026-W25,SOL-AV-BLK,3,changed mind
+2026-W27,SOL-AV-BLK,2,colour differs
+2026-W28,SOL-AV-BLK,2,changed mind
+2026-W30,SOL-AV-BLK,1,colour differs
+2026-W09,MIR-CE-BLK,4,colour differs
+2026-W10,MIR-CE-BLK,2,colour differs
+2026-W12,MIR-CE-BLK,3,changed mind
+2026-W13,MIR-CE-BLK,3,colour differs
+2026-W15,MIR-CE-BLK,3,colour differs
+2026-W18,MIR-CE-BLK,3,changed mind
+2026-W20,MIR-CE-BLK,2,changed mind
+2026-W21,MIR-CE-BLK,2,changed mind
+2026-W22,MIR-CE-BLK,3,colour differs
+2026-W27,MIR-CE-BLK,2,changed mind
+2026-W30,MIR-CE-BLK,2,changed mind
+2026-W06,MIR-CE-TOR,2,colour differs
+2026-W08,MIR-CE-TOR,2,changed mind
+2026-W09,MIR-CE-TOR,2,changed mind
+2026-W10,MIR-CE-TOR,2,colour differs
+2026-W11,MIR-CE-TOR,2,colour differs
+2026-W14,MIR-CE-TOR,2,colour differs
+2026-W15,MIR-CE-TOR,2,colour differs
+2026-W16,MIR-CE-TOR,3,colour differs
+2026-W19,MIR-CE-TOR,2,colour differs
+2026-W20,MIR-CE-TOR,2,changed mind
+2026-W25,MIR-CE-TOR,2,changed mind
+2026-W29,MIR-CE-TOR,2,changed mind
+2026-W06,KAI-RD-GLD,2,colour differs
+2026-W07,KAI-RD-GLD,2,colour differs
+2026-W09,KAI-RD-GLD,2,changed mind
+2026-W10,KAI-RD-GLD,3,colour differs
+2026-W11,KAI-RD-GLD,2,changed mind
+2026-W13,KAI-RD-GLD,2,changed mind
+2026-W14,KAI-RD-GLD,2,colour differs
+2026-W15,KAI-RD-GLD,3,changed mind
+2026-W17,KAI-RD-GLD,2,changed mind
+2026-W18,KAI-RD-GLD,3,changed mind
+2026-W26,KAI-RD-GLD,1,changed mind
+2026-W30,KAI-RD-GLD,2,changed mind
+2026-W07,KAI-RD-BLK,2,changed mind
+2026-W10,KAI-RD-BLK,1,changed mind
+2026-W12,KAI-RD-BLK,2,changed mind
+2026-W15,KAI-RD-BLK,2,changed mind
+2026-W16,KAI-RD-BLK,2,changed mind
+2026-W18,KAI-RD-BLK,1,changed mind
+2026-W26,KAI-RD-BLK,2,colour differs
+2026-W07,ROW-BT-BLK,2,changed mind
+2026-W08,ROW-BT-BLK,2,colour differs
+2026-W15,ROW-BT-BLK,2,colour differs
+2026-W19,ROW-BT-BLK,2,changed mind
+2026-W20,ROW-BT-BLK,2,changed mind
+2026-W21,ROW-BT-BLK,3,colour differs
+2026-W22,ROW-BT-BLK,2,changed mind
+2026-W24,ROW-BT-BLK,3,colour differs
+2026-W27,ROW-BT-BLK,1,colour differs
+2026-W29,ROW-BT-BLK,2,changed mind
+2026-W06,ROW-BT-TAN,2,changed mind
+2026-W07,ROW-BT-TAN,1,changed mind
+2026-W08,ROW-BT-TAN,2,colour differs
+2026-W10,ROW-BT-TAN,1,colour differs
+2026-W11,ROW-BT-TAN,1,changed mind
+2026-W16,ROW-BT-TAN,2,changed mind
+2026-W21,ROW-BT-TAN,2,colour differs
+2026-W23,ROW-BT-TAN,2,colour differs
+2026-W25,ROW-BT-TAN,2,changed mind
+2026-W29,ROW-BT-TAN,2,changed mind
+2026-W30,ROW-BT-TAN,1,changed mind
+2026-W06,QUI-CH-BLK,3,changed mind
+2026-W07,QUI-CH-BLK,3,changed mind
+2026-W09,QUI-CH-BLK,3,colour differs
+2026-W12,QUI-CH-BLK,3,changed mind
+2026-W14,QUI-CH-BLK,3,colour differs
+2026-W16,QUI-CH-BLK,4,changed mind
+2026-W20,QUI-CH-BLK,4,changed mind
+2026-W21,QUI-CH-BLK,4,changed mind
+2026-W22,QUI-CH-BLK,3,changed mind
+2026-W23,QUI-CH-BLK,4,colour differs
+2026-W26,QUI-CH-BLK,4,colour differs
+2026-W31,QUI-CH-BLK,2,colour differs
+2026-W06,QUI-CH-TAN,2,changed mind
+2026-W08,QUI-CH-TAN,2,changed mind
+2026-W09,QUI-CH-TAN,2,colour differs
+2026-W11,QUI-CH-TAN,2,changed mind
+2026-W12,QUI-CH-TAN,1,colour differs
+2026-W13,QUI-CH-TAN,2,changed mind
+2026-W14,QUI-CH-TAN,2,colour differs
+2026-W22,QUI-CH-TAN,2,changed mind
+2026-W26,QUI-CH-TAN,3,changed mind
+2026-W27,QUI-CH-TAN,1,colour differs
+2026-W28,QUI-CH-TAN,2,changed mind
+2026-W06,FAY-WL-BLK,1,changed mind
+2026-W07,FAY-WL-BLK,2,changed mind
+2026-W08,FAY-WL-BLK,2,changed mind
+2026-W11,FAY-WL-BLK,2,changed mind
+2026-W14,FAY-WL-BLK,2,changed mind
+2026-W15,FAY-WL-BLK,1,changed mind
+2026-W16,FAY-WL-BLK,2,colour differs
+2026-W24,FAY-WL-BLK,2,changed mind
+2026-W31,FAY-WL-BLK,2,changed mind
+2026-W09,FAY-WL-TAN,1,colour differs
+2026-W10,FAY-WL-TAN,1,colour differs
+2026-W11,FAY-WL-TAN,1,changed mind
+2026-W13,FAY-WL-TAN,1,changed mind
+2026-W14,FAY-WL-TAN,1,colour differs
+2026-W15,FAY-WL-TAN,1,changed mind
+2026-W18,FAY-WL-TAN,1,changed mind
+2026-W19,FAY-WL-TAN,1,changed mind
+2026-W20,FAY-WL-TAN,1,changed mind
+2026-W22,FAY-WL-TAN,1,changed mind
+2026-W23,FAY-WL-TAN,1,colour differs
+2026-W25,FAY-WL-TAN,2,changed mind
+2026-W26,FAY-WL-TAN,1,changed mind
+2026-W27,FAY-WL-TAN,1,colour differs
+2026-W28,FAY-WL-TAN,1,changed mind
+2026-W30,FAY-WL-TAN,1,colour differs
+2026-W31,FAY-WL-TAN,1,changed mind
+2026-W06,IRI-PC-BLK,1,colour differs
+2026-W08,IRI-PC-BLK,2,colour differs
+2026-W09,IRI-PC-BLK,2,changed mind
+2026-W10,IRI-PC-BLK,1,colour differs
+2026-W11,IRI-PC-BLK,1,changed mind
+2026-W13,IRI-PC-BLK,1,colour differs
+2026-W14,IRI-PC-BLK,1,changed mind
+2026-W15,IRI-PC-BLK,2,colour differs
+2026-W16,IRI-PC-BLK,2,changed mind
+2026-W17,IRI-PC-BLK,1,changed mind
+2026-W20,IRI-PC-BLK,1,changed mind
+2026-W23,IRI-PC-BLK,1,colour differs
+2026-W25,IRI-PC-BLK,2,colour differs
+2026-W27,IRI-PC-BLK,2,changed mind
+2026-W31,IRI-PC-BLK,2,changed mind
+2026-W07,TIL-CM-GLD,1,colour differs
+2026-W08,TIL-CM-GLD,1,colour differs
+2026-W09,TIL-CM-GLD,1,colour differs
+2026-W12,TIL-CM-GLD,1,colour differs
+2026-W15,TIL-CM-GLD,1,changed mind
+2026-W21,TIL-CM-GLD,1,changed mind
+2026-W23,TIL-CM-GLD,2,colour differs
+2026-W24,TIL-CM-GLD,2,colour differs
+2026-W27,TIL-CM-GLD,1,colour differs
+2026-W28,TIL-CM-GLD,1,changed mind
+2026-W29,TIL-CM-GLD,1,colour differs
+2026-W30,TIL-CM-GLD,1,changed mind
+2026-W31,TIL-CM-GLD,1,changed mind
+2026-W06,TIL-CM-MIX,1,changed mind
+2026-W09,TIL-CM-MIX,1,changed mind
+2026-W10,TIL-CM-MIX,1,changed mind
+2026-W11,TIL-CM-MIX,1,changed mind
+2026-W14,TIL-CM-MIX,1,colour differs
+2026-W18,TIL-CM-MIX,1,colour differs
+2026-W19,TIL-CM-MIX,1,colour differs
+2026-W20,TIL-CM-MIX,1,colour differs
+2026-W22,TIL-CM-MIX,1,colour differs
+2026-W23,TIL-CM-MIX,1,colour differs
+2026-W26,TIL-CM-MIX,1,colour differs
+2026-W08,BO-TSL-TAN,1,changed mind
+2026-W09,BO-TSL-TAN,1,changed mind
+2026-W11,BO-TSL-TAN,1,colour differs
+2026-W13,BO-TSL-TAN,1,colour differs
+2026-W18,BO-TSL-TAN,1,colour differs
+2026-W19,BO-TSL-TAN,1,changed mind
+2026-W21,BO-TSL-TAN,1,changed mind
+2026-W22,BO-TSL-TAN,1,changed mind
+2026-W24,BO-TSL-TAN,1,colour differs
+2026-W25,BO-TSL-TAN,1,colour differs
+2026-W28,BO-TSL-TAN,1,changed mind
+2026-W29,BO-TSL-TAN,1,changed mind
+2026-W30,BO-TSL-TAN,1,colour differs
+2026-W31,BO-TSL-TAN,1,colour differs

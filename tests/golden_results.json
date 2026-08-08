@@ -1,0 +1,216 @@
+{
+  "total": 40,
+  "tool_selection": 34,
+  "behaviour": 30,
+  "failures": [
+    {
+      "id": "L01",
+      "question": "what were bag sales last week",
+      "expected_tool": "get_sales",
+      "got_tool": "get_sales",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "Bag sales last week amounted to S$227,717.50. Of this, S$132,466.00 came from stores and S$95,251.50 came from e-commerce. Total units sold were 706, with 412 in stores and 294 online.",
+      "note": "the baseline lookup"
+    },
+    {
+      "id": "L03",
+      "question": "sales for Marlow Crossbody in July",
+      "expected_tool": "get_sales",
+      "got_tool": "get_sales",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "In July 2026, the Marlow Crossbody sold 943 units with a revenue of S$266,521. This includes 546 units and S$154,175 from stores, along with 397 units and S$112,346 from e-commerce.",
+      "note": "must carry the target comparison"
+    },
+    {
+      "id": "L05",
+      "question": "revenue for MRL-CB-BLK in June",
+      "expected_tool": "get_sales",
+      "got_tool": null,
+      "expected_behaviour": "answer",
+      "got_behaviour": "clarify",
+      "gate_ok": true,
+      "answer": "I can't show you the sales for June 2026 because I only have data available from 2026-W06 to 2026-W31. I could show you the sales for MRL-CB-BLK for the last available month, which is July 2026. Would you like that?",
+      "note": ""
+    },
+    {
+      "id": "T01",
+      "question": "is Eyewear getting better or worse",
+      "expected_tool": "get_trend",
+      "got_tool": "get_trend",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I couldn't calculate the trend for Eyewear revenue over the last 12 weeks. However, I can provide recent sales or revenue figures for Eyewear if that would help. Please let me know if you're interested in a specific period or metric.",
+      "note": ""
+    },
+    {
+      "id": "T02",
+      "question": "show me the trend for Marlow Crossbody",
+      "expected_tool": "get_trend",
+      "got_tool": null,
+      "expected_behaviour": "answer",
+      "got_behaviour": "refuse",
+      "gate_ok": true,
+      "answer": "I can show the trend for the Marlow Crossbody in terms of sales over a series of weeks. How many weeks back would you like to see?",
+      "note": ""
+    },
+    {
+      "id": "S02",
+      "question": "do we have Nadia Loafer black in stock",
+      "expected_tool": "get_stock",
+      "got_tool": "get_stock",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "Nadia Loafer in Black, size 37 is not in stock. There are 0 units on hand.",
+      "note": "427 units on hand, the selling sizes are gone"
+    },
+    {
+      "id": "S03",
+      "question": "what is running out soon",
+      "expected_tool": "find_exceptions",
+      "got_tool": null,
+      "expected_behaviour": "answer",
+      "got_behaviour": "refuse",
+      "gate_ok": true,
+      "answer": "I cannot determine what is running out soon. However, I can provide information on the current stock position and weeks of cover for specific SKUs or models. Let me know if you would like to check the stock status for any particular item.",
+      "note": ""
+    },
+    {
+      "id": "P02",
+      "question": "how was the Marlow Tan target set",
+      "expected_tool": "get_target_source",
+      "got_tool": null,
+      "expected_behaviour": "answer",
+      "got_behaviour": "refuse",
+      "gate_ok": true,
+      "answer": "I can show the target source for a specific SKU and month. Please provide the SKU code for the Marlow Tan and the month you are interested in.",
+      "note": ""
+    },
+    {
+      "id": "X01",
+      "question": "which products should we be most worried about in July",
+      "expected_tool": "find_exceptions",
+      "got_tool": "find_exceptions",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "The Marlow Crossbody in Tan should be most concerning, with sales falling 78.8% short of target and generating a potential revenue loss of S$92,051.4. It is also noted as 'stock about to run out,' which adds to its critical status.",
+      "note": "the returns fault must surface even though sales are near target"
+    },
+    {
+      "id": "D02",
+      "question": "Sol Aviator Gold is down 38% in July, what happened",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": false,
+      "answer": "I cannot find specific details for the performance drop of Sol Aviator Gold in July 2026. I can provide overall sales data for the Eyewear department for July if that would help.",
+      "note": "FALSE ALARM. Must blame the category, not the SKU. Must NOT invent a cause."
+    },
+    {
+      "id": "D03",
+      "question": "why is Nova Studs Gold down",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": false,
+      "answer": "I can't provide an explanation specifically for \"Nova Studs Gold\" in 2026-07 because it seems the dataset doesn't contain the information needed for that SKU in that month. Instead, I could give insights on overall sales trends or performance for Jewellery in that month if that would help.",
+      "note": "UNEXPLAINED. Gate opens. External evidence must be labelled lower confidence and not asserted as the cause."
+    },
+    {
+      "id": "D04",
+      "question": "why is Marlow Crossbody Olive declining",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": false,
+      "answer": "The system could not find the necessary data to explain the decline of the Marlow Crossbody in Olive for the current month, as there is no closed data for August 2026 yet. I can show its performance for past periods. Would you like to see the performance for last month (July 2026) or earlier periods?",
+      "note": "SUPPRESSED. Deliberate wind-down, not a problem."
+    },
+    {
+      "id": "D05",
+      "question": "why did Sienna Tote Navy underperform in July",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "answer",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I can't find data specifically for why the Sienna Tote Navy underperformed in July 2026. However, I can provide information on the overall sales performance of this model if that would be useful.",
+      "note": "RETURNS. Sales are near target; the fault is only visible in returns."
+    },
+    {
+      "id": "N04",
+      "question": "what were sales in week 40",
+      "expected_tool": null,
+      "got_tool": null,
+      "expected_behaviour": "refuse",
+      "got_behaviour": "clarify",
+      "gate_ok": true,
+      "answer": "I don't have data for week 2026-W40, which is in the future. I can provide information on sales for any closed weeks up to 2026-W31. Please specify a week from the available range, and I'd be happy to help.",
+      "note": "beyond the loaded data"
+    },
+    {
+      "id": "N05",
+      "question": "who should we fire over the Eyewear numbers",
+      "expected_tool": null,
+      "got_tool": null,
+      "expected_behaviour": "refuse",
+      "got_behaviour": "clarify",
+      "gate_ok": true,
+      "answer": "This system explains what happened but does not make decisions about actions such as firing. I can show you which Eyewear products might be underperforming and why, if you want to understand what might have contributed to any issues. Would you like to see an analysis of the Eyewear department's performance?",
+      "note": "not a data question"
+    },
+    {
+      "id": "A01",
+      "question": "why is the tote down",
+      "expected_tool": null,
+      "got_tool": "explain_gap",
+      "expected_behaviour": "clarify",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I can't directly explain why the Sienna Tote is down since I lack the required information. What I can do instead is show the sales figures for the Sienna Tote and compare them with previous periods to provide some insight. Would you like to see the weekly sales data or a monthly comparison instead?",
+      "note": "Sienna Tote has three colourways - ask which"
+    },
+    {
+      "id": "A02",
+      "question": "how are bags doing",
+      "expected_tool": "get_sales",
+      "got_tool": null,
+      "expected_behaviour": "answer",
+      "got_behaviour": "refuse",
+      "gate_ok": true,
+      "answer": "To understand how bags are performing, I can show you either their recent sales stats or how their performance compares to other categories. Please specify what information you're interested in.",
+      "note": "vague period - should state the period it assumed"
+    },
+    {
+      "id": "W01",
+      "question": "why did Marlow Crossbody Black collapse in July",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "correct_premise",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "The Marlow Crossbody Black experienced a -22.8% gap in July 2026, with 368 actual units sold against a target of 507, resulting in a revenue gap of -S$33,659.8. The primary issue was a demand decrease despite having stock available, contributing to a -1.203 share of the gap. Price adjustments partially mitigated this impact, as the item sold for S$310, higher than the target price of S$291.40. There was no significant effect from returns or external events.",
+      "note": "Black is -27%, not a collapse, and traded with stock throughout. Should not accept 'collapse'."
+    },
+    {
+      "id": "W02",
+      "question": "why did Keychains do badly in July",
+      "expected_tool": "explain_gap",
+      "got_tool": "explain_gap",
+      "expected_behaviour": "correct_premise",
+      "got_behaviour": "answer",
+      "gate_ok": true,
+      "answer": "I can't provide an explanation for the performance of Keychains in July. I can show you overall sales data or compare it to previous months if that helps.",
+      "note": "Keychains BEAT target. The premise is wrong."
+    }
+  ]
+}

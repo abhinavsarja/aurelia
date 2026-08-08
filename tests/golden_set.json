@@ -1,0 +1,62 @@
+{
+  "_about": "Questions with the tool that should fire and the behaviour expected. Built to catch the failures that matter, not to prove the happy path.",
+  "_behaviours": {
+    "answer": "answers normally from a tool result",
+    "refuse": "declines - out of scope, or no data",
+    "clarify": "asks which one, rather than guessing",
+    "correct_premise": "the question assumes something untrue; say so"
+  },
+  "questions": [
+
+    {"id":"L01","q":"what were bag sales last week","tool":"get_sales","behaviour":"answer","must_include":["227","W31"],"note":"the baseline lookup"},
+    {"id":"L02","q":"how much did Jewellery take in July","tool":"get_sales","behaviour":"answer"},
+    {"id":"L03","q":"sales for Marlow Crossbody in July","tool":"get_sales","behaviour":"answer","must_include":["-35","target"],"note":"must carry the target comparison"},
+    {"id":"L04","q":"what did we sell online last week","tool":"get_sales","behaviour":"answer","note":"'online' must resolve to channel=ecom"},
+    {"id":"L05","q":"revenue for MRL-CB-BLK in June","tool":"get_sales","behaviour":"answer"},
+    {"id":"L06","q":"how did the business do in July","tool":"get_sales","behaviour":"answer","note":"no entity - whole business"},
+    {"id":"L07","q":"sunglasses sales in July","tool":"get_sales","behaviour":"answer","note":"synonym: sunglasses -> Eyewear"},
+    {"id":"L08","q":"what were shoe sales in June","tool":"get_sales","behaviour":"answer","note":"synonym: shoe -> Footwear"},
+
+    {"id":"R01","q":"which models are furthest behind target in July","tool":"rank_products","behaviour":"answer","must_include":["Nadia Loafer"]},
+    {"id":"R02","q":"top 5 SKUs by revenue in July","tool":"rank_products","behaviour":"answer"},
+    {"id":"R03","q":"which departments beat target in July","tool":"rank_products","behaviour":"answer"},
+    {"id":"R04","q":"worst performing bags in July","tool":"rank_products","behaviour":"answer","note":"department filter plus ranking"},
+
+    {"id":"C01","q":"compare Bags and Jewellery in July","tool":"compare","behaviour":"answer"},
+    {"id":"C02","q":"how did Marlow Crossbody do against Sienna Tote in July","tool":"compare","behaviour":"answer"},
+
+    {"id":"T01","q":"is Eyewear getting better or worse","tool":"get_trend","behaviour":"answer","must_include":["declin"]},
+    {"id":"T02","q":"show me the trend for Marlow Crossbody","tool":"get_trend","behaviour":"answer"},
+
+    {"id":"S01","q":"how much stock is left of Marlow Crossbody","tool":"get_stock","behaviour":"answer","must_include":["Tan"],"note":"1001 total but Tan is at zero - the total must not be reported alone"},
+    {"id":"S02","q":"do we have Nadia Loafer black in stock","tool":"get_stock","behaviour":"answer","must_include":["36","37","38"],"note":"427 units on hand, the selling sizes are gone"},
+    {"id":"S03","q":"what is running out soon","tool":"find_exceptions","behaviour":"answer"},
+
+    {"id":"P01","q":"where did the July target for MRL-CB-TAN come from","tool":"get_target_source","behaviour":"answer"},
+    {"id":"P02","q":"how was the Marlow Tan target set","tool":"get_target_source","behaviour":"answer"},
+
+    {"id":"X01","q":"which products should we be most worried about in July","tool":"find_exceptions","behaviour":"answer","must_include":["Sienna","return"],"note":"the returns fault must surface even though sales are near target"},
+    {"id":"X02","q":"anything I should know about before the trading meeting","tool":"find_exceptions","behaviour":"answer"},
+    {"id":"X03","q":"what needs attention in Bags","tool":"find_exceptions","behaviour":"answer"},
+
+    {"id":"D01","q":"why did MRL-CB-TAN drop last month","tool":"explain_gap","behaviour":"answer","must_include":["stock"],"gate_opened":false,"note":"HERO. 71% stock-out, 29% residual. Gate must stay closed."},
+    {"id":"D02","q":"Sol Aviator Gold is down 38% in July, what happened","tool":"explain_gap","behaviour":"answer","must_include":["department","Eyewear"],"gate_opened":false,"note":"FALSE ALARM. Must blame the category, not the SKU. Must NOT invent a cause."},
+    {"id":"D03","q":"why is Nova Studs Gold down","tool":"explain_gap","behaviour":"answer","gate_opened":true,"note":"UNEXPLAINED. Gate opens. External evidence must be labelled lower confidence and not asserted as the cause."},
+    {"id":"D04","q":"why is Marlow Crossbody Olive declining","tool":"explain_gap","behaviour":"answer","must_include":["clearance"],"gate_opened":false,"note":"SUPPRESSED. Deliberate wind-down, not a problem."},
+    {"id":"D05","q":"why did Sienna Tote Navy underperform in July","tool":"explain_gap","behaviour":"answer","must_include":["return"],"note":"RETURNS. Sales are near target; the fault is only visible in returns."},
+    {"id":"D06","q":"why did Nadia Loafer miss target in July","tool":"explain_gap","behaviour":"answer","note":"size curve - total stock healthy, selling sizes gone"},
+
+    {"id":"N01","q":"what will Bags sell in August","tool":null,"behaviour":"refuse","note":"forecasting is out of scope"},
+    {"id":"N02","q":"should we mark down Nadia Loafer","tool":null,"behaviour":"refuse","note":"a recommendation to act"},
+    {"id":"N03","q":"how many customers bought twice this year","tool":null,"behaviour":"refuse","note":"no customer data exists"},
+    {"id":"N04","q":"what were sales in week 40","tool":null,"behaviour":"refuse","note":"beyond the loaded data"},
+    {"id":"N05","q":"who should we fire over the Eyewear numbers","tool":null,"behaviour":"refuse","note":"not a data question"},
+    {"id":"N06","q":"show me last year's July","tool":null,"behaviour":"refuse","note":"only 26 weeks loaded, no prior year"},
+
+    {"id":"A01","q":"why is the tote down","tool":null,"behaviour":"clarify","note":"Sienna Tote has three colourways - ask which"},
+    {"id":"A02","q":"how are bags doing","tool":"get_sales","behaviour":"answer","note":"vague period - should state the period it assumed"},
+
+    {"id":"W01","q":"why did Marlow Crossbody Black collapse in July","tool":"explain_gap","behaviour":"correct_premise","note":"Black is -27%, not a collapse, and traded with stock throughout. Should not accept 'collapse'."},
+    {"id":"W02","q":"why did Keychains do badly in July","tool":"explain_gap","behaviour":"correct_premise","note":"Keychains BEAT target. The premise is wrong."}
+  ]
+}
