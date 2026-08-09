@@ -18,10 +18,11 @@ import pandas as pd
 
 from aurelia.analysis.decompose import load as load_csv, analyse, weeks_in_month
 from aurelia import db as _db
+from aurelia.rag import retrieve
 
-# Identity decorator: the custom Agent loop needs plain callables with
-# __name__ / inspect.signature. The Agents SDK @function_tool wrapper returns
-# a non-callable FunctionTool and breaks that path.
+# No-op: leftover from OpenAI Agents SDK. Our custom Agent needs plain
+# callables (__name__ / inspect.signature); the real @function_tool wraps
+# them in a non-callable FunctionTool.
 def function_tool(f):
     return f
 
@@ -264,9 +265,84 @@ def explain_gap(sku: str, month: str) -> dict:
     r = analyse(_D, code, month)
     return r.to_dict()
 
+def search_documents(query: str, month: str = None, doc_type: str = None,
+                     sku: str = None, department: str = None,
+                     source_type: str = "internal",
+                     limit: int = 5) -> dict:
+    """
+    Find documents and quote what they say.
+
+    source_type:
+      "internal" (default) - meeting notes, campaign plans, ops reports
+      "external" - competitor / market news feed
+
+    Use for questions ABOUT documents, decisions, or news:
+      "what was decided at the July buying committee"
+      "what does the campaign plan say about Marlow"
+      "what is the latest news about Charles & Keith"
+      "any competitor news on crossbody bags"
+
+    doc_type is one of: campaign_plan, meeting_notes, ops_report, news.
+    Leave it out to search everything in that source_type.
+
+    Do NOT use this to look up performance figures. Documents contain numbers
+    people wrote down at the time; those are opinions with a date on them, not
+    the current data. For any figure, use get_sales, explain_gap or the other
+    tools, which read the database.
+
+    Returns passages with the document they came from and its date, so every
+    quote can be attributed.
+    """
+    st = (source_type or "internal").lower().strip()
+    if st not in ("internal", "external"):
+        return dict(error="source_type must be 'internal' or 'external'")
+
+    skus = models = depts = None
+    if sku:
+        code = _resolve_sku(sku)
+        if code:
+            row = _D["products"][_D["products"].sku == code].iloc[0]
+            skus, models, depts = [code], [row.model], [row.department]
+    elif department:
+        depts = [department]
+
+    try:
+        # Internal: filter by calendar month of the document date, not trading
+        # weeks (a July monthly meeting may only tag early-July weeks).
+        # External news: same month filter when given; otherwise all dates.
+        hits = retrieve.search(
+            query=query, month=month, skus=skus, models=models,
+            departments=depts, doc_types=[doc_type] if doc_type else None,
+            source_type=st, limit=limit)
+    except Exception as e:
+        return dict(error=f"{type(e).__name__}: {e}")
+
+    if not hits:
+        kind = "news" if st == "external" else "internal document"
+        return dict(query=query, month=month, doc_type=doc_type,
+                    source_type=st, passages=[],
+                    note=f"No {kind} matches that. Say so rather than "
+                         "answering from general knowledge.")
+
+    # For news, put newest first so "latest" questions are easy to answer.
+    if st == "external":
+        hits = sorted(hits, key=lambda h: h.get("doc_date") or "", reverse=True)
+
+    return dict(
+        query=query, month=month, doc_type=doc_type, source_type=st,
+        passages=[dict(text=h["text"], document=h["title"],
+                       written=h["doc_date"], type=h["doc_type"],
+                       source=h["source"], similarity=h["similarity"])
+                  for h in hits],
+        rule=("Any number appearing in these passages is a QUOTE from that "
+              "document on that date. Attribute it - 'the June buying minutes "
+              "record that...' / 'Business Times reported on 4 Aug...' - and "
+              "never present it as a current figure. For real figures use the "
+              "data tools."))
+
 
 TOOLS = [get_sales, rank_products, compare, get_trend, get_stock,
-         get_target_source, explain_gap]
+         get_target_source, explain_gap, search_documents]
 
 
 # --- SQL note -------------------------------------------------------------
@@ -275,7 +351,6 @@ TOOLS = [get_sales, rank_products, compare, get_trend, get_stock,
 # can be ranked against each other. It is a pull, not a push - nothing here is
 # pushed to anyone. Proactive alerting stays out of scope.
 # --------------------------------------------------------------------------
-@function_tool
 def find_exceptions(month: str, department: str = None, limit: int = 10) -> dict:
     """
     Which products need attention this month, and why.

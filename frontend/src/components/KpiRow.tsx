@@ -13,11 +13,11 @@ export function KpiRow({ kpis }: Props) {
         <div className="val">{fmtMoney(kpis.net_sales)}</div>
         <div className="cmp">
           {vp != null ? (
-            <span className={cls(vp)}>{arrow(vp)} plan</span>
+            <span className={cls(vp)}>{arrow(vp)} target</span>
           ) : (
-            <span className="mut">no plan</span>
+            <span className="mut">no target</span>
           )}
-          <span className="mut">plan {fmtMoney(kpis.plan_sales)}</span>
+          <span className="mut">target {fmtMoney(kpis.plan_sales)}</span>
         </div>
       </div>
       <div className="kpi">

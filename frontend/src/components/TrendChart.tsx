@@ -41,7 +41,7 @@ export function TrendChart({
                 pointBackgroundColor: "#1C1B19",
               },
               {
-                label: "Plan",
+                label: "Target",
                 data: plan,
                 borderColor: "#8A6D3B",
                 borderWidth: 1.4,

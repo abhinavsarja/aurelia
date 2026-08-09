@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from aurelia import db, dashboard
 from aurelia.agent import Agent
 from aurelia.analysis.dictionary import build_context
+from aurelia.jsonutil import jsonable
 from aurelia.tools import TOOLS
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
@@ -47,7 +48,7 @@ def health():
 def ask(body: Ask):
     if not body.question.strip():
         raise HTTPException(400, "empty question")
-    return _agent.ask(body.question)
+    return jsonable(_agent.ask(body.question))
 
 
 @app.post("/reload")

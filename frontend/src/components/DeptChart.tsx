@@ -10,7 +10,7 @@ interface Props {
 export function DeptChart({ weekLabel, labels, values }: Props) {
   return (
     <div className="card">
-      <h3>Department variance to plan</h3>
+      <h3>Department variance to target</h3>
       <div className="sub">{weekLabel}</div>
       <div className="cbox">
         <Bar

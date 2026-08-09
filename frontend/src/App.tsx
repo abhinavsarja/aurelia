@@ -110,7 +110,7 @@ export default function App() {
               <KpiRow kpis={snap.kpis} />
               <div className="rowA">
                 <TrendChart
-                  title={`Net sales vs plan — ${snap.scope_label}`}
+                  title={`Net sales vs target — ${snap.scope_label}`}
                   sub={`${snap.channel_label} · S$'000 · trailing ${snap.trend.labels.length} weeks`}
                   labels={snap.trend.labels}
                   actual={snap.trend.actual}

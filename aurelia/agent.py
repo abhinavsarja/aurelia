@@ -13,6 +13,8 @@ from typing import Any
 from dotenv import load_dotenv
 from openai import OpenAI
 
+from aurelia.jsonutil import jsonable
+
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 log = logging.getLogger(__name__)
@@ -43,6 +45,15 @@ product name genuinely matches more than one product.
 
 SKU codes must be copied exactly from the SKU list. Never build a code from a
 product name.
+
+For questions about meetings, decisions, minutes, campaign plans, or what
+someone said in a document, use search_documents with source_type="internal".
+Pass month when the user names one (e.g. July → "2026-07") and
+doc_type="meeting_notes" for meeting questions.
+
+For competitor, market, or "latest news" questions, use search_documents with
+source_type="external" (and doc_type="news" when appropriate). Lead with the
+most recent item. Quote and attribute; never treat document figures as live data.
 
 If no tool fits, say so plainly and say what you could show instead.
 If the question asks for a forecast or a recommendation to act, decline - this
@@ -119,7 +130,7 @@ class Agent:
                     out = {"error": f"no such tool: {name}"}
                 else:
                     try:
-                        out = self.registry[name](**args)
+                        out = jsonable(self.registry[name](**args))
                     except Exception as e:               # a bad argument fails loudly
                         out = {"error": f"{type(e).__name__}: {e}"}
 
@@ -133,6 +144,6 @@ class Agent:
         else:
             answer = msg.content        # declined, or asked for clarification
 
-        return dict(question=question, answer=answer,
-                    tool_calls=calls, tool_results=results,
-                    latency_ms=int((time.time() - t0) * 1000))
+        return jsonable(dict(question=question, answer=answer,
+                             tool_calls=calls, tool_results=results,
+                             latency_ms=int((time.time() - t0) * 1000)))

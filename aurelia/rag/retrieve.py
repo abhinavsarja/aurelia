@@ -74,12 +74,18 @@ def build_query(sku: str, findings: list[dict], products) -> str:
 def search(query: str, weeks: list[str] = None, skus: list[str] = None,
            models: list[str] = None, departments: list[str] = None,
            doc_types: list[str] = None, source_type: str = "internal",
-           limit: int = 6) -> list[dict]:
+           month: str = None, limit: int = 6) -> list[dict]:
     """Filtered similarity search. Returns chunks with everything needed to cite them."""
     where, params = ["d.source_type = :st"], {"st": source_type}
 
-    # 1. time window - a document is relevant if its period overlaps the question's
-    if weeks:
+    # 1. time window
+    # Calendar month (YYYY-MM) matches documents *dated* in that month - right for
+    # "what was decided in the July meeting". Trading-week overlap is for gap
+    # diagnosis, where the question is about performance in those weeks.
+    if month:
+        where.append("c.doc_date IS NOT NULL AND to_char(c.doc_date, 'YYYY-MM') = :month")
+        params["month"] = month
+    elif weeks:
         where.append("(c.period_start IS NULL OR c.period_start <= :wmax)")
         where.append("(c.period_end   IS NULL OR c.period_end   >= :wmin)")
         params |= {"wmin": min(weeks), "wmax": max(weeks)}

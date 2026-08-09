@@ -21,17 +21,25 @@ from sqlalchemy import text
 
 from aurelia import db
 
-load_dotenv()
+ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(ROOT / ".env")
+
 log = logging.getLogger(__name__)
-client = OpenAI()
+_client: OpenAI | None = None
 
 EMBED_MODEL = "text-embedding-3-large"
 EMBED_DIMS = 3072                      # full dimension; see schema.sql for why unindexed
-META_MODEL = os.getenv("META_MODEL", "gpt-5.6-luna")
+META_MODEL = os.getenv("META_MODEL", "gpt-4o-mini")
 
-ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "data" / "documents"
 NEWS = ROOT / "data" / "news"
+
+
+def _openai() -> OpenAI:
+    global _client
+    if _client is None:
+        _client = OpenAI()
+    return _client
 
 
 # ---------------------------------------------------------------- metadata
@@ -80,7 +88,7 @@ def _entities(textblob: str, products) -> dict:
 
 
 def extract_meta(name: str, body: str) -> DocMeta:
-    r = client.beta.chat.completions.parse(
+    r = _openai().beta.chat.completions.parse(
         model=META_MODEL,
         messages=[{"role": "system", "content": META_PROMPT},
                   {"role": "user", "content": f"Filename: {name}\n\n{body[:6000]}"}],
@@ -132,7 +140,7 @@ def embed(texts: list[str]) -> list[list[float]]:
     """One batched call. Only ever runs for documents that actually changed."""
     if not texts:
         return []
-    r = client.embeddings.create(model=EMBED_MODEL, input=texts, dimensions=EMBED_DIMS)
+    r = _openai().embeddings.create(model=EMBED_MODEL, input=texts, dimensions=EMBED_DIMS)
     return [d.embedding for d in r.data]
 
 
@@ -185,8 +193,8 @@ def run(force: bool = False) -> dict:
             stats["scanned"] += 1
             st = f.stat()
 
-            # still being written? leave it for the next run
-            if now - st.st_mtime < 60:
+            # still being written? leave it for the next run (unless --force)
+            if not force and now - st.st_mtime < 60:
                 stats["skipped"] += 1
                 continue
 

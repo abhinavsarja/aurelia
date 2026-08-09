@@ -89,7 +89,7 @@ export function PerformanceTable({ filters, table, week, onChange }: Props) {
                   <th>Colour</th>
                   <th className="n">Units</th>
                   <th className="n">Net sales</th>
-                  <th className="n">vs Plan</th>
+                  <th className="n">vs Target</th>
                   <th className="n">Disc</th>
                   <th>Sell-thru</th>
                   <th className="n">Stock</th>
@@ -100,7 +100,7 @@ export function PerformanceTable({ filters, table, week, onChange }: Props) {
                   <th />
                   <th className="n">Units</th>
                   <th className="n">Net sales</th>
-                  <th className="n">vs Plan</th>
+                  <th className="n">vs Target</th>
                   <th className="n" />
                   <th>Sell-thru</th>
                   <th className="n">Stock</th>

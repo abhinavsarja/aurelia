@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 from aurelia import db
 from aurelia.analysis.decompose import weeks_in_month
+from aurelia.jsonutil import jsonable
 
 
 def _d():
@@ -17,7 +18,7 @@ def _d():
 
 
 def _all_weeks() -> list[str]:
-    return sorted(_d()["sales_wk"].week.unique())
+    return [str(w) for w in sorted(_d()["sales_wk"].week.unique())]
 
 
 def _month_for_week(week: str) -> str:
@@ -97,18 +98,18 @@ def catalog() -> dict:
         models = []
         for model, mg in dg.groupby("model", sort=True):
             skus = [
-                {"sku": r.sku, "colour": str(r.colour or "")}
+                {"sku": str(r.sku), "colour": str(r.colour or "")}
                 for r in mg.itertuples()
             ]
-            models.append({"name": model, "skus": skus})
-        departments.append({"name": dept, "models": models})
+            models.append({"name": str(model), "skus": skus})
+        departments.append({"name": str(dept), "models": models})
 
-    return {
+    return jsonable({
         "weeks": _all_weeks(),
         "channels": ["all", "store", "ecom"],
         "departments": departments,
         "latest_week": db.latest_week(),
-    }
+    })
 
 
 def snapshot(
@@ -259,17 +260,17 @@ def snapshot(
             row_s = _sales_slice(gskus, [week], chan)
             disc = round(float(row_s.discount_pct.max() * 100), 0) if not row_s.empty else 0.0
         table_rows.append({
-            "key": key,
-            "name": key,
-            "sub": sub_label,
-            "units": u,
-            "net_sales": round(a, 2),
-            "vs_plan_pct": vp,
-            "discount_pct": disc,
-            "sell_thru_pct": sth,
-            "stock": st_sum,
-            "low_stock": st_sum <= 12,
-            "selected": level == "sku" and sku == key,
+            "key": str(key),
+            "name": str(key),
+            "sub": str(sub_label),
+            "units": int(u),
+            "net_sales": float(round(a, 2)),
+            "vs_plan_pct": None if vp is None else float(vp),
+            "discount_pct": None if disc is None else float(disc),
+            "sell_thru_pct": int(sth),
+            "stock": int(st_sum),
+            "low_stock": bool(st_sum <= 12),
+            "selected": bool(level == "sku" and sku is not None and str(sku) == str(key)),
         })
 
     channel_label = (
@@ -277,9 +278,9 @@ def snapshot(
         "E-commerce" if channel == "ecom" else "All channels"
     )
 
-    return {
+    return jsonable({
         "week": week,
-        "scope_label": scope_label,
+        "scope_label": str(scope_label),
         "channel": channel,
         "channel_label": channel_label,
         "filters": {
@@ -290,8 +291,15 @@ def snapshot(
         },
         "kpis": kpis,
         "trend": trend,
-        "dept_variance": {"labels": dept_labels, "values": dept_values},
-        "channel_split": {"labels": chan_weeks, "stores": stores, "ecom": ecom},
+        "dept_variance": {
+            "labels": [str(x) for x in dept_labels],
+            "values": [float(x) for x in dept_values],
+        },
+        "channel_split": {
+            "labels": [str(x) for x in chan_weeks],
+            "stores": [float(x) for x in stores],
+            "ecom": [float(x) for x in ecom],
+        },
         "table": {
             "level": level,
             "title": (
@@ -301,4 +309,4 @@ def snapshot(
             ),
             "rows": table_rows,
         },
-    }
+    })
