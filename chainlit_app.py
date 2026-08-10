@@ -26,9 +26,9 @@ _agent = None
 @cl.on_chat_start
 async def start():
     global _agent
-    db.load()
+    data = db.load()
     m = db.meta()
-    _agent = Agent(TOOLS, build_context())
+    _agent = Agent(TOOLS, build_context(data))
     await cl.Message(
         content=(f"**AURELIA**  ·  {m['skus']} SKUs  ·  {m['weeks']} weeks  "
                  f"({m['first_week']} to {m['latest_week']})\n\n"

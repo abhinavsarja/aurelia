@@ -6,6 +6,8 @@ monthly target_revenue split evenly across weeks of that month present in data.
 """
 from __future__ import annotations
 
+import datetime as dt
+
 from fastapi import HTTPException
 
 from aurelia import db
@@ -23,7 +25,6 @@ def _all_weeks() -> list[str]:
 
 def _month_for_week(week: str) -> str:
     y, w = week.split("-W")
-    import datetime as dt
     d = dt.date.fromisocalendar(int(y), int(w), 1)
     return f"{d.year}-{d.month:02d}"
 
@@ -151,6 +152,10 @@ def snapshot(
     wi = all_weeks.index(week)
 
     # ---- KPIs for selected week ----
+    month = _month_for_week(week)
+    y, m = map(int, month.split("-"))
+    month_label = dt.date(y, m, 1).strftime("%B %Y")
+
     sa = _sales_slice(skus, [week], chan)
     actual_rev = float(sa.revenue.sum())
     actual_units = int(sa.units.sum())
@@ -162,27 +167,17 @@ def snapshot(
     stock_units = int(st_w.units_on_hand.sum()) if not st_w.empty else 0
     cover = round(stock_units / actual_units, 1) if actual_units else None
 
-    # margin estimate: (price - cost)/price minus half of weighted discount
-    if not sa.empty:
-        merged = sa.merge(
-            d["products"][["sku", "price", "cost"]], on="sku", how="left")
-        gm_ex_disc = ((merged.price - merged.cost) / merged.price).fillna(0)
-        w_disc = (merged.discount_pct.fillna(0) * merged.revenue).sum() / max(actual_rev, 1e-9)
-        gm_pct = round(float((gm_ex_disc * merged.revenue).sum() / max(actual_rev, 1e-9) * 100
-                             - w_disc * 50), 1)
-        fp_units = int(merged.loc[merged.discount_pct.fillna(0) <= 0.01, "units"].sum())
-        fp_st = round(fp_units / max(actual_units + stock_units * 0.35, 1e-9) * 100, 1)
-    else:
-        gm_pct = None
-        fp_st = None
+    tg = d["targets"]
+    month_target = float(
+        tg[tg.sku.isin(skus) & (tg.month == month)].target_revenue.sum())
 
     kpis = {
         "net_sales": round(actual_rev, 2),
         "units": actual_units,
         "plan_sales": round(plan_rev, 2),
         "vs_plan_pct": vs_plan_pct,
-        "gross_margin_pct": gm_pct,
-        "full_price_sell_thru_pct": fp_st,
+        "month_target": round(month_target, 2),
+        "month_label": month_label,
         "stock_units": stock_units,
         "weeks_cover": cover,
     }
@@ -204,13 +199,23 @@ def snapshot(
     }
 
     # ---- Department variance (always all depts, selected week) ----
-    dept_labels, dept_values = [], []
+    dept_labels, dept_values, dept_rows = [], [], []
     for dept, dg in d["products"].groupby("department", sort=True):
         dskus = dg.sku.tolist()
         a = float(_sales_slice(dskus, [week], chan).revenue.sum())
-        p = _plan_revenue(dskus, week, week_set)
+        week_target = _plan_revenue(dskus, week, week_set)
+        month_target = float(
+            tg[tg.sku.isin(dskus) & (tg.month == month)].target_revenue.sum())
+        vp = round((a - week_target) / week_target * 100, 1) if week_target else 0.0
         dept_labels.append(dept)
-        dept_values.append(round((a - p) / p * 100, 1) if p else 0.0)
+        dept_values.append(vp)
+        dept_rows.append({
+            "department": str(dept),
+            "variance_pct": float(vp),
+            "actual": round(a, 2),
+            "week_target": round(week_target, 2),
+            "month_target": round(month_target, 2),
+        })
 
     # ---- Channel split: last 5 weeks, ignore channel filter for split ----
     chan_weeks = all_weeks[max(0, wi - 4): wi + 1]
@@ -292,8 +297,12 @@ def snapshot(
         "kpis": kpis,
         "trend": trend,
         "dept_variance": {
+            "week": week,
+            "month": month,
+            "month_label": month_label,
             "labels": [str(x) for x in dept_labels],
             "values": [float(x) for x in dept_values],
+            "rows": dept_rows,
         },
         "channel_split": {
             "labels": [str(x) for x in chan_weeks],

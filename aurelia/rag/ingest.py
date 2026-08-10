@@ -20,6 +20,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import text
 
 from aurelia import db
+from aurelia.rag.config import EMBED_DIMS, EMBED_MODEL
 
 ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(ROOT / ".env")
@@ -27,8 +28,6 @@ load_dotenv(ROOT / ".env")
 log = logging.getLogger(__name__)
 _client: OpenAI | None = None
 
-EMBED_MODEL = "text-embedding-3-large"
-EMBED_DIMS = 3072                      # full dimension; see schema.sql for why unindexed
 META_MODEL = os.getenv("META_MODEL", "gpt-4o-mini")
 
 DOCS = ROOT / "data" / "documents"
@@ -69,6 +68,7 @@ summary is one sentence naming the decision or fact the document records. Not a
 description of the document type - the actual content.
 """.strip()
 
+#Regex for SKU shape.
 SKU_RE = re.compile(r"\b[A-Z]{3}-[A-Z]{2}-[A-Z]{3}(?:-\d{2})?\b")
 
 
@@ -132,6 +132,7 @@ def chunk_markdown(body: str, max_chars: int = 1400) -> list[dict]:
             buf += para + "\n\n"
         if buf.strip():
             final.append(dict(heading=c["heading"], content=buf.strip()))
+    #Chunks shorter than 40 characters are dropped.
     return [c for c in final if len(c["content"]) > 40]
 
 

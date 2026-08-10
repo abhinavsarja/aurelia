@@ -1,0 +1,14 @@
+{
+  "include": ["aurelia", "tests", "scripts", "chainlit_app.py"],
+  "exclude": ["**/__pycache__", "frontend", "aurelia.egg-info"],
+  "pythonVersion": "3.11",
+  "typeCheckingMode": "basic",
+  "reportMissingImports": true,
+  "venvPath": ".",
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["."]
+    }
+  ]
+}

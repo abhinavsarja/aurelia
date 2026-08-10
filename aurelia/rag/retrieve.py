@@ -24,12 +24,11 @@ from openai import OpenAI
 from sqlalchemy import text
 
 from aurelia import db
+from aurelia.rag.config import EMBED_DIMS, EMBED_MODEL
 
 load_dotenv()
 log = logging.getLogger(__name__)
 client = OpenAI()
-EMBED_MODEL = "text-embedding-3-large"
-EMBED_DIMS = 3072
 
 # What kind of document can explain what kind of finding. Free to apply, and it
 # removes more noise than any tuning of the similarity threshold.
@@ -141,12 +140,13 @@ def for_findings(sku: str, weeks: list[str], findings: list[dict], limit: int = 
                   doc_types=types, limit=limit)
 
 
-def external(sku: str, weeks: list[str], limit: int = 4) -> list[dict]:
+def external(sku: str, limit: int = 4) -> list[dict]:
     """
     Market news. Only called when the gate opens.
 
     News never names a SKU, so the search is at category and market level - that
-    mapping is what makes this leg return anything useful at all.
+    mapping is what makes this leg return anything useful at all. No week filter:
+    news is dated, not period-tagged like internal minutes.
     """
     d = db.load()
     prod = d["products"]
@@ -155,4 +155,4 @@ def external(sku: str, weeks: list[str], limit: int = 4) -> list[dict]:
         return []
     p = row.iloc[0]
     q = f"{p.department} {p.model} accessible luxury Singapore retail demand competitor"
-    return search(query=q, weeks=None, source_type="external", limit=limit)
+    return search(query=q, source_type="external", limit=limit)

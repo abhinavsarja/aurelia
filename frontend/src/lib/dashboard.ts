@@ -46,8 +46,8 @@ export interface Snapshot {
     units: number;
     plan_sales: number;
     vs_plan_pct: number | null;
-    gross_margin_pct: number | null;
-    full_price_sell_thru_pct: number | null;
+    month_target: number;
+    month_label: string;
     stock_units: number;
     weeks_cover: number | null;
   };
@@ -57,7 +57,20 @@ export interface Snapshot {
     plan: number[];
     highlight_index: number;
   };
-  dept_variance: { labels: string[]; values: number[] };
+  dept_variance: {
+    week: string;
+    month: string;
+    month_label: string;
+    labels: string[];
+    values: number[];
+    rows: {
+      department: string;
+      variance_pct: number;
+      actual: number;
+      week_target: number;
+      month_target: number;
+    }[];
+  };
   channel_split: { labels: string[]; stores: number[]; ecom: number[] };
   table: {
     level: "dept" | "model" | "sku";

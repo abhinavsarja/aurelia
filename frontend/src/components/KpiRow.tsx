@@ -30,40 +30,14 @@ export function KpiRow({ kpis }: Props) {
         </div>
       </div>
       <div className="kpi">
-        <div className="lbl">Gross Margin</div>
-        <div className="val">
-          {kpis.gross_margin_pct != null
-            ? `${kpis.gross_margin_pct.toFixed(1)}%`
-            : "—"}
-        </div>
+        <div className="lbl">Month target</div>
+        <div className="val">{fmtMoney(kpis.month_target)}</div>
         <div className="cmp">
-          <span
-            className={
-              kpis.gross_margin_pct != null && kpis.gross_margin_pct < 61
-                ? "down"
-                : "up"
-            }
-          >
-            {kpis.gross_margin_pct != null && kpis.gross_margin_pct < 61
-              ? "below"
-              : "above"}{" "}
-            target
-          </span>
+          <span className="mut">{kpis.month_label}</span>
         </div>
       </div>
       <div className="kpi">
-        <div className="lbl">Full-price Sell-thru</div>
-        <div className="val">
-          {kpis.full_price_sell_thru_pct != null
-            ? `${Math.min(kpis.full_price_sell_thru_pct, 99).toFixed(1)}%`
-            : "—"}
-        </div>
-        <div className="cmp">
-          <span className="mut">target 55%</span>
-        </div>
-      </div>
-      <div className="kpi">
-        <div className="lbl">Weeks Cover</div>
+        <div className="lbl">Stock cover (in weeks)</div>
         <div className="val">
           {kpis.weeks_cover != null ? kpis.weeks_cover.toFixed(1) : "—"}
         </div>

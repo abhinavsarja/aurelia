@@ -25,3 +25,9 @@ dev = ["asyncpg>=0.29"]
 
 [tool.setuptools.packages.find]
 include = ["aurelia*"]
+
+[tool.pyright]
+include = ["aurelia", "tests", "scripts"]
+extraPaths = ["."]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"

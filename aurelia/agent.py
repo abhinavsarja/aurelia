@@ -29,7 +29,7 @@ def _openai() -> OpenAI:
     return _client
 
 SYSTEM = """
-You answer questions about retail trading performance for senior management.
+You answer questions about retail trading performance for senior management about a company called Aurelia.
 
 ## The rule that matters most
 You have no data. Every number you give must come from a tool result. Never
@@ -47,7 +47,9 @@ SKU codes must be copied exactly from the SKU list. Never build a code from a
 product name.
 
 For questions about meetings, decisions, minutes, campaign plans, or what
-someone said in a document, use search_documents with source_type="internal".
+someone said in a document, use search_documents with source_type="internal"
+and if they are asking about competitors or about events that are happening outside Aurelia, 
+search with doc_type="external".
 Pass month when the user names one (e.g. July → "2026-07") and
 doc_type="meeting_notes" for meeting questions.
 
@@ -117,7 +119,7 @@ class Agent:
         first = _openai().chat.completions.create(
             model=MODEL, messages=msgs, tools=self.schemas, tool_choice="auto")
         msg = first.choices[0].message
-
+    
         calls, results = [], []
         if msg.tool_calls:
             msgs.append(msg.model_dump(exclude_none=True))
@@ -144,6 +146,9 @@ class Agent:
         else:
             answer = msg.content        # declined, or asked for clarification
 
-        return jsonable(dict(question=question, answer=answer,
+        final = jsonable(dict(question=question, answer=answer,
                              tool_calls=calls, tool_results=results,
                              latency_ms=int((time.time() - t0) * 1000)))
+        
+        
+        return final

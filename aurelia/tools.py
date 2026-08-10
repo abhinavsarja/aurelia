@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from aurelia.analysis.decompose import load as load_csv, analyse, weeks_in_month
+from aurelia.analysis.decompose import analyse, weeks_in_month
 from aurelia import db as _db
 from aurelia.rag import retrieve
 
@@ -26,12 +26,10 @@ from aurelia.rag import retrieve
 def function_tool(f):
     return f
 
-# Postgres when it is reachable, the CSVs otherwise. The analysis code is the
-# same either way, which is what makes the tests meaningful.
-try:
-    _D = _db.load()
-except Exception:
-    _D = load_csv()
+
+def _D() -> dict:
+    """Shared in-memory frames from db.load() (filled at API startup)."""
+    return _db.load()
 
 
 # ---------------------------------------------------------------- helpers
@@ -46,7 +44,7 @@ def _resolve_sku(value: str) -> str | None:
     """
     if not value:
         return None
-    p = _D["products"]
+    p = _D()["products"]
     if value in set(p.sku):
         return value
 
@@ -62,7 +60,9 @@ def _resolve_sku(value: str) -> str | None:
 
 
 def _scope(department=None, model=None, sku=None):
-    p = _D["products"]
+    p = _D()["products"]
+    print("p"+str(p), department, model, sku)
+    print("--------------------------------")
     if sku:
         sku = _resolve_sku(sku) or sku
         return p[p.sku == sku].sku.tolist(), sku
@@ -72,14 +72,14 @@ def _scope(department=None, model=None, sku=None):
 
 
 def _period(week=None, month=None):
-    allw = sorted(_D["sales_wk"].week.unique())
+    allw = sorted(_D()["sales_wk"].week.unique())
     if week:  return [week], week
     if month: return [w for w in weeks_in_month(month) if w in set(allw)], month
     return [allw[-1]], allw[-1]
 
 
 def _totals(skus, weeks, channel=None):
-    s = _D["sales"]
+    s = _D()["sales"]
     s = s[s.sku.isin(skus) & s.week.isin(weeks)]
     if channel:
         s = s[s.channel == channel]
@@ -87,7 +87,7 @@ def _totals(skus, weeks, channel=None):
 
 
 def _target(skus, month):
-    t = _D["targets"]
+    t = _D()["targets"]
     t = t[t.sku.isin(skus) & (t.month == month)]
     return int(t.target_units.sum()), float(t.target_revenue.sum())
 
@@ -110,20 +110,28 @@ def get_sales(department: str = None, model: str = None, sku: str = None,
         SELECT sum(units), sum(revenue) FROM v_sales JOIN products USING (sku)
         WHERE department = :department AND week = ANY(:weeks)
     """
+    print("get_sales", department, model, sku, week, month, channel)
+    print("--------------------------------")
     skus, label = _scope(department, model, sku)
+    print(skus, label)
+    print("--------------------------------")
     weeks, plabel = _period(week, month)
+    print(weeks, plabel)
+    print("--------------------------------")
     if not skus:
         return dict(error="nothing matched that product")
 
     u, r = _totals(skus, weeks, channel)
     su, sr = _totals(skus, weeks, "store")
     eu, er = _totals(skus, weeks, "ecom")
-
-    allw = sorted(_D["sales_wk"].week.unique())
+    print(u, r, su, sr, eu, er)
+    print("--------------------------------")
+    allw = sorted(_D()["sales_wk"].week.unique())
     i = allw.index(weeks[0])
     prev = allw[max(0, i - len(weeks)): i]
     pu, pr = _totals(skus, prev, channel) if prev else (0, 0.0)
-
+    print(pu, pr)
+    print("--------------------------------")
     out = dict(scope=label, period=plabel, weeks=weeks,
                units=u, revenue=round(r, 2),
                store_revenue=round(sr, 2), ecom_revenue=round(er, 2),
@@ -135,6 +143,9 @@ def get_sales(department: str = None, model: str = None, sku: str = None,
         tu, tr = _target(skus, month)
         out |= dict(target_units=tu, target_revenue=round(tr, 2),
                     vs_target_pct=_pct(r, tr))
+        
+    print("out"+str(out))
+    print("--------------------------------")
     return out
 
 
@@ -149,7 +160,7 @@ def rank_products(month: str, level: str = "sku", metric: str = "vs_target",
     direction: worst | best
     Use for "which products are behind", "top 10 by revenue".
     """
-    p, tg = _D["products"], _D["targets"]
+    p, tg = _D()["products"], _D()["targets"]
     weeks, _ = _period(month=month)
     pool = p[p.department == department] if department else p
     key = dict(sku="sku", model="model", department="department")[level]
@@ -173,7 +184,7 @@ def rank_products(month: str, level: str = "sku", metric: str = "vs_target",
 def compare(names: list[str], month: str, level: str = "model") -> dict:
     """Put two or more departments, models or SKUs side by side for a month."""
     key = dict(sku="sku", model="model", department="department")[level]
-    p = _D["products"]
+    p = _D()["products"]
     weeks, _ = _period(month=month)
     out = []
     for n in names:
@@ -192,7 +203,7 @@ def get_trend(department: str = None, model: str = None, sku: str = None,
               weeks_back: int = 12, metric: str = "revenue") -> dict:
     """Weekly series for a product, model or department. Use for "is X improving"."""
     skus, label = _scope(department, model, sku)
-    allw = sorted(_D["sales_wk"].week.unique())[-weeks_back:]
+    allw = sorted(_D()["sales_wk"].week.unique())[-weeks_back:]
     series = []
     for w in allw:
         u, r = _totals(skus, [w])
@@ -217,7 +228,7 @@ def get_stock(sku: str = None, model: str = None, week: str = None) -> dict:
     """
     skus, label = _scope(None, model, sku)
     weeks, w = _period(week)
-    st, sa, p = _D["stock"], _D["sales_wk"], _D["products"]
+    st, sa, p = _D()["stock"], _D()["sales_wk"], _D()["products"]
     rows = []
     for s in skus:
         on_hand = st[(st.sku == s) & (st.week == weeks[-1])].units_on_hand
@@ -236,7 +247,7 @@ def get_stock(sku: str = None, model: str = None, week: str = None) -> dict:
 @function_tool
 def get_target_source(sku: str, month: str) -> dict:
     """Where a target came from. Use for "how was that number set"."""
-    t = _D["targets"]
+    t = _D()["targets"]
     r = t[(t.sku == sku) & (t.month == month)]
     if r.empty:
         return dict(error="no target for that SKU and month")
@@ -246,24 +257,86 @@ def get_target_source(sku: str, month: str) -> dict:
                 source_document=r.source_document)
 
 
+# --- SQL note -------------------------------------------------------------
+# The only expensive tool. Inside it the order is fixed and the model cannot
+# change it: measure first, then look for documents that explain what was
+# measured, then - only if a large share is still unexplained - look outside.
+# --------------------------------------------------------------------------
+GATE_THRESHOLD = 0.30  # unexplained share above which we look at market news
+
+
 @function_tool
 def explain_gap(sku: str, month: str) -> dict:
     """
     Why a SKU missed its target. Runs the full diagnostic.
 
-    This is the only expensive tool. Inside it the gap is decomposed into
-    measured parts, context checks run, and a residual is left for documents to
-    explain. Use ONLY for questions asking why something changed.
+    Use ONLY for questions asking WHY something changed. For "what were sales",
+    use get_sales.
+
+    Splits the gap into parts that can be measured, checks whether the product is
+    simply behaving like its department, finds internal documents that explain
+    what is left, and consults market news only if a large share is still
+    unexplained.
     """
     code = _resolve_sku(sku)
     if code is None:
-        p = _D["products"]
+        p = _D()["products"]
         near = [x for x in p.sku if sku and sku.split()[0][:3].upper() in x][:6]
         return dict(error=f"'{sku}' is not a SKU code and could not be resolved to one",
                     hint="Use a code from the SKU list in the reference material.",
                     did_you_mean=near or None)
-    r = analyse(_D, code, month)
-    return r.to_dict()
+
+    r = analyse(_D(), code, month)
+    out = r.to_dict()
+    ctx = out["context"]
+
+    # A1 - a deliberate wind-down is not a problem to investigate
+    if ctx.get("suppress_investigation"):
+        out["conclusion"] = (
+            f"{code} is on {ctx['lifecycle_status']}. The decline is intended, "
+            "not a performance problem.")
+        out["documents"], out["external"], out["gate_opened"] = [], [], False
+        return out
+
+    # A2 - behaving like its department is a category question, not a product one
+    if ctx.get("explained_by_department"):
+        out["conclusion"] = (
+            f"{code} is {ctx['sku_gap_pct']}% against target while its department is "
+            f"{ctx['department_gap_pct']}%. Only {abs(ctx['sku_specific_pts'])} points "
+            "are specific to this product. This is a category question.")
+
+    # 2. documents that explain the measured findings
+    try:
+        out["documents"] = retrieve.for_findings(code, out["weeks"], out["findings"])
+    except Exception as e:
+        out["documents"] = []
+        out["document_error"] = f"{type(e).__name__}: {e}"
+
+    # 3. the gate. Market news is consulted only when internal evidence runs out.
+    unexplained = abs(out.get("residual_share") or 0)
+    measured = sum(abs(f["share"] or 0) for f in out["findings"] if f["id"] != "RESIDUAL")
+    out["explained_share"] = round(measured, 3)
+    out["gate_opened"] = bool(
+        unexplained > GATE_THRESHOLD and not ctx.get("explained_by_department"))
+
+    if out["gate_opened"]:
+        try:
+            out["external"] = retrieve.external(code)
+        except Exception as e:
+            out["external"] = []
+            out["external_error"] = f"{type(e).__name__}: {e}"
+        out["gate_note"] = (
+            f"{unexplained:.0%} of the gap has no internal explanation, so market "
+            "sources were checked. Treat anything from them as lower confidence "
+            "and do not present it as a cause unless our own numbers support it.")
+    else:
+        out["external"] = []
+        out["gate_note"] = (
+            "Internal evidence accounts for the gap, so market sources were not "
+            "consulted.")
+
+    return out
+
 
 def search_documents(query: str, month: str = None, doc_type: str = None,
                      sku: str = None, department: str = None,
@@ -301,7 +374,7 @@ def search_documents(query: str, month: str = None, doc_type: str = None,
     if sku:
         code = _resolve_sku(sku)
         if code:
-            row = _D["products"][_D["products"].sku == code].iloc[0]
+            row = _D()["products"][_D()["products"].sku == code].iloc[0]
             skus, models, depts = [code], [row.model], [row.department]
     elif department:
         depts = [department]
@@ -341,8 +414,7 @@ def search_documents(query: str, month: str = None, doc_type: str = None,
               "data tools."))
 
 
-TOOLS = [get_sales, rank_products, compare, get_trend, get_stock,
-         get_target_source, explain_gap, search_documents]
+
 
 
 # --- SQL note -------------------------------------------------------------
@@ -368,7 +440,7 @@ def find_exceptions(month: str, department: str = None, limit: int = 10) -> dict
     simply matches their department - those are category questions, not product
     problems, and are reported separately.
     """
-    prod, sales_wk, st, ret = _D["products"], _D["sales_wk"], _D["stock"], _D["returns"]
+    prod, sales_wk, st, ret = _D()["products"], _D()["sales_wk"], _D()["stock"], _D()["returns"]
     weeks, _ = _period(month=month)
     if not weeks:
         return dict(error=f"no data for {month}")
@@ -429,8 +501,8 @@ def find_exceptions(month: str, department: str = None, limit: int = 10) -> dict
         oh = int(oh.iloc[0]) if len(oh) else 0
         cover = oh / recent if recent else None
         recent_weeks = sorted(sales_wk.week.unique())[-4:]
-        incoming = _D["receipts"][(_D["receipts"].sku == sku) &
-                                  (_D["receipts"].week.isin(recent_weeks))].units_received.sum()
+        incoming = _D()["receipts"][(_D()["receipts"].sku == sku) &
+                                  (_D()["receipts"].week.isin(recent_weeks))].units_received.sum()
         if cover is not None and cover < 1.0 and recent > 3 and incoming == 0:
             lost = max(0.0, (2 - cover)) * recent          # two weeks of exposure
             flags.append(dict(sku=sku, model=p.model, department=p.department,
@@ -470,4 +542,5 @@ def find_exceptions(month: str, department: str = None, limit: int = 10) -> dict
                 category_wide_examples=category_wide[:3])
 
 
-TOOLS.append(find_exceptions)
+TOOLS = [get_sales, rank_products, compare, get_trend, get_stock,
+         get_target_source, explain_gap, search_documents, find_exceptions]

@@ -28,7 +28,9 @@ MIN_RATE_WEEKS = 3
 
 
 # ---------------------------------------------------------------- loading
+# This is used only for tests. The app uses aurelia.db.load() at startup.
 def load() -> dict[str, pd.DataFrame]:
+    """CSV loader for unit tests only. The app uses aurelia.db.load() at startup."""
     f = lambda n: pd.read_csv(DATA / f"{n}.csv")
     d = {n: f(n) for n in ["products", "sales", "stock", "returns", "receipts", "targets"]}
     d["sales_wk"] = (d["sales"].groupby(["week", "sku"], as_index=False)
@@ -37,8 +39,9 @@ def load() -> dict[str, pd.DataFrame]:
     return d
 
 
+#Just tells what weeks should be considered for the month in question.
 def weeks_in_month(month: str) -> list[str]:
-    """'2026-07' -> the ISO weeks whose Monday falls in that month."""
+    """'Tells what weeks should be considered for the month in question."""
     y, m = map(int, month.split("-"))
     out = []
     for w in range(1, 54):

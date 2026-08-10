@@ -26,8 +26,8 @@ _agent: Agent | None = None
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     global _agent
-    db.load()
-    _agent = Agent(TOOLS, build_context())
+    data = db.load()
+    _agent = Agent(TOOLS, build_context(data))
     log.info("agent ready")
     yield
 
@@ -53,8 +53,10 @@ def ask(body: Ask):
 
 @app.post("/reload")
 def reload():
-    """Call after a weekly publish."""
-    db.load(force=True)
+    """Call after a weekly publish. Refresh frames and rebuild the agent dictionary."""
+    global _agent
+    data = db.load(force=True)
+    _agent = Agent(TOOLS, build_context(data))
     return {"reloaded": True, **db.meta()}
 
 

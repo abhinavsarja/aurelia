@@ -119,8 +119,9 @@ export default function App() {
                 />
                 <DeptChart
                   weekLabel={snap.week}
-                  labels={snap.dept_variance.labels}
+                  monthLabel={snap.dept_variance.month_label}
                   values={snap.dept_variance.values}
+                  rows={snap.dept_variance.rows}
                 />
               </div>
               <div className="rowB">

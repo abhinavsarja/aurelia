@@ -23,10 +23,34 @@ SYNONYMS = {
     "retail": "store", "shops": "store", "stores": "store",
 }
 
-def build_context(today: dt.date | None = None) -> str:
-    prod = pd.read_csv(DATA / "products.csv")
-    sales = pd.read_csv(DATA / "sales.csv")
-    today = today or dt.date(2026, 8, 8)
+def _from_csv() -> dict:
+    """Fallback for running without a database - tests, and prompt_resolve.py."""
+    return {"products": pd.read_csv(DATA / "products.csv"),
+            "sales": pd.read_csv(DATA / "sales.csv")}
+
+
+def build_context(data: dict | None = None, today: dt.date | None = None) -> str:
+    """
+    Build the reference material sent with every question.
+
+    Takes the already-loaded frames rather than reading files. This matters more
+    than it looks: the dictionary is what tells the model WHICH WEEKS EXIST. If it
+    read the CSVs it would describe the files, not the database - so a week that
+    failed validation and never published would still be offered to the model,
+    the model would resolve "last week" to it, and the query would come back
+    empty. Reading the same source as the tools keeps the two in step.
+    """
+    if data is None:
+        try:
+            from aurelia import db
+            data = db.load()
+        except Exception:
+            # Database unreachable - fall back to files (tests, offline CLI). 
+            # TODO - Ideally need to fail here. We are misguiding the management if data is not available.
+            data = _from_csv()
+
+    prod, sales = data["products"], data["sales"]
+    today = today or dt.date.today()
 
     weeks = sorted(sales.week.unique())
     latest = weeks[-1]
@@ -38,13 +62,10 @@ def build_context(today: dt.date | None = None) -> str:
     month_list = ", ".join(months)
     depts = sorted(prod.department.unique())
     models = prod.groupby("department").model.unique().to_dict()
-    colours = sorted(prod.colour.dropna().unique())
 
     model_lines = "\n".join(
         f"  {d}: " + ", ".join(sorted(models[d])) for d in depts)
 
-    # every SKU, listed. The model must never construct a code from a name -
-    # "Mira Cat-Eye" -> MIR-CE is not guessable, and a wrong code is a hard failure.
     sku_rows = []
     for d in depts:
         sub = prod[prod.department == d].sort_values(["model", "colour", "size"])
@@ -77,7 +98,7 @@ Months with data: {month_list}. Nothing before or after those.
 {model_lines}
 
 ## Every SKU
-Use these codes exactly. Do NOT construct a code from a product name.
+Use these codes exactly. Never build a code from a product name.
 {sku_lines}
 
 ## Channels

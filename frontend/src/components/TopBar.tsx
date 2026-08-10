@@ -20,7 +20,8 @@ export function TopBar({ catalog, filters, onChange, onReset }: Props) {
     <header className="topbar">
       <div className="brand">
         <h1>AURELIA</h1>
-        <span>Accessories · Singapore</span>
+        <span className="brand-sub">Accessories · Singapore</span>
+        <span className="demo-badge">Demo only</span>
       </div>
       <div className="controls">
         <div className="fl">

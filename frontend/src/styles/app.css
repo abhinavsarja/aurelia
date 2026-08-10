@@ -46,7 +46,7 @@ body {
 
 .brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 11px;
 }
 
@@ -57,9 +57,54 @@ body {
   font-weight: 600;
 }
 
-.brand span {
+.brand-sub {
   font-size: 9.5px;
   color: var(--soft);
+}
+
+.demo-badge {
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #b4453c;
+  border: 1px solid #9a3a33;
+  border-radius: 3px;
+  padding: 2px 6px;
+  align-self: center;
+}
+
+.dept-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dept-heading .info-tip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 9px;
+  font-weight: 600;
+  cursor: help;
+  flex-shrink: 0;
+}
+
+.card .sub.dept-month {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 0;
+}
+
+.card .sub.mut {
+  margin-bottom: 5px;
 }
 
 .controls {
@@ -171,7 +216,7 @@ body {
 
 .kpis {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 7px;
 }
 

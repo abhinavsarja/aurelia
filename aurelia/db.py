@@ -11,8 +11,13 @@ invisible rather than half-visible.
 """
 from __future__ import annotations
 import os, logging
+from pathlib import Path
+
 import pandas as pd
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 log = logging.getLogger(__name__)
 
