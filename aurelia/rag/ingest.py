@@ -37,7 +37,7 @@ NEWS = ROOT / "data" / "news"
 def _openai() -> OpenAI:
     global _client
     if _client is None:
-        _client = OpenAI()
+        _client = OpenAI(timeout=90.0, max_retries=2)
     return _client
 
 

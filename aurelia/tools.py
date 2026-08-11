@@ -5,10 +5,6 @@ Every tool is a fixed, parameterised function. The model chooses which one to
 call and supplies the arguments; it never writes a query and never does the
 arithmetic. That is the whole safety argument, expressed as code.
 
-Each function is decorated with @function_tool when the OpenAI Agents SDK is
-installed, and stays an ordinary Python function when it is not, so the same
-module is testable without a network call.
-
 The queries are written against pandas here for portability. Each carries the
 equivalent SQL in its docstring - porting is mechanical, the shape does not change.
 """
@@ -19,12 +15,6 @@ import pandas as pd
 from aurelia.analysis.decompose import analyse, weeks_in_month
 from aurelia import db as _db
 from aurelia.rag import retrieve
-
-# No-op: leftover from OpenAI Agents SDK. Our custom Agent needs plain
-# callables (__name__ / inspect.signature); the real @function_tool wraps
-# them in a non-callable FunctionTool.
-def function_tool(f):
-    return f
 
 
 def _D() -> dict:
@@ -61,8 +51,6 @@ def _resolve_sku(value: str) -> str | None:
 
 def _scope(department=None, model=None, sku=None):
     p = _D()["products"]
-    print("p"+str(p), department, model, sku)
-    print("--------------------------------")
     if sku:
         sku = _resolve_sku(sku) or sku
         return p[p.sku == sku].sku.tolist(), sku
@@ -97,7 +85,6 @@ def _pct(a, b):
 
 
 # ---------------------------------------------------------------- tools
-@function_tool
 def get_sales(department: str = None, model: str = None, sku: str = None,
               week: str = None, month: str = None, channel: str = None) -> dict:
     """
@@ -110,28 +97,18 @@ def get_sales(department: str = None, model: str = None, sku: str = None,
         SELECT sum(units), sum(revenue) FROM v_sales JOIN products USING (sku)
         WHERE department = :department AND week = ANY(:weeks)
     """
-    print("get_sales", department, model, sku, week, month, channel)
-    print("--------------------------------")
     skus, label = _scope(department, model, sku)
-    print(skus, label)
-    print("--------------------------------")
     weeks, plabel = _period(week, month)
-    print(weeks, plabel)
-    print("--------------------------------")
     if not skus:
         return dict(error="nothing matched that product")
 
     u, r = _totals(skus, weeks, channel)
     su, sr = _totals(skus, weeks, "store")
     eu, er = _totals(skus, weeks, "ecom")
-    print(u, r, su, sr, eu, er)
-    print("--------------------------------")
     allw = sorted(_D()["sales_wk"].week.unique())
     i = allw.index(weeks[0])
     prev = allw[max(0, i - len(weeks)): i]
     pu, pr = _totals(skus, prev, channel) if prev else (0, 0.0)
-    print(pu, pr)
-    print("--------------------------------")
     out = dict(scope=label, period=plabel, weeks=weeks,
                units=u, revenue=round(r, 2),
                store_revenue=round(sr, 2), ecom_revenue=round(er, 2),
@@ -143,13 +120,9 @@ def get_sales(department: str = None, model: str = None, sku: str = None,
         tu, tr = _target(skus, month)
         out |= dict(target_units=tu, target_revenue=round(tr, 2),
                     vs_target_pct=_pct(r, tr))
-        
-    print("out"+str(out))
-    print("--------------------------------")
     return out
 
 
-@function_tool
 def rank_products(month: str, level: str = "sku", metric: str = "vs_target",
                   department: str = None, direction: str = "worst",
                   limit: int = 10) -> dict:
@@ -180,7 +153,6 @@ def rank_products(month: str, level: str = "sku", metric: str = "vs_target",
                 results=rows[:limit])
 
 
-@function_tool
 def compare(names: list[str], month: str, level: str = "model") -> dict:
     """Put two or more departments, models or SKUs side by side for a month."""
     key = dict(sku="sku", model="model", department="department")[level]
@@ -198,7 +170,6 @@ def compare(names: list[str], month: str, level: str = "model") -> dict:
     return dict(month=month, level=level, results=out)
 
 
-@function_tool
 def get_trend(department: str = None, model: str = None, sku: str = None,
               weeks_back: int = 12, metric: str = "revenue") -> dict:
     """Weekly series for a product, model or department. Use for "is X improving"."""
@@ -218,12 +189,11 @@ def get_trend(department: str = None, model: str = None, sku: str = None,
                 change_pct=_pct(second, first))
 
 
-@function_tool
 def get_stock(sku: str = None, model: str = None, week: str = None) -> dict:
     """
     Current stock position and weeks of cover, by SKU.
 
-    Use for "how much stock do we have", and for size-curve questions - it
+    Use for "how much stock do we have", and for size of stockquestions - it
     returns every size separately, which is where a healthy total hides a problem.
     """
     skus, label = _scope(None, model, sku)
@@ -244,7 +214,6 @@ def get_stock(sku: str = None, model: str = None, week: str = None) -> dict:
                 by_sku=rows)
 
 
-@function_tool
 def get_target_source(sku: str, month: str) -> dict:
     """Where a target came from. Use for "how was that number set"."""
     t = _D()["targets"]
@@ -265,7 +234,6 @@ def get_target_source(sku: str, month: str) -> dict:
 GATE_THRESHOLD = 0.30  # unexplained share above which we look at market news
 
 
-@function_tool
 def explain_gap(sku: str, month: str) -> dict:
     """
     Why a SKU missed its target. Runs the full diagnostic.
@@ -279,6 +247,7 @@ def explain_gap(sku: str, month: str) -> dict:
     unexplained.
     """
     code = _resolve_sku(sku)
+    # cater for fat finger spelling mistakes
     if code is None:
         p = _D()["products"]
         near = [x for x in p.sku if sku and sku.split()[0][:3].upper() in x][:6]

@@ -20,12 +20,17 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 log = logging.getLogger(__name__)
 _client: OpenAI | None = None
 MODEL = "gpt-5-mini"
+MAX_ROUNDS = 3
+
+PROMISES = ("one moment", "i'll check", "i'll fetch", "let me pull",
+            "i will check", "give me a moment", "fetching")
 
 
 def _openai() -> OpenAI:
     global _client
     if _client is None:
-        _client = OpenAI()
+        # Bound hangs - default httpx wait can sit forever on a stuck TLS read.
+        _client = OpenAI(timeout=90.0, max_retries=2)
     return _client
 
 SYSTEM = """
@@ -48,7 +53,7 @@ product name.
 
 For questions about meetings, decisions, minutes, campaign plans, or what
 someone said in a document, use search_documents with source_type="internal"
-and if they are asking about competitors or about events that are happening outside Aurelia, 
+and if they are asking about competitors or about events that are happening outside Aurelia,
 search with doc_type="external".
 Pass month when the user names one (e.g. July → "2026-07") and
 doc_type="meeting_notes" for meeting questions.
@@ -60,6 +65,9 @@ most recent item. Quote and attribute; never treat document figures as live data
 If no tool fits, say so plainly and say what you could show instead.
 If the question asks for a forecast or a recommendation to act, decline - this
 system explains what happened, it does not predict or decide.
+
+Never output JSON, tool arguments, or a promise to fetch something.
+If you need a tool, call it. The user sees only your final sentences.
 
 ## Writing the answer
 You are not reporting the data back. You are telling a busy person what it means.
@@ -111,44 +119,71 @@ class Agent:
         self.schemas = [_schema(f) for f in tools]
         self.dictionary = dictionary
 
+    def _run_calls(self, msg, msgs, calls, results) -> None:
+        """
+        Execute every tool the model asked for, and append the results.
+
+        Mutates msgs, calls and results in place. Used by both the normal loop
+        and the forced retry, so the validation cannot drift between the two.
+        """
+        msgs.append(msg.model_dump(exclude_none=True))
+        for c in msg.tool_calls:
+            name = c.function.name
+            args = json.loads(c.function.arguments or "{}")
+            args = {k: v for k, v in args.items() if v is not None}
+
+            if name not in self.registry:              # cannot invent a tool
+                out = {"error": f"no such tool: {name}"}
+            else:
+                try:
+                    out = jsonable(self.registry[name](**args))
+                except Exception as e:                 # a bad argument fails loudly
+                    out = {"error": f"{type(e).__name__}: {e}"}
+
+            calls.append({"tool": name, "arguments": args})
+            results.append(out)
+            msgs.append({"role": "tool", "tool_call_id": c.id,
+                         "content": json.dumps(out, default=str)})
+
     def ask(self, question: str) -> dict:
         t0 = time.time()
         msgs = [{"role": "system", "content": SYSTEM + "\n\n" + self.dictionary},
                 {"role": "user", "content": question}]
 
-        first = _openai().chat.completions.create(
+        calls, results, answer = [], [], None
+
+        resp = _openai().chat.completions.create(
             model=MODEL, messages=msgs, tools=self.schemas, tool_choice="auto")
-        msg = first.choices[0].message
-    
-        calls, results = [], []
-        if msg.tool_calls:
-            msgs.append(msg.model_dump(exclude_none=True))
-            for c in msg.tool_calls:
-                name = c.function.name
-                args = json.loads(c.function.arguments or "{}")
-                args = {k: v for k, v in args.items() if v is not None}
 
-                if name not in self.registry:            # cannot invent a tool
-                    out = {"error": f"no such tool: {name}"}
-                else:
-                    try:
-                        out = jsonable(self.registry[name](**args))
-                    except Exception as e:               # a bad argument fails loudly
-                        out = {"error": f"{type(e).__name__}: {e}"}
+        # Loop rather than a single round. A question like "which model is worst,
+        # and how much stock does it have" needs the second call to depend on the
+        # first result. Without this the model says "one moment" and stops.
 
-                calls.append({"tool": name, "arguments": args})
-                results.append(out)
-                msgs.append({"role": "tool", "tool_call_id": c.id,
-                             "content": json.dumps(out, default=str)})
+        # RETRY LOGIC
+        for _ in range(MAX_ROUNDS):
+            msg = resp.choices[0].message
+            if not msg.tool_calls:
+                answer = msg.content
+                break
+            self._run_calls(msg, msgs, calls, results)
+            resp = _openai().chat.completions.create(
+                model=MODEL, messages=msgs, tools=self.schemas)
 
-            second = _openai().chat.completions.create(model=MODEL, messages=msgs)
-            answer = second.choices[0].message.content
-        else:
-            answer = msg.content        # declined, or asked for clarification
+        if answer is None:                             # ran out of rounds
+            answer = _openai().chat.completions.create(
+                model=MODEL, messages=msgs).choices[0].message.content
 
-        final = jsonable(dict(question=question, answer=answer,
+        # The model sometimes announces a step instead of taking it - "I'll check
+        # the trend, one moment". There is no later. Force the call once.
+        if answer and not calls and any(p in answer.lower() for p in PROMISES):
+            resp = _openai().chat.completions.create(
+                model=MODEL, messages=msgs, tools=self.schemas, tool_choice="required")
+            msg = resp.choices[0].message
+            if msg.tool_calls:
+                self._run_calls(msg, msgs, calls, results)
+                answer = _openai().chat.completions.create(
+                    model=MODEL, messages=msgs).choices[0].message.content
+
+        return jsonable(dict(question=question, answer=answer,
                              tool_calls=calls, tool_results=results,
                              latency_ms=int((time.time() - t0) * 1000)))
-        
-        
-        return final

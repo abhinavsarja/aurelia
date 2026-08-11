@@ -65,10 +65,25 @@ def main():
         qs = [q for q in qs if q["id"].startswith(args.only)]
 
     tool_ok = beh_ok = content_ok = content_n = 0
-    fails, t0 = [], time.time()
+    results, t0 = [], time.time()
 
-    for q in qs:
-        r = agent.ask(q["q"])
+    for i, q in enumerate(qs, 1):
+        print(f"…  [{i}/{len(qs)}] {q['id']}  {q['q'][:52]}", flush=True)
+        try:
+            r = agent.ask(q["q"])
+        except Exception as e:
+            print(f"FAIL  {q['id']}  {q['q'][:52]:54s} tool={'ERROR':16s} {type(e).__name__}",
+                  flush=True)
+            results.append(dict(
+                id=q["id"], status="FAIL", question=q["q"],
+                expected_tool=q["tool"], got_tool=None,
+                expected_behaviour=q["behaviour"], got_behaviour="error",
+                tool_ok=False, behaviour_ok=False, content_ok=False,
+                gate_ok=False, answer=f"{type(e).__name__}: {e}",
+                note=q.get("note", ""),
+                tool_calls=[], tool_results=[]))
+            continue
+
         called = r["tool_calls"][0]["tool"] if r["tool_calls"] else None
         beh = classify(r)
 
@@ -78,6 +93,7 @@ def main():
         beh_ok += b_ok
 
         c_ok = True
+        missing = []
         if q.get("must_include"):
             content_n += 1
             missing = [s for s in q["must_include"] if s.lower() not in (r["answer"] or "").lower()]
@@ -90,18 +106,27 @@ def main():
             gate_ok = (actual == q["gate_opened"])
 
         mark = "PASS" if (t_ok and b_ok and c_ok and gate_ok) else "FAIL"
-        print(f"{mark}  {q['id']}  {q['q'][:52]:54s} tool={str(called):16s} {beh}")
-        if mark == "FAIL":
-            fails.append(dict(id=q["id"], question=q["q"],
-                              expected_tool=q["tool"], got_tool=called,
-                              expected_behaviour=q["behaviour"], got_behaviour=beh,
-                              gate_ok=gate_ok, answer=r["answer"],
-                              note=q.get("note", "")))
+        print(f"{mark}  {q['id']}  {q['q'][:52]:54s} tool={str(called):16s} {beh}",
+              flush=True)
+        results.append(dict(
+            id=q["id"], status=mark, question=q["q"],
+            expected_tool=q["tool"], got_tool=called,
+            expected_behaviour=q["behaviour"], got_behaviour=beh,
+            tool_ok=t_ok, behaviour_ok=b_ok, content_ok=c_ok,
+            missing_content=missing or None,
+            gate_ok=gate_ok, answer=r["answer"],
+            note=q.get("note", ""),
+            tool_calls=r.get("tool_calls") or [],
+            tool_results=r.get("tool_results") or [],
+            latency_ms=r.get("latency_ms")))
 
     n = len(qs)
+    fails = [x for x in results if x["status"] == "FAIL"]
+    passes = [x for x in results if x["status"] == "PASS"]
     print("\n" + "=" * 74)
-    print(f"tool selection   {tool_ok}/{n}   {tool_ok/n:.0%}")
-    print(f"behaviour        {beh_ok}/{n}   {beh_ok/n:.0%}")
+    print(f"passed           {len(passes)}/{n}   {len(passes)/n:.0%}" if n else "passed           0/0")
+    print(f"tool selection   {tool_ok}/{n}   {tool_ok/n:.0%}" if n else "tool selection   0/0")
+    print(f"behaviour        {beh_ok}/{n}   {beh_ok/n:.0%}" if n else "behaviour        0/0")
     if content_n:
         print(f"required content {content_ok}/{content_n}   {content_ok/content_n:.0%}")
     print(f"elapsed          {time.time()-t0:.0f}s")
@@ -118,8 +143,16 @@ def main():
             print()
 
     pathlib.Path(ROOT / "tests" / "golden_results.json").write_text(
-        json.dumps(dict(total=n, tool_selection=tool_ok, behaviour=beh_ok,
-                        failures=fails), indent=2))
+        json.dumps(dict(
+            total=n,
+            passed=len(passes),
+            failed=len(fails),
+            tool_selection=tool_ok,
+            behaviour=beh_ok,
+            results=results,
+            failures=fails,
+            passes=passes,
+        ), indent=2, default=str))
     return 0 if not fails else 1
 
 

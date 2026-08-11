@@ -28,7 +28,7 @@ from aurelia.rag.config import EMBED_DIMS, EMBED_MODEL
 
 load_dotenv()
 log = logging.getLogger(__name__)
-client = OpenAI()
+client = OpenAI(timeout=90.0, max_retries=2)
 
 # What kind of document can explain what kind of finding. Free to apply, and it
 # removes more noise than any tuning of the similarity threshold.
