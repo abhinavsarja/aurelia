@@ -32,23 +32,35 @@ GOLD = json.loads((pathlib.Path(__file__).parent / "golden_set.json").read_text(
 def classify(r: dict) -> str:
     """What did the system actually do?"""
     a = (r.get("answer") or "").lower()
-    if r["tool_calls"]:
-        if any(w in a for w in ["did not", "does not", "actually rose", "actually up",
-                                "beat target", "ahead of target", "not a collapse"]):
-            return "correct_premise"
-        return "answer"
-    # a refusal that helpfully offers alternatives still contains "which" and
-    # "please specify", so refusal has to be tested for first
+    # Refusal first — even when a tool also ran (e.g. forecast declined, then
+    # latest week offered). Broad tokens like "does not" / "beat target" must
+    # not run here; they false-positive on normal answers.
     refusing = any(w in a for w in [
         "i don't have", "i do not have", "no data", "not available", "out of scope",
         "does not make decisions", "cannot predict", "can't predict", "does not predict",
-        "in the future", "beyond", "only have data"])
+        "doesn't predict", "in the future", "beyond", "only have data",
+        "doesn't include", "does not include", "no prior year",
+        "that's a decision", "cannot recommend", "can't recommend",
+        "i can't advise", "i can't tell you whether", "i can't produce a forecast",
+        "cannot produce a forecast"])
     if refusing:
         return "refuse"
+    if r["tool_calls"]:
+        if any(w in a for w in ["not a collapse", "not collapsing", "did not collapse",
+                                "isn't a collapse", "actually rose", "actually up"]):
+            return "correct_premise"
+        return "answer"
     if any(w in a for w in ["did you mean", "which one", "there are three",
                             "please specify which", "could you clarify"]):
         return "clarify"
     return "refuse"
+
+
+def tool_matches(called, expected) -> bool:
+    """expected may be one tool name, null, or a list of allowed options."""
+    if isinstance(expected, list):
+        return called in expected
+    return called == expected
 
 
 def main():
@@ -87,7 +99,7 @@ def main():
         called = r["tool_calls"][0]["tool"] if r["tool_calls"] else None
         beh = classify(r)
 
-        t_ok = (called == q["tool"])
+        t_ok = tool_matches(called, q["tool"])
         b_ok = (beh == q["behaviour"])
         tool_ok += t_ok
         beh_ok += b_ok

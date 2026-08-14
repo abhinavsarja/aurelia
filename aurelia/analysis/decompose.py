@@ -178,18 +178,34 @@ def decompose(d, sku: str, month: str) -> Decomposition:
     Pt = Rt / Ut if Ut else 0.0                 # target price per unit
     Pa = Ra / Ua if Ua else Pt                  # realised price per unit
 
+    
+
     rate, rate_basis, rate_weeks, rate_conf = _rate_of_sale(sales_wk, stock, sku, weeks, all_weeks)
 
-    con = _constrained(stock, sales_wk, sku, weeks, rate)
+    con = _constrained(stock, sales_wk, sku, weeks, rate) # Which weeks lost due to loss of stock
     Ul = sum(c["lost"] for c in con)            # units lost to unavailability
 
     # --- the identity -------------------------------------------------
-    #   gap_revenue = availability + demand + price
+    #   gap_revenue = availability_gap + demand_gap + price_gap
     availability_r = -Ul * Pt
     demand_u = (Ua + Ul) - Ut
     demand_r = demand_u * Pt
     price_r = (Pa - Pt) * Ua
     # ------------------------------------------------------------------
+
+    # MAIN ARITHMENTICS TO UNDERSTAND THE GAP
+
+    # Ul — units lost to stockouts: sum of lost over no stock weeks
+    #   (closing stock hit 0). lost ≈ max(0, normal_rate − units_sold).
+    
+    # demand_u — volume gap after putting stockouts back: (Ua + Ul) − Ut.
+    #   Negative ⇒ still short of target even with stock (“demand with stock”).
+    
+    # price_r — revenue gap from price/discount: (Pa − Pt) * Ua.
+    #   Positive ⇒ sold above target price; negative ⇒ cheaper / discounted.
+    
+    # With availability_r = -Ul * Pt and demand_r = demand_u * Pt, the three
+    # revenue pieces should add to gap_r (see reconciles below).
 
     # a share of a near-zero gap is arithmetic noise, not information
     material = abs(gap_r) >= 0.02 * abs(Rt or 1)
@@ -270,11 +286,11 @@ def context(d, sku: str, month: str) -> dict:
     out["model_gap_pct"] = gap_pct(prod[prod.model == p.model].sku.tolist())
     out["department_gap_pct"] = gap_pct(dept_skus)
 
-    # A1 - deliberate wind-down
+    # Scenario 1 - deliberate wind-down
     out["lifecycle_status"] = p.status
     out["suppress_investigation"] = p.status in ("clearance", "discontinued")
 
-    # A2 - is the SKU just behaving like its department?
+    # Scenario 2 - is the SKU just behaving like its department?
     dg = out["department_gap_pct"]
     if sku_gap is not None and dg is not None:
         out["sku_specific_pts"] = round(sku_gap - dg, 1)
@@ -283,7 +299,7 @@ def context(d, sku: str, month: str) -> dict:
         out["sku_specific_pts"] = None
         out["explained_by_department"] = False
 
-    # A3 - was the period before this one abnormally high?
+    # Scenario 3 - was the period before this one abnormally high?
     prior = sorted(w for w in sales_wk.week.unique() if w < weeks[0])
     h = sales_wk[(sales_wk.sku == sku) & (sales_wk.week.isin(prior))]
     if len(h) >= 12:
@@ -294,7 +310,7 @@ def context(d, sku: str, month: str) -> dict:
     else:
         out["prior_period_spike"] = False
 
-    # A4 - too new to have a trend worth comparing against
+    # Scenario 4 - too new to have a trend worth comparing against
     out["product_age_weeks"] = None
     out["too_new"] = False
     if pd.notna(p.launch_date):
@@ -304,7 +320,7 @@ def context(d, sku: str, month: str) -> dict:
         out["product_age_weeks"] = age
         out["too_new"] = age < 8
 
-    # E1 - returns above the department baseline
+    # Scenario 5 - returns above the department baseline
     r_sku = ret[(ret.sku == sku) & (ret.week.isin(weeks))].units_returned.sum()
     u_sku = sales_wk[(sales_wk.sku == sku) & (sales_wk.week.isin(weeks))].units.sum()
     dep_r = ret[(ret.sku.isin(dept_skus)) & (ret.week.isin(weeks))].units_returned.sum()
@@ -317,7 +333,7 @@ def context(d, sku: str, month: str) -> dict:
     # makes 4% look like a doubling, which is noise, not a fault
     out["returns_elevated"] = bool(base and rate > base * 1.8 and rate > 0.12)
 
-    # D1 - did a sibling take the volume?
+    # Scenario 6 - did a sibling take the volume?
     if siblings:
         sib = gap_pct(siblings)
         out["sibling_gap_pct"] = sib

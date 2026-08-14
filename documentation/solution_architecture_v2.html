@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELIA — Solution Architecture</title>
+<style>
+  :root{
+    --bg:#F7F6F3; --panel:#FFF; --ink:#1C1B19; --soft:#6B6862; --line:#E4E1DA;
+    --accent:#8A6D3B; --accent-soft:#F5F0E7;
+    --up:#2E7D5B; --down:#B4453C; --info:#2E5D7D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6;
+  }
+  .layout{display:grid;grid-template-columns:216px 1fr;max-width:1180px;margin:0 auto;gap:34px;padding:0 26px}
+
+  nav{position:sticky;top:0;height:100vh;padding:34px 0;overflow-y:auto}
+  nav .nt{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--soft);margin-bottom:12px;font-weight:600}
+  nav a{display:block;padding:5px 10px;font-size:12.5px;color:var(--soft);text-decoration:none;
+        border-left:2px solid transparent;line-height:1.35}
+  nav a:hover{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft)}
+  nav a.hi{color:var(--accent);font-weight:600}
+
+  main{padding:34px 0 90px}
+
+  header.doc{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:30px}
+  header.doc .eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  header.doc h1{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:8px 0 6px;line-height:1.15}
+  header.doc p{color:var(--soft);font-size:13.5px}
+  header.doc .meta{margin-top:14px;font-size:12px;color:var(--soft);display:flex;gap:20px;flex-wrap:wrap}
+
+  section{margin-bottom:38px;scroll-margin-top:20px}
+  h2{font-size:18px;font-weight:600;letter-spacing:-.01em;margin-bottom:4px;
+     padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h2 .x{color:var(--down);font-weight:700;font-size:19px;margin:0 5px 0 14px;vertical-align:-1px}
+  h2 .notthis{font-size:14px;font-weight:400;color:var(--soft)}
+  h2 .num{color:var(--accent);font-size:13px;margin-right:9px;font-weight:600}
+  .lede{color:var(--soft);font-size:13px;margin:9px 0 15px}
+  h3{font-size:14px;font-weight:600;margin:20px 0 8px}
+  h4{font-size:12.5px;font-weight:600;margin:14px 0 6px;color:var(--soft);text-transform:uppercase;letter-spacing:.05em}
+  p{margin-bottom:10px}
+  ul{margin:0 0 12px 17px}
+  li{margin-bottom:5px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);
+        border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:14px}
+  th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--soft);
+     font-weight:600;padding:9px 12px;background:#FCFBF9;border-bottom:1px solid var(--line)}
+  td{padding:9px 12px;border-bottom:1px solid #F2F0EC;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  td.k{font-weight:600;width:30%}
+  td.k.narrow{width:20%}
+  .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  tr.tot td{border-top:2px solid var(--ink);background:#FBFAF8}
+
+  pre{background:#FBFAF8;border:1px solid var(--line);border-radius:7px;padding:12px 14px;
+      font-family:ui-monospace,Menlo,monospace;font-size:11.5px;line-height:1.55;
+      overflow-x:auto;margin-bottom:14px;color:#33312E}
+  pre .c{color:#9A958C}
+  pre .kw{color:var(--accent);font-weight:600}
+
+  .callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:12px 15px;
+           border-radius:0 6px 6px 0;margin-bottom:14px;font-size:13px}
+  .callout b{display:block;margin-bottom:3px}
+  .callout.warn{border-color:var(--down);background:#FCF1EF}
+  .callout.info{border-color:var(--info);background:#EFF4F8}
+  .callout.ok{border-color:var(--up);background:#EDF5F1}
+
+  .pill{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:11px;font-weight:600}
+  .pill.in{background:#E8F3ED;color:var(--up)}
+  .pill.out{background:#FBEDEB;color:var(--down)}
+  .pill.open{background:#FBF3E3;color:var(--accent)}
+  .pill.new{background:#EFF4F8;color:var(--info)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+  ol.steps{counter-reset:s;list-style:none;margin-left:0}
+  ol.steps li{counter-increment:s;position:relative;padding-left:32px;margin-bottom:11px}
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:1px;width:21px;height:21px;border-radius:50%;
+    background:var(--ink);color:#fff;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+  /* pipeline diagram */
+  .pipe{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px 18px;margin-bottom:16px}
+  .prow{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px}
+  .pstage{flex:1;min-width:118px;text-align:center;position:relative;padding:0 5px}
+  .pbox{border:1.5px solid var(--ink);border-radius:7px;padding:9px 6px;background:#fff;min-height:60px;
+        display:flex;flex-direction:column;justify-content:center}
+  .pbox .pn{font-size:9px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+  .pbox .pt{font-size:12px;font-weight:600;margin-top:2px;line-height:1.25}
+  .pbox .pd{font-size:9.5px;color:var(--soft);margin-top:3px;line-height:1.3}
+  .parrow{display:flex;align-items:center;color:var(--soft);font-size:15px;padding:0 1px}
+  .pstat{margin-top:7px;font-size:9.5px;font-family:ui-monospace,Menlo,monospace;
+         background:#F3F1EC;border-radius:4px;padding:3px 4px;color:var(--soft)}
+  .pcap{font-size:10px;color:var(--soft);text-align:center;margin-top:11px;letter-spacing:.03em}
+  .pfail{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;display:flex;gap:10px;align-items:center;
+         font-size:11.5px;color:var(--down)}
+  .pfail .fbox{border:1.5px dashed var(--down);border-radius:6px;padding:5px 10px;font-weight:600;font-size:11px;white-space:nowrap}
+
+
+  .tabbar{display:flex;gap:4px;margin-bottom:26px;border-bottom:1px solid var(--line)}
+  .tabbtn{font-family:inherit;font-size:13px;font-weight:600;color:var(--soft);background:none;border:none;
+          padding:9px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tabbtn:hover{color:var(--accent)}
+  .tabbtn.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .navgroup[hidden],.pane[hidden],.subpane[hidden]{display:none}
+
+  .subbar{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+  .subbtn{font-family:inherit;font-size:12px;font-weight:600;color:var(--soft);background:var(--panel);
+          border:1px solid var(--line);border-radius:16px;padding:6px 14px;cursor:pointer}
+  .subbtn:hover{border-color:var(--accent);color:var(--accent)}
+  .subbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .innerbar{display:flex;gap:20px;margin:0 0 22px;border-bottom:1px solid var(--line)}
+  .innerbtn{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--soft);background:none;border:none;
+            padding:0 0 8px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .innerbtn:hover{color:var(--accent)}
+  .innerbtn.on{color:var(--ink);border-bottom-color:var(--ink)}
+  .innerpane[hidden],.innerpane2[hidden],.innerpane3[hidden]{display:none}
+  .innerbtn3{font-family:inherit;font-size:12px;font-weight:600;color:var(--soft);background:var(--panel);
+             border:1px solid var(--line);border-radius:14px;padding:5px 13px;cursor:pointer;margin-right:6px}
+  .innerbtn3:hover{border-color:var(--accent);color:var(--accent)}
+  .innerbtn3.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .innerbtn2{font-family:inherit;font-size:12px;font-weight:600;color:var(--soft);background:var(--panel);
+             border:1px solid var(--line);border-radius:14px;padding:5px 13px;cursor:pointer;margin-right:6px}
+  .innerbtn2:hover{border-color:var(--accent);color:var(--accent)}
+  .innerbtn2.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  nav a.inner3{padding-left:30px;font-size:11.5px}
+  nav a.inner3.on{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+  nav a.inner3:hover{color:var(--accent);border-left-color:var(--accent)}
+  nav a.inner2{padding-left:30px;font-size:11.5px}
+  nav a.inner2.on{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+  nav a.inner{padding-left:30px;font-size:11.5px}
+  nav a.inner.on{color:var(--accent);font-weight:600;border-left-color:var(--accent)}
+  nav a.sub{padding-left:18px;font-size:12px}
+  nav a.sub.on{color:var(--accent);font-weight:600;border-left-color:var(--accent);background:var(--accent-soft)}
+
+  footer{border-top:1px solid var(--line);padding-top:16px;color:var(--soft);font-size:12px}
+
+  @media print{
+    nav{display:none} .layout{grid-template-columns:1fr;max-width:100%}
+    body{background:#fff;font-size:11px} section{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav>
+  <div class="navgroup" data-t="1">
+  <div class="nt">Business &amp; Assumptions</div>
+  <a href="#business">1 &middot; The business</a>
+  <a href="#assumptions">2 &middot; Business assumptions</a>
+  <a href="#scope">3 &middot; Scope</a>
+  <a href="#tech">4 &middot; Technical assumptions</a>
+  <a href="#success">5 &middot; Success metrics</a>
+  </div>
+
+  <div class="navgroup" data-t="2" hidden>
+  <div class="nt">Design</div>
+  <a href="#data" class="sub on" data-s="model">Data</a>
+  <a href="#load" class="sub" data-s="ingest">Ingestion</a>
+  <a href="#load" class="inner2 on" data-j="dataing">Data Ingestion</a>
+  <a href="#docload" class="inner2" data-j="docing">Document Ingestion</a>
+  <a href="#stack" class="sub" data-s="stack">Architecture</a>
+  <a href="#stack" class="inner3 on" data-k="arch">Diagram</a>
+  <a href="#backend" class="inner3" data-k="be">Backend Design</a>
+  <a href="#frontend" class="inner3" data-k="fe">Frontend Design</a>
+  <a href="#prod" class="sub" data-s="prod">Production Deployment</a>
+  </div>
+
+  <div class="navgroup" data-t="3" hidden>
+  <div class="nt">Design Considerations</div>
+  <a href="#dc-sql">Fixed tools</a>
+  <a href="#dc-news">External feed, weekly capture</a>
+  <a href="#dc-framework">Plain Python</a>
+  <a href="#dc-memory">Session-only context</a>
+  <a href="#dc-gate">Gated external evidence</a>
+  <a href="#dc-postgres">One Postgres</a>
+  <a href="#dc-compute">ECS Fargate</a>
+  <a href="#dc-eventdriven">S3 event trigger</a>
+  </div>
+
+</nav>
+
+<main>
+
+<header class="doc">
+  <div class="eyebrow">Case Study — Proposed Solution</div>
+  <h1>Smart Business Performance Dashboard</h1>
+  <p>Business and technical architecture for a retail performance dashboard with natural language analysis.</p>
+  <div class="meta">
+    <span>Client: AURELIA (illustrative)</span>
+    <span>Market: Singapore</span>
+    <span>Version 0.6</span>
+  </div>
+</header>
+
+<div class="tabbar">
+  <button class="tabbtn on" data-t="1">Business &amp; Assumptions</button>
+  <button class="tabbtn" data-t="2">Design</button>
+  <button class="tabbtn" data-t="3">Design Considerations</button>
+  <button class="tabbtn" data-t="4">Improvements &amp; Risks</button>
+</div>
+
+<div class="pane" data-t="1">
+
+<!-- ============ BRIEF ============ -->
+
+
+<!-- ============ BUSINESS ============ -->
+<section id="business">
+  <h2><span class="num">1</span>The business</h2>
+  <p class="lede">A fictional company. Real retailers do not publish meeting notes or sales data, and those documents are core to this problem &mdash; inventing the company keeps the demonstration honest and makes the assumptions easier to state.</p>
+
+  <table>
+    <tr><td class="k">Company</td><td>AURELIA. Accessible-luxury fashion accessories, similar in shape to Charles &amp; Keith.</td></tr>
+    <tr><td class="k">Range</td><td>Six departments &middot; 23 models &middot; 75 SKUs. Department &rarr; Model &rarr; SKU.<br><span style="color:var(--soft)">Bags &middot; Footwear &middot; Jewellery &middot; Eyewear &middot; Small leather goods &middot; Keychains</span></td></tr>
+    <tr><td class="k">Dashboard users</td><td>Senior management &mdash; commercial, buying, merchandising, marketing.</td></tr>
+    <tr><td class="k">Dashboard usage</td><td>Monday morning trading meetings &middot; monthly review meetings &middot; ad hoc through the week.</td></tr>
+  </table>
+</section>
+
+<!-- ============ ASSUMPTIONS ============ -->
+<section id="assumptions">
+  <h2><span class="num">2</span>Business assumptions</h2>
+  <ol class="steps">
+    <li>Singapore only, selling to consumers. Two channels: own e-commerce and own stores.</li>
+    <li>All sales data is weekly. The week closes Sunday, data is available Monday morning. No real-time requirement.</li>
+    <li><b>Targets are monthly.</b> Performance is assessed over four weeks against the monthly target.</li>
+    <li>Product performance only. No customer data, no personalisation.</li>
+    <li>Once a week closes its numbers do not change. Returns are recorded separately, in the week the return happened.</li>
+  </ol>
+</section>
+
+<!-- ============ USERS ============ -->
+
+
+<!-- ============ SCOPE ============ -->
+<section id="scope">
+  <h2><span class="num">3</span>Scope</h2>
+
+  <div class="grid2">
+    <div class="card">
+      <p><span class="pill in">In scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Performance dashboard, company level down to SKU</li>
+        <li>Comparison against the monthly target only</li>
+        <li>Natural language questions about past performance</li>
+        <li>Evidence-based explanations with sources shown</li>
+      </ul>
+    </div>
+    <div class="card">
+      <p><span class="pill out">Out of scope</span></p>
+      <ul style="margin-top:10px">
+        <li>Forecasting future sales</li>
+        <li>Fixing data quality problems in source systems</li>
+        <li>Real-time or intraday data</li>
+        <li>Alerts or proactive lists of problem products</li>
+      </ul>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ METRICS ============ -->
+
+
+<!-- ============ TECH ============ -->
+<section id="tech">
+  <h2><span class="num">4</span>Technical assumptions</h2>
+  <table>
+    <tbody>
+      <tr><td class="k">Scale</td><td>~100 users, peaking Monday morning at 20&ndash;30 at once. Under 100,000 sales rows. A few hundred documents.</td></tr>
+      <tr><td class="k">Speed</td><td>Important, not critical. A question gets asked in a meeting, not in a checkout flow.</td></tr>
+      <tr><td class="k">Availability</td><td>99.5% in business hours. Recovery in hours, at most one week of data lost.</td></tr>
+      <tr><td class="k">Access</td><td>All users see all data. No per-user or per-document permissions.</td></tr>
+      <tr><td class="k">Privacy</td><td>No customer data, so low exposure. All data stays in Singapore.</td></tr>
+      <tr><td class="k">Memory</td><td>No user profiles, no history between sessions. Only the current conversation.</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+<!-- ============ APPROACH ============ -->
+
+
+<!-- ============ TRUST ============ -->
+
+
+<!-- ============ UI ============ -->
+
+
+<!-- ============ SUCCESS ============ -->
+<section id="success">
+  <h2><span class="num">5</span>Success metrics <span class="notthis" style="color:var(--down);font-weight:700">&mdash; Analyse and educate, do not recommend actions</span></h2>
+
+  <h3>Trust — the most important group</h3>
+  <table>
+    <thead><tr><th>What we measure</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Invented sources</td><td>Zero. This blocks release.</td></tr>
+      <tr><td class="k">Claims supported by reconciliation with the database</td><td>99% or higher</td></tr>
+      <tr><td class="k">Says "not enough evidence" when true</td><td>Tracked. Should never be zero.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <b>We cannot measure any of the trust numbers without a test set</b>
+    A <strong>golden data set</strong> of 40&ndash;50 questions with known correct answers, covering every tool plus the cases that must be refused or corrected. Ours was written by us. It should be built with the client&rsquo;s business analysts &mdash; they know which questions get asked and what a right answer looks like.
+  </div>
+</section>
+
+<!-- ============ OPEN ============ -->
+
+
+</div>
+
+<div class="pane" data-t="2" hidden>
+
+<div class="subbar">
+  <button class="subbtn on" data-s="model">Data</button>
+  <button class="subbtn" data-s="ingest">Ingestion</button>
+  <button class="subbtn" data-s="stack">Architecture</button>
+  <button class="subbtn" data-s="prod">Production Deployment</button>
+</div>
+
+<div class="subpane" data-s="model">
+
+<!-- ============ DATA MODEL ============ -->
+<section id="data">
+  <h2>Data Model</h2>
+
+  <h3>Structured &mdash; six tables</h3>
+  <table>
+    <thead><tr><th style="width:16%">Table</th><th style="width:18%">One row per</th><th>Fields</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Products</td><td>SKU</td><td class="mono">SKU &middot; Model &middot; Department &middot; Colour &middot; Size &middot; Price &middot; Cost &middot; Launch date &middot; Status</td></tr>
+      <tr><td class="k">Sales</td><td>SKU, week, channel</td><td class="mono">Week &middot; SKU &middot; Channel &middot; Units &middot; Revenue &middot; Discount %</td></tr>
+      <tr><td class="k">Stock</td><td>SKU, week</td><td class="mono">Week &middot; SKU &middot; Units on hand</td></tr>
+      <tr><td class="k">Returns</td><td>SKU, week</td><td class="mono">Week &middot; SKU &middot; Units returned &middot; Reason</td></tr>
+      <tr><td class="k">Stock receipts</td><td>SKU, delivery</td><td class="mono">Week &middot; SKU &middot; Units received &middot; Expected date &middot; Actual date</td></tr>
+      <tr><td class="k">Targets</td><td>SKU, month</td><td class="mono">Month &middot; SKU &middot; Target units &middot; Target revenue &middot; Source document</td></tr>
+    </tbody>
+  </table>
+  <p>Sales, stock, returns and receipts are weekly. Targets are monthly, so four weeks of sales are compared against that month&rsquo;s number. Stock is not split by channel.</p>
+
+  <h3>Unstructured &mdash; internal documents</h3>
+  <p class="lede">Four kinds of document, twelve in the prototype. Each recurs, so over three years the store holds several hundred, not four.</p>
+
+  <table>
+    <thead><tr><th style="width:24%">Kind</th><th style="width:20%">Frequency</th><th>What it explains that the numbers cannot</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Meeting minutes</td><td>Fortnightly, monthly</td>
+        <td>The decision behind a number &mdash; a reorder deferred, a target set, a line moved to clearance. With a date and a reason.</td>
+      </tr>
+      <tr>
+        <td class="k">Campaign plans</td><td>~2 a month</td>
+        <td>Why sales fell with stock on the shelf at full price. Dates, channels, and which products were featured.</td>
+      </tr>
+      <tr>
+        <td class="k">Operational reports</td><td>Monthly</td>
+        <td>Supply, returns and store or site issues. A stock-out where the order <i>was</i> placed, or a fault only visible in returns.</td>
+      </tr>
+      <tr>
+        <td class="k">Ad hoc notes</td><td>Irregular</td>
+        <td>Post-mortems and supplier reviews. Often where an unexplained decline is first written down.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Unstructured &mdash; external information</h3>
+  <p class="lede">News and competitor activity. Stored as another document type in the same vector store &mdash; a source adapter and three field values, not a new table.</p>
+
+  <table>
+    <thead><tr><th style="width:26%"></th><th>Approach</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Collected</td><td>Weekly job, tagged by entity and retail week. Never searched live &mdash; every question is about a closed period.</td></tr>
+      <tr><td class="k">Watchlist</td><td>Charles &amp; Keith, Pedro, Coach, Kate Spade. Plus retail sales index, tourist arrivals, mall footfall, leather prices. Configuration, not code.</td></tr>
+    </tbody>
+  </table>
+
+</section>
+</div>
+
+<div class="subpane" data-s="ingest" hidden>
+
+<div class="innerbar">
+  <button class="innerbtn2 on" data-j="dataing">Data Ingestion</button>
+  <button class="innerbtn2" data-j="docing">Document Ingestion</button>
+</div>
+
+<div class="innerpane2" data-j="dataing">
+<section id="load">
+  <h2>Data Ingestion Pipeline <span class="pill new">runs Sunday night</span></h2>
+  <p class="lede"><strong>Single point of failure for the entire workflow.</strong> Everything in this solution depends on one job running correctly every Sunday night. If it fails, Monday's numbers are stale. If it half-succeeds, Monday's numbers are wrong — which is worse.</p>
+
+  <div class="callout warn">
+    <b>The core rule: a week is either fully loaded, or not loaded at all</b>
+    There is no middle state. Partial data is more dangerous than missing data, because people trust it and act on it. Every design decision below exists to enforce this one rule.
+  </div>
+
+  <!-- diagram -->
+  <div class="pipe">
+    <div class="prow">
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 1</div>
+          <div class="pt">Detect</div>
+          <div class="pd">Manifest present, files complete</div>
+        </div>
+        <div class="pstat">detected</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 2</div>
+          <div class="pt">Stage</div>
+          <div class="pd">Load into staging tables</div>
+        </div>
+        <div class="pstat">loading</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox">
+          <div class="pn">STAGE 3</div>
+          <div class="pt">Validate</div>
+          <div class="pd">Run the completeness checks</div>
+        </div>
+        <div class="pstat">validated</div>
+      </div>
+      <div class="parrow">→</div>
+      <div class="pstage">
+        <div class="pbox" style="border-color:var(--accent);background:#FFFDF9">
+          <div class="pn">STAGE 4</div>
+          <div class="pt">Publish</div>
+          <div class="pd">One transaction. Data goes live.</div>
+        </div>
+        <div class="pstat" style="background:var(--accent-soft);color:var(--accent);font-weight:700">published</div>
+      </div>
+    </div>
+    <div class="pcap">Status recorded in <span class="mono">DATA_LOAD</span> at every stage. The dashboard only reads weeks marked <span class="mono">published</span>.</div>
+    <div class="pfail">
+      <span class="fbox">failed</span>
+      <span>Any check fails at stage 3 → nothing is published → dashboard continues showing the last good week.</span>
+    </div>
+  </div>
+
+  <!-- DATA_LOAD table -->
+  <h3>The <span class="mono">DATA_LOAD</span> table</h3>
+  <p>A single table in Postgres controls and records every load. It does three jobs at once: it is the state machine, the permanent history, and the switch that makes data visible.</p>
+
+<pre><span class="kw">DATA_LOAD</span>
+  load_id          <span class="c">-- unique id for this attempt</span>
+  week             <span class="c">-- e.g. 2026-W27</span>
+  status           <span class="c">-- detected | loading | validated | published | failed</span>
+  attempt_no       <span class="c">-- 1, 2, 3 ... for retries of the same week</span>
+  files_found      <span class="c">-- what was on the mount point</span>
+  row_counts       <span class="c">-- rows read per file</span>
+  checks_passed    <span class="c">-- results of every validation check</span>
+  failure_reason   <span class="c">-- why it stopped, if it did</span>
+  started_at
+  published_at</pre>
+
+  <p>Every row in the sales, stock, returns and receipts tables carries its <span class="mono">load_id</span>. The dashboard and the chat only read rows whose load has status <span class="mono">published</span>.</p>
+
+  <table>
+    <thead><tr><th>Benefit</th><th>How it works</th></tr></thead>
+    <tbody>
+      <tr><td class="k narrow">Nothing partial is ever visible</td><td>Rows can sit in the table while loading. Until the status flips to <span class="mono">published</span>, nobody sees them.</td></tr>
+      <tr><td class="k narrow">Publishing is instant and additive</td><td>Going live is a single status update &mdash; it either happens or it does not. A week is added, never merged into what is already there, so publishing one cannot disturb another.</td></tr>
+      <tr><td class="k narrow">Rollback is one step</td><td>If a bad week gets published, set the status back to <span class="mono">failed</span>. The system returns to the previous good state immediately.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- NEW: how all-or-nothing is enforced -->
+  <div class="callout">
+    <strong>We validate, we do not clean</strong>
+    A file that fails a check is rejected, not repaired. Silently coercing a bad type or dropping a duplicate would mean the number on screen no longer matches the source system, and nobody would know which one was right. If the data is wrong, the source gets fixed.
+  </div>
+
+  <h3>Knowing the files are complete</h3>
+  <p>A half-written file looks like a valid file. The job must not start reading a file the source system is still writing.</p>
+  <p>The fix is a manifest. The sender writes all data files first, then writes one small file last:</p>
+
+<pre>week_2026_W27_MANIFEST.json
+  week:        2026-W27
+  files:       [sales.csv, stock.csv, products.csv, returns.csv, receipts.csv]
+  row_counts:  {sales: 4820, stock: 340, products: 340, returns: 61, receipts: 0}</pre>
+
+  <p>The job does nothing until the manifest exists. If the manifest is there, every data file is finished. This one convention removes a whole class of bugs, and makes separate file checksums unnecessary.</p>
+
+</section>
+</div>
+
+<div class="innerpane2" data-j="docing" hidden>
+<section id="docload">
+  <h2>Document Ingestion Pipeline <span style="font-weight:400;color:var(--soft)">runs daily</span></h2>
+  <p class="lede">Documents arrive irregularly, get edited after the fact, and no single one is essential. The pipeline is shaped around those three facts.</p>
+
+  <div class="callout warn">
+    <b>This job must never block the sales load</b>
+    If documents fail, the dashboard still works and answers lose one source of evidence. Coupled, one bad PDF would stop Monday&rsquo;s numbers. Separate job, separate schedule, separate failure.
+  </div>
+
+  <h3>Chunking and embedding</h3>
+  <table>
+    <thead><tr>
+      <th style="width:20%"></th>
+      <th style="width:40%">Internal documents</th>
+      <th>External news</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="k">Split on</td>
+        <td><b>Markdown headings.</b> One agenda item, one chunk.</td>
+        <td><b>Not split.</b> One item is already one idea.</td>
+      </tr>
+      <tr>
+        <td class="k">Size cap</td>
+        <td>1,400 characters, then again on blank lines, heading carried onto each piece.</td>
+        <td>None needed.</td>
+      </tr>
+      <tr>
+        <td class="k">What gets embedded</td>
+        <td class="mono">[Title &mdash; Heading]<br>chunk text</td>
+        <td class="mono">[Source &middot; date]<br>item text</td>
+      </tr>
+      <tr>
+        <td class="k">Metadata</td>
+        <td>Document date, period covered, and every SKU, model and department named in the chunk.</td>
+        <td>Date, brands, categories, market.</td>
+      </tr>
+      <tr>
+        <td class="k">Metadata model</td>
+        <td colspan="2" class="mono">gpt-4o-mini &#183; structured output (pydantic) &#183; title, type, date, period covered</td>
+      </tr>
+      <tr>
+        <td class="k">Embedding model</td>
+        <td colspan="2" class="mono">text-embedding-3-large &#183; 3072 dimensions &#183; one batched call per changed document</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>Meeting minutes are short, so we do not chunk aggressively</b>
+    A fixed character count would cut one decision in half and merge it with the next. Splitting on headings keeps the decision and its reason together.
+  </div>
+
+  <h3>Chunk identifiers, and how a changed document is updated</h3>
+  <p>A chunk id is <span class="mono">sha256(path + chunk text)</span>, so unchanged text keeps the same identifier every run. When a document changes, its chunks are deleted and rebuilt &mdash; scoped to that one file, never the whole store.</p>
+  <p>That determinism is what makes the audit trail hold. Every answer is logged with the chunks it used; if identifiers moved on each run, old records would point at evidence that no longer exists.</p>
+
+  <h3>How documents reach the answer</h3>
+  <p>Meeting notes are highly self-similar &mdash; every buying committee discusses reorders and budgets in nearly identical language, so a query about a deferred reorder matches most of them equally well. A better embedding model does not fix that. Three filters run <b>before</b> any similarity is computed:</p>
+
+<div class="pipe">
+    <div class="prow">
+      <div class="pstage">
+        <div class="pbox"><div class="pn">FILTER 1</div><div class="pt">Time window</div>
+          <div class="pd">Documents whose period overlaps the weeks asked about</div></div>
+        <div class="pstat">removes ~90%</div>
+      </div>
+      <div class="parrow">&rarr;</div>
+      <div class="pstage">
+        <div class="pbox"><div class="pn">FILTER 2</div><div class="pt">Product</div>
+          <div class="pd">Chunks naming that SKU, model or department</div></div>
+        <div class="pstat">tens of chunks</div>
+      </div>
+      <div class="parrow">&rarr;</div>
+      <div class="pstage">
+        <div class="pbox"><div class="pn">FILTER 3</div><div class="pt">Document type</div>
+          <div class="pd">A stock-out sends us to buying minutes, never to campaign plans</div></div>
+        <div class="pstat">free, from the maths</div>
+      </div>
+      <div class="parrow">&rarr;</div>
+      <div class="pstage">
+        <div class="pbox" style="border-color:var(--accent);background:#FFFDF9">
+          <div class="pn">THEN</div><div class="pt">Similarity</div>
+          <div class="pd">Rank whatever survived, by cosine distance</div></div>
+        <div class="pstat">top 6</div>
+      </div>
+    </div>
+    <div class="pcap">Every filter is an ordinary SQL predicate. The vector comparison only ever runs on what is left.</div>
+  </div>
+
+  <div class="callout ok">
+    <b>Metadata filtering does the heavy lifting. Semantic search does the final ranking.</b>
+    After the filters we rank ten to thirty chunks rather than thousands, which is the job similarity search is actually good at. It is the last step, not the first &mdash; and it is why a dedicated vector database would have been the wrong choice.
+  </div>
+
+</section>
+</div>
+</div>
+
+<div class="subpane" data-s="stack" hidden>
+
+<div class="innerbar">
+  <button class="innerbtn3 on" data-k="arch">Diagram</button>
+  <button class="innerbtn3" data-k="be">Backend Design</button>
+  <button class="innerbtn3" data-k="fe">Frontend Design</button>
+</div>
+
+<div class="innerpane3" data-k="arch">
+
+<section id="stack">
+  <h2>Architecture <span class="pill new">local</span></h2>
+  <p class="lede">Ingestion runs down the left. The question comes in at the bottom and runs through three steps in a fixed order &mdash; only two of them touch the model.</p>
+<div class="card" style="padding:18px 16px"><svg viewBox="0 0 1000 872" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7A756C"/>
+    </marker>
+    <marker id="arb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2E5D7D"/>
+    </marker>
+  </defs>
+  <style>
+    svg .bl{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;fill:#8A6D3B;font-weight:800}
+    svg .bt{font-size:13px;font-weight:700;fill:#12110F}
+    svg .bs{font-size:10.2px;fill:#4E4A43;font-weight:500}
+    svg .mn{font-size:10px;fill:#7A756C;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+    svg .tag{font-size:8.6px;fill:#8A6D3B;font-weight:800;letter-spacing:.08em}
+    svg .bx{fill:#fff;stroke:#C9C4BA;stroke-width:1.5}
+    svg .bxa{fill:#FFFBF3;stroke:#8A6D3B;stroke-width:2}
+    svg .band{fill:#FAF9F6;stroke:#DDD8CF;stroke-width:1.3}
+    svg .ln{stroke:#7A756C;stroke-width:1.7;fill:none;marker-end:url(#ar)}
+    svg .lnb{stroke:#2E5D7D;stroke-width:1.8;fill:none;stroke-dasharray:5 3.5;marker-end:url(#arb)}
+  </style>
+
+  <rect fill="#F2EFE8" stroke="#C9C4BA" stroke-width="1.4" rx="8" x="30" y="8" width="940" height="38"/>
+  <text x="500" y="33" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1C1B19">The system recommends. It never acts.</text>
+
+  <text class="bl" x="30" y="76">Sources</text>
+  <rect class="bx" rx="7" x="30" y="84" width="300" height="60"/>
+  <text class="bt" x="44" y="105">Sales &amp; operations</text>
+  <text class="mn" x="44" y="122">/data/sales/*.csv</text>
+  <text class="bs" x="44" y="137">weekly &#183; six tables &#183; manifest</text>
+
+  <rect class="bx" rx="7" x="350" y="84" width="300" height="60"/>
+  <text class="bt" x="364" y="105">Internal documents</text>
+  <text class="mn" x="364" y="122">/data/documents/*.md</text>
+  <text class="bs" x="364" y="137">irregular &#183; several hundred</text>
+
+  <rect class="bx" rx="7" x="670" y="84" width="300" height="60"/>
+  <text class="bt" x="684" y="105">Trade news</text>
+  <text class="mn" x="684" y="122">search API &#183; watchlist</text>
+  <text class="bs" x="684" y="137">weekly capture</text>
+
+  <text class="bl" x="30" y="180">Ingestion</text>
+  <rect class="bx" rx="7" x="30" y="188" width="300" height="66"/>
+  <text class="bt" x="44" y="209">Weekly load job</text>
+  <text class="bs" x="44" y="226">stage &rarr; validate &rarr; publish</text>
+  <text class="mn" x="44" y="243">one transaction, advisory lock</text>
+
+  <rect class="bx" rx="7" x="350" y="188" width="300" height="66"/>
+  <text class="bt" x="364" y="209">Daily document job</text>
+  <text class="bs" x="364" y="226">parse &rarr; metadata &rarr; chunk &rarr; embed</text>
+  <text class="mn" x="364" y="243">gpt-4o-mini &#183; text-embedding-3-large</text>
+
+  <rect class="bx" rx="7" x="670" y="188" width="300" height="66"/>
+  <text class="bt" x="684" y="209">Weekly news watch</text>
+  <text class="bs" x="684" y="226">fetch &rarr; tag by entity and week</text>
+  <text class="mn" x="684" y="243">never called at question time</text>
+
+  <line class="ln" x1="180" y1="144" x2="180" y2="184"/>
+  <line class="ln" x1="500" y1="144" x2="500" y2="184"/>
+  <line class="ln" x1="820" y1="144" x2="820" y2="184"/>
+
+  <text class="bl" x="30" y="292">Storage</text>
+  <rect class="band" rx="9" x="30" y="300" width="940" height="112"/>
+  <text class="bt" x="46" y="322">PostgreSQL 16 + pgvector</text>
+  <text class="mn" x="228" y="322">one container &#183; published weeks only</text>
+
+  <rect class="bx" rx="7" x="46" y="332" width="292" height="64"/>
+  <text class="bt" x="60" y="352">Business tables</text>
+  <text class="bs" x="60" y="369">products &#183; sales &#183; stock</text>
+  <text class="bs" x="60" y="385">returns &#183; receipts &#183; targets</text>
+
+  <rect class="bx" rx="7" x="354" y="332" width="292" height="64"/>
+  <text class="bt" x="368" y="352">Vector store</text>
+  <text class="bs" x="368" y="369">document + news chunks</text>
+  <text class="bs" x="368" y="385">date &#183; period &#183; entities</text>
+
+  <rect class="bx" rx="7" x="662" y="332" width="292" height="64"/>
+  <text class="bt" x="676" y="352">Control &amp; audit</text>
+  <text class="bs" x="676" y="369">DATA_LOAD &#183; answer_log</text>
+  <text class="bs" x="676" y="385">business dictionary</text>
+
+  <line class="ln" x1="180" y1="254" x2="180" y2="296"/>
+  <line class="ln" x1="500" y1="254" x2="500" y2="296"/>
+  <path class="ln" d="M820,254 C820,282 668,266 606,292"/>
+
+  <text class="bl" x="30" y="462">Answer pipeline &#183; fixed order, our code</text>
+  <rect class="band" rx="9" x="30" y="470" width="940" height="204"/>
+
+  <rect class="bx" rx="7" x="46" y="492" width="150" height="82"/>
+  <text class="tag" x="60" y="510" fill="#2E5D7D">STEP 1 &#183; LLM</text>
+  <text class="bt" x="60" y="530">Resolve</text>
+  <text class="bs" x="60" y="548">which SKU,</text>
+  <text class="bs" x="60" y="563">which weeks</text>
+
+  <rect class="bxa" rx="8" x="212" y="492" width="470" height="164"/>
+  <text class="tag" x="230" y="512">STEP 2 &#183; DETERMINISTIC CODE, IN THIS ORDER</text>
+  <text class="bt" x="230" y="534" style="font-size:15px">Gather evidence</text>
+
+  <rect fill="#fff" stroke="#D9CFBB" stroke-width="1.2" rx="5" x="230" y="546" width="434" height="32"/>
+  <circle cx="248" cy="562" r="9" fill="#8A6D3B"/>
+  <text x="248" y="566" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#fff">1</text>
+  <text class="bt" x="266" y="559" style="font-size:11.5px">Call the predefined tools</text>
+  <text class="bs" x="266" y="573">measure the gap &#8212; stock-out, price, demand</text>
+
+  <rect fill="#fff" stroke="#D9CFBB" stroke-width="1.2" rx="5" x="230" y="582" width="434" height="32"/>
+  <circle cx="248" cy="598" r="9" fill="#8A6D3B"/>
+  <text x="248" y="602" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#fff">2</text>
+  <text class="bt" x="266" y="595" style="font-size:11.5px">Search internal documents</text>
+  <text class="bs" x="266" y="609">using what was measured, not the question asked</text>
+
+  <rect fill="#fff" stroke="#B3ADA3" stroke-width="1.2" stroke-dasharray="4 3" rx="5" x="230" y="618" width="434" height="32"/>
+  <circle cx="248" cy="634" r="9" fill="#B3ADA3"/>
+  <text x="248" y="638" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#fff">3</text>
+  <text class="bt" x="266" y="631" style="font-size:11.5px">External news &#8212; gated</text>
+  <text class="bs" x="266" y="645">only if a large share is still unexplained</text>
+
+  <rect class="bx" rx="7" x="698" y="492" width="256" height="82"/>
+  <text class="tag" x="712" y="510" fill="#2E5D7D">STEP 3 &#183; LLM</text>
+  <text class="bt" x="712" y="530">Compose</text>
+  <text class="bs" x="712" y="548">explains only, never calculates</text>
+  <text class="bs" x="712" y="563">every figure came from a tool result</text>
+
+  <line class="ln" x1="196" y1="533" x2="208" y2="533"/>
+  <line class="ln" x1="682" y1="533" x2="694" y2="533"/>
+  <line class="ln" x1="500" y1="412" x2="500" y2="466"/>
+  <text class="bs" x="510" y="444">read</text>
+
+  <rect fill="#EAF1F7" stroke="#2E5D7D" stroke-width="2.6" rx="9" x="290" y="700" width="420" height="52"/>
+  <text x="312" y="724" style="font-size:15px;font-weight:800;fill:#2E5D7D">LLM</text>
+  <text x="360" y="724" style="font-size:11px;font-weight:600;fill:#2E5D7D">openai sdk &#183; pydantic structured output</text>
+  <text x="312" y="742" style="font-size:10px;font-weight:500;fill:#3F6E8C">called twice per question &#8212; reads and writes language, never touches the maths</text>
+
+  <path class="lnb" d="M330,700 C330,680 121,690 121,580"/>
+  <path class="lnb" d="M670,700 C670,680 762,690 762,580"/>
+
+  <text class="bl" x="30" y="790">Serving</text>
+  <rect class="bxa" rx="7" x="30" y="798" width="290" height="58"/>
+  <text class="bt" x="44" y="819">FastAPI</text>
+  <text class="bs" x="44" y="836">GET /dashboard &#183; POST /ask</text>
+  <text class="mn" x="44" y="850">uvicorn</text>
+
+  <rect fill="#E9F3EE" stroke="#2E7D5B" stroke-width="2.4" rx="7" x="352" y="798" width="290" height="58"/>
+  <text x="366" y="819" style="font-size:13px;font-weight:700;fill:#1E5C42">Browser dashboard</text>
+  <text x="366" y="836" style="font-size:10.2px;fill:#2E7D5B">drill-down charts + chat panel</text>
+  <text x="366" y="850" style="font-size:10px;font-family:ui-monospace,Menlo,monospace;fill:#2E7D5B">React &#183; Chart.js</text>
+
+  <rect fill="#1C1B19" rx="7" x="674" y="798" width="296" height="58"/>
+  <circle cx="706" cy="819" r="8" fill="#fff"/>
+  <path d="M692,843 a14,12 0 0 1 28,0 z" fill="#fff"/>
+  <text x="732" y="820" style="font-size:13px;font-weight:700;fill:#fff">Manager</text>
+  <text x="732" y="838" style="font-size:10px;fill:#B8B3AA">asks in plain language</text>
+
+  <line class="ln" x1="670" y1="827" x2="648" y2="827"/>
+  <line class="ln" x1="348" y1="827" x2="326" y2="827"/>
+  <path class="ln" d="M121,798 C121,700 121,660 121,582"/>
+  <text class="bs" x="131" y="700">resolve question</text>
+
+  <path class="ln" d="M46,378 C24,378 12,392 12,414 L12,796 C12,810 16,818 24,818"/>
+  <text class="bs" transform="rotate(-90 26 606)" x="26" y="606" text-anchor="middle">dashboard data</text>
+</svg></div>
+</section>
+
+<section id="repo">
+  <h2>Project structure</h2>
+  <p class="lede">One repository, one deployable. The folders map to the diagram above &mdash; ingestion, analysis, serving.</p>
+
+<pre><span class="kw">aurelia/</span>             <span class="c">the application &#183; installed as a package</span>
+  api.py             <span class="c">FastAPI routes &#8212; /catalog, /snapshot, /ask</span>
+  agent.py           <span class="c">the loop: choose &rarr; validate &rarr; run &rarr; write</span>
+  tools.py           <span class="c">the eight tools. The only way to reach data.</span>
+  db.py              <span class="c">engine, published views, the cached frames</span>
+  analysis/          <span class="c">decompose &#183; dictionary &#183; prompt_resolve</span>
+  rag/               <span class="c">ingest &#183; retrieve</span>
+<span class="kw">frontend/</span>            <span class="c">React &#183; TypeScript &#183; Vite. Builds to static files.</span>
+<span class="kw">db/</span>                  <span class="c">schema, views, load SQL</span>
+<span class="kw">scripts/</span>             <span class="c">data and document generation</span>
+<span class="kw">tests/</span>               <span class="c">golden_set.json &#183; run_golden.py</span>
+<span class="kw">data/</span>                <span class="c">weekly feed, documents, news</span>
+<span class="kw">documentation/</span>       <span class="c">this file</span></pre>
+
+  <table>
+    <tr><th>Boundary</th><th>What it separates</th></tr>
+    <tr><td class="k mono">tools.py</td><td>Where the model stops and the database starts. The model cannot query anything directly &mdash; it has to call one of these nine functions.</td></tr>
+    <tr><td class="k mono">analysis/</td><td>Plain functions over DataFrames. No model calls and no network, so the decomposition can be tested on its own.</td></tr>
+    <tr><td class="k mono">frontend/</td><td>Calls three endpoints and knows nothing else about the backend. Built into static files that FastAPI serves from the same container.</td></tr>
+  </table>
+
+  <p><strong>It all ships as one image.</strong> The Vite build output is copied in and FastAPI serves both the static files and the API, so there is only one thing to deploy and one thing to roll back.</p>
+</section>
+
+</div>
+
+<div class="innerpane3" data-k="be" hidden>
+<section id="backend">
+  <h2>Backend Design</h2>
+  <p class="lede">A question comes in, the model chooses one of the fixed functions and fills its arguments, our code runs it, and the model writes a sentence around the result. The model never queries and never calculates.</p>
+
+  <div class="callout ok">
+    <b>The model proposes, the service disposes</b>
+    The model does not call anything. It returns a message asking for a call &mdash; a function name and JSON arguments. Our code validates the arguments, runs the function and hands the result back. That gap is where a bad week, an unknown SKU or an invented tool name gets refused, before any query runs.
+  </div>
+
+  <h3>The eight tools <span style="font-weight:400;color:var(--soft)">(so far)</span></h3>
+  <p>Seven are cheap queries. One is the engine. Every tool takes a <b>scope</b> and a <b>period</b> &mdash; not every combination exists, and the gaps are deliberate rather than unfinished. A weekly comparison against target cannot exist, because targets are monthly.</p>
+
+  <table>
+    <thead><tr>
+      <th style="width:15%">Tool</th>
+      <th style="width:17%">Scope</th>
+      <th style="width:12%">Period</th>
+      <th>What it answers</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="k mono">get_sales</td>
+        <td>department<br>model<br>sku<br>all</td>
+        <td>week or month</td>
+        <td>&ldquo;What were bag sales last week?&rdquo;<br>&ldquo;How did ecom do in July?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">rank_products</td>
+        <td>department filter<br>ranks dept / model / sku</td>
+        <td><b>month only</b></td>
+        <td>&ldquo;Which models are furthest behind target?&rdquo;<br>&ldquo;Top five SKUs by revenue in July?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">compare</td>
+        <td>a list of names<br>at one level</td>
+        <td><b>month only</b></td>
+        <td>&ldquo;Bags against Jewellery in July.&rdquo;<br>&ldquo;How did Marlow do against Sienna Tote?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">get_trend</td>
+        <td>department<br>model<br>sku</td>
+        <td>trailing weeks</td>
+        <td>&ldquo;Is Eyewear getting better or worse?&rdquo;<br>&ldquo;Show me the trend for Marlow Crossbody.&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">get_stock</td>
+        <td><b>model or sku only</b></td>
+        <td>one week</td>
+        <td>&ldquo;How much stock is left on the Sienna Tote?&rdquo;<br>&ldquo;Do we have any Nadia Loafer left in size 37?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">get_target_source</td>
+        <td><b>sku only</b></td>
+        <td><b>month only</b></td>
+        <td>&ldquo;Where did that target come from?&rdquo;<br>&ldquo;Who set the July number for this SKU?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono">search_documents</td>
+        <td>sku or department<br>optional</td>
+        <td>month optional</td>
+        <td>&ldquo;What was decided at the July buying committee?&rdquo;<br>&ldquo;What did the campaign plan say about Bags?&rdquo;</td>
+      </tr>
+      <tr>
+        <td class="k mono" style="background:#FFFDF9">explain_gap</td>
+        <td><b>sku only</b></td>
+        <td><b>month only</b></td>
+        <td>&ldquo;Why did the Marlow Crossbody in Tan miss target in July?&rdquo;<br>&ldquo;And the Black colourway &mdash; why did that miss?&rdquo;</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Service layer</h3>
+  <table>
+    <thead><tr><th style="width:26%">Endpoint</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td class="k mono">GET /catalog</td><td>Departments, models, SKUs and weeks. Fills the linked dropdowns.</td></tr>
+      <tr><td class="k mono">GET /snapshot</td><td>KPIs, trend, department variance, channel split and the drill-down table.</td></tr>
+      <tr><td class="k mono">POST /ask</td><td>The question. Returns the answer, the tools that ran and the latency.</td></tr>
+      <tr><td class="k mono">POST /reload</td><td>Called after a weekly publish. Refreshes the frames <b>and</b> rebuilds the reference material derived from them.</td></tr>
+      <tr><td class="k mono">GET /health</td><td>Which weeks are loaded and which load is published.</td></tr>
+    </tbody>
+  </table>
+  <p>Data is read from Postgres into memory once at startup. Under 100,000 rows is about 50MB and a second to load, and it means the analysis code is identical whether it runs against the database or against fixtures in a test.</p>
+</section>
+</div>
+
+<div class="innerpane3" data-k="fe" hidden>
+<section id="frontend">
+  <h2>Frontend Design</h2>
+  <p class="lede">React and TypeScript, built with Vite. Chart.js for the charts. No component library, no state manager, no data-fetching library.</p>
+
+  <table>
+    <thead><tr><th style="width:26%">Layer</th><th>Choice</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Framework</td><td class="mono">React 18 · TypeScript · Vite</td></tr>
+      <tr><td class="k">Charts</td><td class="mono">chart.js · react-chartjs-2</td></tr>
+      <tr><td class="k">State</td><td class="mono">useState · useEffect</td></tr>
+      <tr><td class="k">Styling</td><td class="mono">one stylesheet, CSS variables</td></tr>
+      <tr><td class="k">API</td><td class="mono">fetch, proxied by Vite to FastAPI</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Two endpoints, two halves</h3>
+  <table>
+    <thead><tr><th style="width:26%">Call</th><th>Serves</th></tr></thead>
+    <tbody>
+      <tr><td class="k mono">GET /catalog</td><td>Departments, models, SKUs and weeks. Fills the linked dropdowns.</td></tr>
+      <tr><td class="k mono">GET /snapshot</td><td>KPIs, trend, department variance, channel split and the drill-down table for the current filters.</td></tr>
+      <tr><td class="k mono">POST /ask</td><td>The question panel. Returns the answer, the tools that ran, and latency.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>The left side does not depend on the model</b>
+    Charts and drill-down are ordinary queries. If the model provider is down the dashboard still works and only the question panel stops. That is a consequence of keeping the two halves on separate endpoints rather than routing everything through the assistant.
+  </div>
+
+  <h3>The chat panel shows which tool ran</h3>
+  <p>Each answer carries the tool name and the latency beneath it. That is deliberate: a wrong answer is almost always a wrong tool choice, and the prose alone does not reveal it. It is also the first thing to look at when an answer reads oddly.</p>
+
+<p>The screen is split. Charts and tables on the left. The question and answer panel on the right. Everything on the left fits on one screen without scrolling.</p>
+</section>
+</div>
+</div>
+
+<div class="subpane" data-s="prod" hidden>
+<section id="prod">
+  <h2>Production Deployment <span class="pill new">AWS &#183; ap-southeast-1</span></h2>
+  <p class="lede">Single region, multiple availability zones, all data resident in Singapore. Nothing exotic &#8212; the interesting engineering is in the reasoning layer, not the infrastructure.</p>
+
+  <div class="card" style="padding:18px 16px"><svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,sans-serif">
+  <defs>
+    <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7A756C"/>
+    </marker>
+    <marker id="pb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2E5D7D"/>
+    </marker>
+  </defs>
+  <style>
+    svg .pl{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;fill:#8A6D3B;font-weight:800}
+    svg .pt{font-size:12.5px;font-weight:700;fill:#12110F}
+    svg .ps{font-size:9.8px;fill:#4E4A43;font-weight:500}
+    svg .pm{font-size:9.5px;fill:#7A756C;font-weight:600;font-family:ui-monospace,Menlo,monospace}
+    svg .px{fill:#fff;stroke:#C9C4BA;stroke-width:1.5}
+    svg .pxa{fill:#FFFBF3;stroke:#8A6D3B;stroke-width:2}
+    svg .pband{fill:#FAF9F6;stroke:#DDD8CF;stroke-width:1.3}
+    svg .pvpc{fill:none;stroke:#B3ADA3;stroke-width:1.4;stroke-dasharray:6 4}
+    svg .pln{stroke:#7A756C;stroke-width:1.6;fill:none;marker-end:url(#pa)}
+    svg .plb{stroke:#2E5D7D;stroke-width:1.8;fill:none;stroke-dasharray:5 3.5;marker-end:url(#pb)}
+  </style>
+
+  <text class="pl" x="30" y="16">Users</text>
+  <rect fill="#1C1B19" rx="9" x="30" y="24" width="200" height="54"/>
+  <circle cx="62" cy="45" r="7" fill="#fff"/>
+  <path d="M50,68 a12,10 0 0 1 24,0 z" fill="#fff"/>
+  <text x="86" y="46" style="font-size:12.5px;font-weight:700;fill:#fff">~100 managers</text>
+  <text x="86" y="62" style="font-size:9.8px;fill:#B8B3AA">peak Monday morning</text>
+
+  <rect class="px" rx="7" x="266" y="24" width="300" height="54"/>
+  <text class="pt" x="280" y="45">Application Load Balancer</text>
+  <text class="ps" x="280" y="63">TLS &#183; OIDC against the client&#8217;s identity provider</text>
+
+  <line class="pln" x1="230" y1="51" x2="262" y2="51"/>
+
+  <text class="pl" x="30" y="112">Private VPC</text>
+  <rect class="pvpc" rx="10" x="30" y="120" width="940" height="180"/>
+
+  <rect class="pxa" rx="7" x="52" y="142" width="330" height="132"/>
+  <text class="pt" x="68" y="164">ECS Fargate &#8212; one image</text>
+  <text class="ps" x="68" y="183">FastAPI serves both:</text>
+  <rect fill="#fff" stroke="#E0DACF" rx="4" x="68" y="192" width="298" height="18"/>
+  <text class="ps" x="76" y="205">/api/*  &#8212; questions, dashboard, ingestion</text>
+  <rect fill="#fff" stroke="#E0DACF" rx="4" x="68" y="214" width="298" height="18"/>
+  <text class="ps" x="76" y="227">/*      &#8212; the built React app</text>
+  <text class="pm" x="68" y="250">same origin &#8212; no CORS, no CDN, one deliverable</text>
+  <text class="pm" x="68" y="265">frames cached in memory, 2 tasks</text>
+
+  <rect class="px" rx="7" x="402" y="142" width="140" height="60"/>
+  <text class="pt" x="416" y="163">RDS Proxy</text>
+  <text class="ps" x="416" y="181">connection pool</text>
+
+  <rect class="pxa" rx="7" x="562" y="142" width="386" height="60"/>
+  <text class="pt" x="576" y="163">RDS PostgreSQL 16 + pgvector</text>
+  <text class="ps" x="576" y="181">Multi-AZ &#183; private subnets &#183; 6 tables, chunks, answer_log</text>
+
+  <rect class="px" rx="7" x="402" y="216" width="546" height="58"/>
+  <text class="pt" x="416" y="237">ECS task role</text>
+  <text class="ps" x="416" y="255">IAM &#8212; S3 read, Bedrock invoke, Secrets Manager read. No long-lived keys.</text>
+
+  <line class="pln" x1="382" y1="172" x2="398" y2="172"/>
+  <line class="pln" x1="542" y1="172" x2="558" y2="172"/>
+  <line class="pln" x1="416" y1="78" x2="416" y2="138"/>
+
+  <text class="pl" x="30" y="336">Sunday night &#183; event driven, not polled</text>
+  <rect class="pband" rx="9" x="30" y="344" width="940" height="92"/>
+
+  <rect class="px" rx="7" x="46" y="362" width="270" height="58"/>
+  <text class="pt" x="60" y="383">S3</text>
+  <text class="ps" x="60" y="401">source system writes files,</text>
+  <text class="ps" x="60" y="414">then the manifest last</text>
+
+  <rect class="px" rx="7" x="352" y="362" width="250" height="58"/>
+  <text class="pt" x="366" y="383">S3 event &#8594; EventBridge</text>
+  <text class="ps" x="366" y="401">fires on the manifest key only</text>
+  <text class="pm" x="366" y="414">MANIFEST.json</text>
+
+  <rect class="pxa" rx="7" x="638" y="362" width="310" height="58"/>
+  <text class="pt" x="652" y="383">POST /api/ingest/weekly</text>
+  <text class="ps" x="652" y="401">stage &#183; validate &#183; publish, one transaction</text>
+  <text class="pm" x="652" y="414">the same container, already warm</text>
+
+  <line class="pln" x1="316" y1="391" x2="348" y2="391"/>
+  <line class="pln" x1="602" y1="391" x2="634" y2="391"/>
+  <path class="pln" d="M793,362 C793,330 260,320 217,282"/>
+
+  <text class="pl" x="30" y="472">Managed services</text>
+  <rect class="pband" rx="9" x="30" y="480" width="940" height="76"/>
+
+  <rect fill="#EAF1F7" stroke="#2E5D7D" stroke-width="2.4" rx="7" x="46" y="496" width="300" height="46"/>
+  <text x="60" y="514" style="font-size:12.5px;font-weight:800;fill:#2E5D7D">Amazon Bedrock &#8212; GPT-5.6</text>
+  <text x="60" y="531" style="font-size:9.8px;font-weight:500;fill:#3F6E8C">in-region &#183; prompt caching</text>
+
+  <rect class="px" rx="7" x="362" y="496" width="270" height="46"/>
+  <text class="pt" x="376" y="514">Secrets Manager</text>
+  <text class="ps" x="376" y="531">database credentials, rotated</text>
+
+  <rect class="px" rx="7" x="648" y="496" width="300" height="46"/>
+  <text class="pt" x="662" y="514">CloudWatch</text>
+  <text class="ps" x="662" y="531">app logs, metrics, Bedrock invocations, 3 alarms</text>
+
+  <path class="plb" d="M196,300 C196,420 150,440 150,492"/>
+  <text class="ps" x="206" y="330">2 model calls per question</text>
+
+  <text class="pm" x="30" y="592">ap-southeast-1 &#183; single region, multi-AZ &#183; all data resident in Singapore</text>
+</svg></div>
+
+  <h3>Components</h3>
+  <table>
+    <thead><tr><th style="width:22%">Layer</th><th style="width:26%">Service</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Everything served</td><td class="mono">ECS Fargate, one image</td><td>FastAPI serves the API on <span class="mono">/api/*</span> and the built React app on <span class="mono">/*</span>. One deliverable, one origin.</td></tr>
+      <tr><td class="k">Ingress and auth</td><td class="mono">ALB with OIDC</td><td>TLS, and the OIDC handshake against the client&#8217;s existing identity provider. No user store of our own.</td></tr>
+      <tr><td class="k">Service permissions</td><td class="mono">IAM task role</td><td>S3 read, Bedrock invoke, Secrets Manager read. No long-lived keys anywhere.</td></tr>
+      <tr><td class="k">Database</td><td class="mono">RDS PostgreSQL 16 + pgvector</td><td>Multi-AZ, private subnets. Six tables, document chunks and <span class="mono">answer_log</span> in one place.</td></tr>
+      <tr><td class="k">Connections</td><td class="mono">RDS Proxy</td><td>Pooling, so task restarts do not exhaust connections.</td></tr>
+      <tr><td class="k">Model</td><td class="mono">Bedrock &#8212; GPT-5.6</td><td>In-region inference, so nothing leaves Singapore. Prompt caching applies to the identical reference material on every call.</td></tr>
+      <tr><td class="k">Files</td><td class="mono">S3</td><td>Where the source system writes. Replaces the local mount point.</td></tr>
+      <tr><td class="k">Secrets</td><td class="mono">Secrets Manager</td><td>Database credentials, rotated.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout ok">
+    <b>One container, one origin, one deliverable</b>
+    The built React app ships inside the same image as FastAPI. That removes S3 static hosting, CloudFront, a second certificate, a second deployment step, and the CORS configuration between them &#8212; because there is no cross-origin request left to configure.
+    <br><br>
+    A CDN would be caching content twenty kilometres from where it is served: a hundred users, all in Singapore, origin in Singapore. The conventional pattern is CloudFront in front of S3; at this size it is machinery without a job.
+  </div>
+
+  <div class="callout info">
+    <b>On authentication</b>
+    IAM covers everything the <i>application</i> does &#8212; the task role grants S3, Bedrock and Secrets access with no stored credentials. It is the wrong tool for a hundred business logins, so the ALB performs an OIDC handshake against whatever identity provider the client already runs. That removes Cognito entirely: no second user directory, no synchronisation, and access is revoked when someone leaves the company rather than when someone remembers.
+  </div>
+
+  <h3>Sunday night, event driven</h3>
+  <p>The source system writes the CSVs to S3, then writes the manifest last. <b>The manifest arriving is the trigger.</b></p>
+  <table>
+    <thead><tr><th style="width:26%">Step</th><th>What happens</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Files land</td><td>Source system writes to <span class="mono">s3://&#8230;/incoming/2026-W32/</span>, manifest last.</td></tr>
+      <tr><td class="k">S3 event fires</td><td>Notification configured on the manifest key only. A half-written CSV cannot trigger anything, because the manifest is not there yet.</td></tr>
+      <tr><td class="k">EventBridge calls the API</td><td><span class="mono">POST /api/ingest/weekly</span> on the running container. No separate task definition, no image to keep in step, no cold start.</td></tr>
+      <tr><td class="k">The load runs</td><td>Stage, validate, publish &#8212; one transaction, one advisory lock, exactly as it runs locally.</td></tr>
+      <tr><td class="k">Cache refreshes</td><td>On publish the container reloads its frames and rebuilds the reference material derived from them.</td></tr>
+    </tbody>
+  </table>
+  <p>Document and news ingestion run the same way on their own schedules, through <span class="mono">/api/ingest/documents</span> and <span class="mono">/api/ingest/news</span>. Three endpoints on the container that already holds the code, rather than three deployable jobs that can drift from it.</p>
+
+  <div class="callout info">
+    <b>The reasoning behind two of these choices sits in Design Considerations</b>
+    Why Fargate rather than Lambda, and why the load is event driven rather than scheduled. Kept there so this page stays a description of what runs.
+  </div>
+
+  <h3>Running cost</h3>
+  <p class="lede">Order of magnitude, ap-southeast-1, at a hundred users. Enough to size the decision, not a quote.</p>
+  <table>
+    <thead><tr><th>Line</th><th style="width:22%">Per month</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td class="k">RDS PostgreSQL, Multi-AZ</td><td class="mono">~$140</td><td>Multi-AZ is most of it. Single-AZ halves the line.</td></tr>
+      <tr><td class="k">Model inference</td><td class="mono">$80 &ndash; 200</td><td>Roughly 6,600 questions, two model calls each, prompt caching applied.</td></tr>
+      <tr><td class="k">ECS Fargate</td><td class="mono">~$40</td><td>One task, 1 vCPU / 2 GB, always on.</td></tr>
+      <tr><td class="k">VPC endpoints</td><td class="mono">~$30</td><td>Bedrock, ECR, Secrets Manager. Replaces a NAT gateway.</td></tr>
+      <tr><td class="k">ALB</td><td class="mono">~$25</td><td>Includes the OIDC handshake.</td></tr>
+      <tr><td class="k">RDS Proxy</td><td class="mono">~$20</td><td></td></tr>
+      <tr><td class="k">S3, CloudWatch, ECR, Secrets Manager</td><td class="mono">~$15</td><td></td></tr>
+      <tr class="tot"><td><b>Total</b></td><td class="mono"><b>~$350 &ndash; 470</b></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <b>The model is not the largest line item</b>
+    Infrastructure is. At this volume the database costs more than the inference, and the thing that keeps inference low is not the choice of model &mdash; it is that the system prompt and the reference material are byte-identical on every call, so prompt caching applies to most of the input. <strong>Two decisions save more than any model swap would: caching a constant prefix, and using VPC endpoints instead of a NAT gateway.</strong>
+  </div>
+
+</section>
+</div>
+
+
+
+
+
+</div>
+
+<div class="pane" data-t="3" hidden>
+
+<section>
+  <h2>Design Considerations</h2>
+  <p class="lede">Eleven decisions, each of which could reasonably have gone the other way.</p>
+</section>
+
+<section id="dc-sql">
+  <h2>Fixed tools<span class="x">&#10007;</span><span class="notthis">text-to-SQL</span></h2>
+  <p>A &ldquo;why&rdquo; question needs the same tested decomposition every time. Generated SQL cannot guarantee the parts reconcile and cannot be tested. It stays as a second tier for open-ended exploration, marked unverified with the query shown.</p>
+</section>
+
+<section id="dc-news">
+  <h2>External feed, weekly capture<span class="x">&#10007;</span><span class="notthis">live web search</span></h2>
+  <p>Every question is about a closed period, and search ranks by current relevance &mdash; searching in August for June returns August&rsquo;s surviving view of it. A weekly capture holds what was actually being reported at the time.</p>
+</section>
+
+<section id="dc-framework">
+  <h2>Plain Python<span class="x">&#10007;</span><span class="notthis">an agent framework</span></h2>
+  <p>A handful of nodes, three conditional edges and one retry cycle &mdash; and the branches are deterministic on purpose. A framework would add indirection to the thing being sold, which is auditability.</p>
+</section>
+
+<section id="dc-memory">
+  <h2>Session-only context<span class="x">&#10007;</span><span class="notthis">a memory layer</span></h2>
+  <p>Two people asking the same question must get the same answer. The business dictionary and the answer cache resemble memory and are not. Turn-level context is a genuine miss rather than a decision, and is listed under Risks.</p>
+</section>
+
+<section id="dc-gate">
+  <h2>Gated external evidence<span class="x">&#10007;</span><span class="notthis">always consulting all three sources</span></h2>
+  <p>Ask why sales fell and the news will always supply a believable, unfalsifiable story. It runs only when internal evidence leaves a large share of the gap unexplained.</p>
+</section>
+
+<section id="dc-postgres">
+  <h2>One Postgres<span class="x">&#10007;</span><span class="notthis">a warehouse plus a vector database</span></h2>
+  <p>Under 100,000 rows and a few hundred documents. Metadata filters and similarity ranking run in one statement and one transaction, rather than three network calls and a reconciliation in application code.</p>
+</section>
+
+<section id="dc-compute">
+  <h2>ECS Fargate<span class="x">&#10007;</span><span class="notthis">Lambda</span></h2>
+  <p>The design caches 100,000 rows in memory at startup, which assumes a long-lived process. Lambda would reload that on every cold start. Had the tools queried per request, Lambda would be the obvious choice.</p>
+</section>
+
+<section id="dc-eventdriven">
+  <h2>S3 event trigger<span class="x">&#10007;</span><span class="notthis">a scheduled job with retries</span></h2>
+  <p>The manifest is written last, so its arrival means every file is complete. A cron job would guess the time, find nothing, and retry until they appeared.</p>
+</section>
+
+</div>
+
+<div class="pane" data-t="4" hidden>
+
+<section id="improvements">
+  <h2>Improvements worth having</h2>
+  <p class="lede">Four things deliberately not built.</p>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:30%">Test retrieval</td>
+          <td>Record the right chunks for each question and score them with <b>recall@k</b> and <b>MRR</b>. Today only the tool choice is tested, so retrieval could get worse and every test would still pass.</td></tr>
+      <tr><td class="k">Check the answer</td>
+          <td>Check every number in the answer against what the tools actually returned.</td></tr>
+      <tr><td class="k">Fence retrieved text</td>
+          <td>Wrap retrieved passages so the model reads them as evidence, never as instructions.</td></tr>
+      <tr><td class="k">Fix the returns lag</td>
+          <td>Record a return against the week of the original sale, not the week it arrives.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="risks">
+  <h2>Open risks</h2>
+  <p class="lede">What is not solved, and what keeps it survivable.</p>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:30%">Prompt injection</td>
+          <td>A document could carry instructions. Tools are read-only, so the worst case is a wrong sentence, not an action.</td></tr>
+      <tr><td class="k">Follow-up questions</td>
+          <td>Every question stands alone. &ldquo;What about last month&rdquo; is not understood.</td></tr>
+      <tr><td class="k">Two containers, two caches</td>
+          <td>Two containers hold two copies of the data, so run one until there is a version check.</td></tr>
+      <tr><td class="k">Provider failure</td>
+          <td>If the model provider is down the charts still work and only the question panel stops.</td></tr>
+      <tr><td class="k">Model drift</td>
+          <td>A new model version can change which tool gets picked, and only the golden set would notice.</td></tr>
+      <tr><td class="k">Runaway cost</td>
+          <td>Three rounds maximum, and the same call is never run twice.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+
+<footer>
+  AURELIA is a fictional company created for this case study. Version 2.0.
+</footer>
+
+</main>
+<script>
+document.querySelectorAll('.innerbtn3, nav a.inner3').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.k;
+  document.querySelectorAll('.innerbtn3').forEach(x=>x.classList.toggle('on',x.dataset.k===k));
+  document.querySelectorAll('nav a.inner3').forEach(x=>x.classList.toggle('on',x.dataset.k===k));
+  document.querySelectorAll('.innerpane3').forEach(x=>x.hidden=x.dataset.k!==k);
+  window.scrollTo(0,0);
+});
+document.querySelectorAll('.innerbtn2, nav a.inner2').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.j;
+  document.querySelectorAll('.innerbtn2').forEach(x=>x.classList.toggle('on',x.dataset.j===k));
+  document.querySelectorAll('nav a.inner2').forEach(x=>x.classList.toggle('on',x.dataset.j===k));
+  document.querySelectorAll('.innerpane2').forEach(x=>x.hidden=x.dataset.j!==k);
+  window.scrollTo(0,0);
+});
+document.querySelectorAll('.innerbtn, nav a.inner').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.i;
+  document.querySelectorAll('.innerbtn').forEach(x=>x.classList.toggle('on',x.dataset.i===k));
+  document.querySelectorAll('nav a.inner').forEach(x=>x.classList.toggle('on',x.dataset.i===k));
+  document.querySelectorAll('.innerpane').forEach(x=>x.hidden=x.dataset.i!==k);
+  window.scrollTo(0,0);
+});
+document.querySelectorAll('.subbtn, nav a.sub').forEach(b=>b.onclick=e=>{
+  if(b.tagName==='A')e.preventDefault();
+  const k=b.dataset.s;
+  document.querySelectorAll('.subbtn').forEach(x=>x.classList.toggle('on',x.dataset.s===k));
+  document.querySelectorAll('nav a.sub').forEach(x=>x.classList.toggle('on',x.dataset.s===k));
+  document.querySelectorAll('.subpane').forEach(x=>x.hidden=x.dataset.s!==k);
+  window.scrollTo(0,0);
+});
+</script>
+<script>
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>{
+  const t=b.dataset.t;
+  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+  document.querySelectorAll('.pane').forEach(p=>p.hidden=p.dataset.t!==t);
+  document.querySelectorAll('.navgroup').forEach(n=>n.hidden=n.dataset.t!==t);
+  window.scrollTo(0,0);
+});
+</script>
+</div>
+</body>
+</html>

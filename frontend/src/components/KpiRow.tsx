@@ -24,9 +24,7 @@ export function KpiRow({ kpis }: Props) {
         <div className="lbl">Units</div>
         <div className="val">{kpis.units.toLocaleString()}</div>
         <div className="cmp">
-          <span className="mut">
-            stock {kpis.stock_units.toLocaleString()}
-          </span>
+          <span className="mut">sold this week</span>
         </div>
       </div>
       <div className="kpi">
@@ -37,21 +35,10 @@ export function KpiRow({ kpis }: Props) {
         </div>
       </div>
       <div className="kpi">
-        <div className="lbl">Stock cover (in weeks)</div>
-        <div className="val">
-          {kpis.weeks_cover != null ? kpis.weeks_cover.toFixed(1) : "—"}
-        </div>
+        <div className="lbl">Stock left</div>
+        <div className="val">{kpis.stock_units.toLocaleString()}</div>
         <div className="cmp">
-          <span
-            className={
-              kpis.weeks_cover != null &&
-              (kpis.weeks_cover > 10 || kpis.weeks_cover < 4)
-                ? "down"
-                : "mut"
-            }
-          >
-            target 8–10
-          </span>
+          <span className="mut">units on hand</span>
         </div>
       </div>
     </div>
